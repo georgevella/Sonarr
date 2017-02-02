@@ -21,11 +21,12 @@ require('./Hotkeys/Hotkeys');
 require('./Shared/piwikCheck');
 require('./Shared/VersionChangeMonitor');
 
-new MoviesController();
-new SeriesController();
+new Router();
 new ModalController();
 new ControlPanelController();
-new Router();
+new SeriesController();
+new MoviesController();
+
 
 var app = new Marionette.Application();
 

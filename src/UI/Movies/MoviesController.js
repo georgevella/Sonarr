@@ -9,7 +9,7 @@ module.exports = NzbDroneController.extend({
 		_originalInit : NzbDroneController.prototype.initialize,
 
 		initialize : function() {
-				this.route('', this.series);
+				//this.route('', this.series);
 				this.route('movies', this.series);
 				this.route('movies/:query', this.seriesDetails);
 
@@ -17,7 +17,7 @@ module.exports = NzbDroneController.extend({
 		},
 
 		series : function() {
-				this.setTitle('Movies');
+				this.setTitle('Movies XYZ');
 				this.showMainRegion(new MoviesIndexLayout());
 		},
 

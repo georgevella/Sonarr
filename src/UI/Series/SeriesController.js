@@ -8,7 +8,6 @@ module.exports = NzbDroneController.extend({
     _originalInit : NzbDroneController.prototype.initialize,
 
     initialize : function() {
-        //this.route('', this.series);
         this.route('series', this.series);
         this.route('series/:query', this.seriesDetails);
          
@@ -21,7 +20,7 @@ module.exports = NzbDroneController.extend({
     },
 
     seriesDetails : function(query) {
-        console.warn(AppLayout.mainRegion)
+        console.warn(AppLayout.mainRegion);
          
         var series = SeriesCollection.where({ titleSlug : query });
          
