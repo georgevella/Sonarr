@@ -50,7 +50,7 @@ namespace NzbDrone.Core.Update
         {
             if (configFileProvider == null)
             {
-                throw new ArgumentNullException("configFileProvider");
+                throw new ArgumentNullException(nameof(configFileProvider));
             }
             _checkUpdateService = checkUpdateService;
             _appFolderInfo = appFolderInfo;
@@ -148,7 +148,7 @@ namespace NzbDrone.Core.Update
                 }
                 catch (Exception e)
                 {
-                    _logger.Error(e, string.Format("Couldn't change the branch from [{0}] to [{1}].", currentBranch, package.Branch));
+                    _logger.Error(e, "Couldn't change the branch from [{0}] to [{1}].", currentBranch, package.Branch);
                 }
             }
         }

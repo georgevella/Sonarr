@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using NzbDrone.Common.Composition;
 using NzbDrone.Common.EnvironmentInfo;
 using NzbDrone.Common.Http.Dispatchers;
@@ -8,7 +9,7 @@ namespace NzbDrone.Update
     public class UpdateContainerBuilder : ContainerBuilderBase
     {
         private UpdateContainerBuilder(IStartupContext startupContext, string[] assemblies)
-            : base(startupContext, assemblies)
+            : base(startupContext, assemblies.ToList())
         {
             Container.Register<IHttpDispatcher, FallbackHttpDispatcher>();
         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using NLog;
 using NzbDrone.Common.EnsureThat;
@@ -253,7 +254,7 @@ namespace NzbDrone.Core.Configuration
 
         public int FirstDayOfWeek
         {
-            get { return GetValueInt("FirstDayOfWeek", (int)OsInfo.FirstDayOfWeek); }
+            get { return GetValueInt("FirstDayOfWeek", (int)CultureInfo.CurrentCulture.DateTimeFormat.FirstDayOfWeek); }
 
             set { SetValue("FirstDayOfWeek", value); }
         }

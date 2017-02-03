@@ -9,6 +9,9 @@ namespace NzbDrone.Core.Notifications.Email
     {
         private readonly IEmailService _emailService;
 
+        public override string Name => "Email";
+
+
         public Email(IEmailService emailService)
         {
             _emailService = emailService;
@@ -18,31 +21,18 @@ namespace NzbDrone.Core.Notifications.Email
 
         public override void OnGrab(GrabMessage grabMessage)
         {
-            const string subject = "Radarr [Movie] - Grabbed";
-            var body = string.Format("{0} sent to queue.", grabMessage.Message);
+            var body = $"{grabMessage.Message} sent to queue.";
 
-            _emailService.SendEmail(Settings, subject, body);
+            _emailService.SendEmail(Settings, EPISODE_GRABBED_TITLE_BRANDED, body);
         }
 
         public override void OnDownload(DownloadMessage message)
         {
-            const string subject = "Radarr [Movie] - Downloaded";
-            var body = string.Format("{0} Downloaded and sorted.", message.Message);
+            var body = $"{message.Message} Downloaded and sorted.";
 
-            _emailService.SendEmail(Settings, subject, body);
-        }
-		
-        public override void OnMovieRename(Movie movie)
-        {
-        }
-		
-        public override void OnRename(Series series)
-        {
+            _emailService.SendEmail(Settings, EPISODE_DOWNLOADED_TITLE_BRANDED, body);
         }
 
-        public override string Name => "Email";
-
-        public override bool SupportsOnRename => false;
 
         public override ValidationResult Test()
         {

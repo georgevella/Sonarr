@@ -3,7 +3,7 @@ using FluentValidation.Results;
 using NzbDrone.Common.Extensions;
 using NzbDrone.Core.Tv;
 
-namespace NzbDrone.Core.Notifications.MediaBrowser
+namespace NzbDrone.Core.Notifications.Emby
 {
     public class MediaBrowser : NotificationBase<MediaBrowserSettings>
     {
@@ -14,38 +14,28 @@ namespace NzbDrone.Core.Notifications.MediaBrowser
             _mediaBrowserService = mediaBrowserService;
         }
 
-        public override string Link => "http://mediabrowser.tv/";
+        public override string Link => "https://emby.media/";
+        public override string Name => "Emby (Media Browser)";
+
 
         public override void OnGrab(GrabMessage grabMessage)
         {
-            const string title = "Radarr - Movie Grabbed";
-
             if (Settings.Notify)
             {
-                _mediaBrowserService.Notify(Settings, title, grabMessage.Message);
+                _mediaBrowserService.Notify(Settings, EPISODE_GRABBED_TITLE_BRANDED, grabMessage.Message);
             }
         }
 
         public override void OnDownload(DownloadMessage message)
         {
-            const string title = "Radarr - Movie Downloaded";
-
             if (Settings.Notify)
             {
-                _mediaBrowserService.Notify(Settings, title, message.Message);
+                _mediaBrowserService.Notify(Settings, EPISODE_DOWNLOADED_TITLE_BRANDED, message.Message);
             }
 
             if (Settings.UpdateLibrary)
             {
-                _mediaBrowserService.UpdateMovies(Settings, message.Movie);
-            }
-        }
-
-        public override void OnMovieRename(Movie movie)
-        {
-            if (Settings.UpdateLibrary)
-            {
-                _mediaBrowserService.UpdateMovies(Settings, movie);
+                _mediaBrowserService.Update(Settings, message.Series);
             }
         }
 
@@ -57,7 +47,6 @@ namespace NzbDrone.Core.Notifications.MediaBrowser
             }
         }
 
-        public override string Name => "Emby (Media Browser)";
 
         public override ValidationResult Test()
         {

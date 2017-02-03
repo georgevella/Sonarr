@@ -9,6 +9,9 @@ namespace NzbDrone.Core.Notifications.Growl
     {
         private readonly IGrowlService _growlService;
 
+        public override string Name => "Growl";
+
+
         public Growl(IGrowlService growlService)
         {
             _growlService = growlService;
@@ -18,29 +21,14 @@ namespace NzbDrone.Core.Notifications.Growl
 
         public override void OnGrab(GrabMessage grabMessage)
         {
-            const string title = "Movie Grabbed";
-
-            _growlService.SendNotification(title, grabMessage.Message, "GRAB", Settings.Host, Settings.Port, Settings.Password);
+            _growlService.SendNotification(EPISODE_GRABBED_TITLE, grabMessage.Message, "GRAB", Settings.Host, Settings.Port, Settings.Password);
         }
 
         public override void OnDownload(DownloadMessage message)
         {
-            const string title = "Movie Downloaded";
-
-            _growlService.SendNotification(title, message.Message, "DOWNLOAD", Settings.Host, Settings.Port, Settings.Password);
+            _growlService.SendNotification(EPISODE_DOWNLOADED_TITLE, message.Message, "DOWNLOAD", Settings.Host, Settings.Port, Settings.Password);
         }
 
-        public override void OnMovieRename(Movie movie)
-        {
-        }
-		
-        public override void OnRename(Series series)
-        {
-        }
-
-        public override string Name => "Growl";
-
-        public override bool SupportsOnRename => false;
 
         public override ValidationResult Test()
         {

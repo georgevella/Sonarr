@@ -6,20 +6,22 @@ using NzbDrone.Common.EnvironmentInfo;
 using NzbDrone.Common.Messaging;
 using TinyIoC;
 
-
 namespace NzbDrone.Common.Composition
 {
     public abstract class ContainerBuilderBase
     {
         private readonly List<Type> _loadedTypes;
 
-        public IContainer Container { get; private set; }
+        protected IContainer Container { get; }
 
-        protected ContainerBuilderBase(IStartupContext args, params string[] assemblies)
+        protected ContainerBuilderBase(IStartupContext args, List<string> assemblies)
         {
             _loadedTypes = new List<Type>();
 
-            foreach (var assembly in assemblies)
+            assemblies.Add(OsInfo.IsWindows ? "NzbDrone.Windows" : "NzbDrone.Mono");
+            assemblies.Add("NzbDrone.Common");
+
+            foreach (var assembly in assemblies.Distinct())
             {
                 _loadedTypes.AddRange(Assembly.Load(assembly).GetTypes());
             }
@@ -27,7 +29,7 @@ namespace NzbDrone.Common.Composition
             Container = new Container(new TinyIoCContainer(), _loadedTypes);
             AutoRegisterInterfaces();
             Container.Register(args);
-       }
+        }
 
         private void AutoRegisterInterfaces()
         {

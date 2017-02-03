@@ -133,7 +133,7 @@ namespace NzbDrone.Core.Download.Clients.Sabnzbd
             }
             catch (DownloadClientException ex)
             {
-                _logger.Error(ex, ex.Message);
+                _logger.Error(ex);
                 return Enumerable.Empty<DownloadClientItem>();
             }
 
@@ -389,7 +389,7 @@ namespace NzbDrone.Core.Download.Clients.Sabnzbd
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, ex.Message);
+                _logger.Error(ex);
                 return new ValidationFailure("Host", "Unable to connect to SABnzbd");
             }
         }

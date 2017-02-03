@@ -5,7 +5,7 @@ using NLog;
 using NzbDrone.Core.Rest;
 using NzbDrone.Core.Tv;
 
-namespace NzbDrone.Core.Notifications.MediaBrowser
+namespace NzbDrone.Core.Notifications.Emby
 {
     public interface IMediaBrowserService
     {
@@ -60,7 +60,7 @@ namespace NzbDrone.Core.Notifications.MediaBrowser
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, "Unable to send test message: " + ex.Message);
+                _logger.Error(ex, "Unable to send test message");
                 return new ValidationFailure("Host", "Unable to send test message: " + ex.Message);
             }
 

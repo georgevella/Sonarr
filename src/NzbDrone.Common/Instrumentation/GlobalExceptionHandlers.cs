@@ -19,7 +19,7 @@ namespace NzbDrone.Common.Instrumentation
             var exception = e.Exception;
 
             Console.WriteLine("Task Error: {0}", exception);
-            Logger.Error(exception, "Task Error: " + exception.Message);
+            Logger.Error(exception, "Task Error");
         }
 
         private static void HandleAppDomainException(object sender, UnhandledExceptionEventArgs e)
@@ -35,7 +35,7 @@ namespace NzbDrone.Common.Instrumentation
                 return;
             }
 
-            if (OsInfo.IsMonoRuntime)
+            if (PlatformInfo.IsMono)
             {
                 if (exception is TypeInitializationException && exception.InnerException is DllNotFoundException ||
                     exception is DllNotFoundException)
@@ -46,7 +46,7 @@ namespace NzbDrone.Common.Instrumentation
             }
 
             Console.WriteLine("EPIC FAIL: {0}", exception);
-            Logger.Fatal(exception, "EPIC FAIL: " + exception.Message);
+            Logger.Fatal(exception, "EPIC FAIL.");
         }
     }
 }

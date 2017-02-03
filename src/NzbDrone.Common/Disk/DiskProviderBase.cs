@@ -16,6 +16,19 @@ namespace NzbDrone.Common.Disk
     {
         private static readonly Logger Logger = NzbDroneLogger.GetLogger(typeof(DiskProviderBase));
 
+        public static StringComparison PathStringComparison
+        {
+            get
+            {
+                if (OsInfo.IsWindows)
+                {
+                    return StringComparison.OrdinalIgnoreCase;
+                }
+
+                return StringComparison.Ordinal;
+            }
+        }
+
         public abstract long? GetAvailableSpace(string path);
         public abstract void InheritFolderPermissions(string filename);
         public abstract void SetPermissions(string path, string mask, string user, string group);
@@ -86,7 +99,7 @@ namespace NzbDrone.Common.Disk
         public bool FileExists(string path)
         {
             Ensure.That(path, () => path).IsValidPath();
-            return FileExists(path, OsInfo.PathStringComparison);
+            return FileExists(path, PathStringComparison);
         }
 
         public bool FileExists(string path, StringComparison stringComparison)
@@ -95,16 +108,16 @@ namespace NzbDrone.Common.Disk
 
             switch (stringComparison)
             {
-                    case StringComparison.CurrentCulture:
-                    case StringComparison.InvariantCulture:
-                    case StringComparison.Ordinal:
-                {
-                     return File.Exists(path) && path == path.GetActualCasing();
-                }
+                case StringComparison.CurrentCulture:
+                case StringComparison.InvariantCulture:
+                case StringComparison.Ordinal:
+                    {
+                        return File.Exists(path) && path == path.GetActualCasing();
+                    }
                 default:
-                {
-                     return File.Exists(path);
-                }
+                    {
+                        return File.Exists(path);
+                    }
             }
         }
 
@@ -115,7 +128,7 @@ namespace NzbDrone.Common.Disk
             try
             {
                 var testPath = Path.Combine(path, "sonarr_write_test.txt");
-                var testContent = string.Format("This file was created to verify if '{0}' is writable. It should've been automatically deleted. Feel free to delete it.", path);
+                var testContent = $"This file was created to verify if '{path}' is writable. It should've been automatically deleted. Feel free to delete it.";
                 File.WriteAllText(testPath, testContent);
                 File.Delete(testPath);
                 return true;

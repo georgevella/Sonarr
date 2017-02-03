@@ -46,7 +46,7 @@ namespace NzbDrone.Core.Notifications
                     qualityString += " Proper";
                 }
             }
-            
+
             if (series.SeriesType == SeriesTypes.Daily)
             {
                 var episode = episodes.First();
@@ -109,7 +109,7 @@ namespace NzbDrone.Core.Notifications
 
         private bool ShouldHandleSeries(ProviderDefinition definition, Series series)
         {
-            var notificationDefinition = (NotificationDefinition) definition;
+            var notificationDefinition = (NotificationDefinition)definition;
 
             if (notificationDefinition.Tags.Empty())
             {
@@ -130,7 +130,8 @@ namespace NzbDrone.Core.Notifications
 
         public void Handle(EpisodeGrabbedEvent message)
         {
-            var grabMessage = new GrabMessage {
+            var grabMessage = new GrabMessage
+            {
                 Message = GetMessage(message.Episode.Series, message.Episode.Episodes, message.Episode.ParsedEpisodeInfo.Quality),
                 Series = message.Episode.Series,
                 Quality = message.Episode.ParsedEpisodeInfo.Quality,
@@ -147,7 +148,7 @@ namespace NzbDrone.Core.Notifications
 
                 catch (Exception ex)
                 {
-                    _logger.Error(ex, "Unable to send OnGrab notification to: " + notification.Definition.Name);
+                    _logger.Error(ex, "Unable to send OnGrab notification to {0}", notification.Definition.Name);
                 }
             }
         }

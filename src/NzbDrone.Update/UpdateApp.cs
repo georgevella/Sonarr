@@ -33,12 +33,12 @@ namespace NzbDrone.Update
                 SecurityProtocolPolicy.Register();
                 X509CertificateValidationPolicy.Register();
 
-                var startupArgument = new StartupContext(args);
-                NzbDroneLogger.Register(startupArgument, true, true);
+                var startupContext = new StartupContext(args);
+                NzbDroneLogger.Register(startupContext, true, true);
 
                 Logger.Info("Starting Radarr Update Client");
 
-                _container = UpdateContainerBuilder.Build(startupArgument);
+                _container = UpdateContainerBuilder.Build(startupContext);
 
                 _container.Resolve<UpdateApp>().Start(args);
 
@@ -62,7 +62,7 @@ namespace NzbDrone.Update
         {
             if (args == null || !args.Any())
             {
-                throw new ArgumentOutOfRangeException("args", "args must be specified");
+                throw new ArgumentOutOfRangeException(nameof(args), "args must be specified");
             }
 
             var startupContext = new UpdateStartupContext
@@ -101,7 +101,7 @@ namespace NzbDrone.Update
             int id;
             if (!int.TryParse(arg, out id) || id <= 0)
             {
-                throw new ArgumentOutOfRangeException("arg", "Invalid process ID");
+                throw new ArgumentOutOfRangeException(nameof(arg), "Invalid process ID");
             }
 
             Logger.Debug("NzbDrone process ID: {0}", id);

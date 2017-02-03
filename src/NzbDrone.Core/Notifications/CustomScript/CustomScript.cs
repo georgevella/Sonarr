@@ -25,11 +25,15 @@ namespace NzbDrone.Core.Notifications.CustomScript
             _logger = logger;
         }
 
+        public override string Name => "Custom Script";
+
         public override string Link => "https://github.com/Radarr/Radarr/wiki/Custom-Post-Processing-Scripts";
 
         public override void OnGrab(GrabMessage message)
         {
             var movie = message.Movie;
+            var series = message.Series;
+            var remoteEpisode = message.Episode;
             var remoteMovie = message.RemoteMovie;
             var releaseGroup = remoteMovie.ParsedMovieInfo.ReleaseGroup;
             var environmentVariables = new StringDictionary();
@@ -38,6 +42,13 @@ namespace NzbDrone.Core.Notifications.CustomScript
             environmentVariables.Add("Radarr_Movie_Id", movie.Id.ToString());
             environmentVariables.Add("Radarr_Movie_Title", movie.Title);
             environmentVariables.Add("Radarr_Movie_ImdbId", movie.ImdbId.ToString());
+            environmentVariables.Add("Sonarr_Series_Id", series.Id.ToString());
+            environmentVariables.Add("Sonarr_Series_Title", series.Title);
+            environmentVariables.Add("Sonarr_Series_TvdbId", series.TvdbId.ToString());
+            environmentVariables.Add("Sonarr_Series_Type", series.SeriesType.ToString());
+            environmentVariables.Add("Sonarr_Release_EpisodeCount", remoteEpisode.Episodes.Count.ToString());
+            environmentVariables.Add("Sonarr_Release_SeasonNumber", remoteEpisode.ParsedEpisodeInfo.SeasonNumber.ToString());
+            environmentVariables.Add("Sonarr_Release_EpisodeNumbers", string.Join(",", remoteEpisode.Episodes.Select(e => e.EpisodeNumber)));
             environmentVariables.Add("Radarr_Release_Title", remoteMovie.Release.Title);
             environmentVariables.Add("Radarr_Release_Indexer", remoteMovie.Release.Indexer);
             environmentVariables.Add("Radarr_Release_Size", remoteMovie.Release.Size.ToString());
@@ -87,7 +98,6 @@ namespace NzbDrone.Core.Notifications.CustomScript
         {
         }
 
-        public override string Name => "Custom Script";
 
         public override ValidationResult Test()
         {

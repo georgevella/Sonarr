@@ -98,9 +98,9 @@ namespace NzbDrone.Common.Processes
             var process = new Process
             {
                 StartInfo = new ProcessStartInfo(url)
-                    {
-                        UseShellExecute = true
-                    }
+                {
+                    UseShellExecute = true
+                }
             };
 
             process.Start();
@@ -108,7 +108,7 @@ namespace NzbDrone.Common.Processes
 
         public Process Start(string path, string args = null, StringDictionary environmentVariables = null, Action<string> onOutputDataReceived = null, Action<string> onErrorDataReceived = null)
         {
-            if (OsInfo.IsMonoRuntime && path.EndsWith(".exe", StringComparison.InvariantCultureIgnoreCase))
+            if (PlatformInfo.IsMono && path.EndsWith(".exe", StringComparison.InvariantCultureIgnoreCase))
             {
                 args = GetMonoArgs(path, args);
                 path = "mono";
@@ -136,9 +136,9 @@ namespace NzbDrone.Common.Processes
             logger.Debug("Starting {0} {1}", path, args);
 
             var process = new Process
-                {
-                    StartInfo = startInfo
-                };
+            {
+                StartInfo = startInfo
+            };
 
             process.OutputDataReceived += (sender, eventArgs) =>
             {
@@ -174,7 +174,7 @@ namespace NzbDrone.Common.Processes
 
         public Process SpawnNewProcess(string path, string args = null, StringDictionary environmentVariables = null)
         {
-            if (OsInfo.IsMonoRuntime && path.EndsWith(".exe", StringComparison.InvariantCultureIgnoreCase))
+            if (PlatformInfo.IsMono && path.EndsWith(".exe", StringComparison.InvariantCultureIgnoreCase))
             {
                 args = GetMonoArgs(path, args);
                 path = "mono";
