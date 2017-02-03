@@ -80,9 +80,9 @@ module.exports = Marionette.Layout.extend({
         collapse   : true,
         items      : [
             {
-                title : 'Add Movie',
+                title : 'Add Series',
                 icon  : 'icon-sonarr-add',
-                route : 'addmovies'
+                route : 'addseries'
             },
             {
                 title : 'Season Pass',
