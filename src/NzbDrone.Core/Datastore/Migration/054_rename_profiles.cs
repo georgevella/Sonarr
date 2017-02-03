@@ -25,8 +25,7 @@ namespace NzbDrone.Core.Datastore.Migration
                   .WithColumn("Title").AsString()
                   .WithColumn("Added").AsDateTime()
                   .WithColumn("ParsedEpisodeInfo").AsString()
-                  .WithColumn("Release").AsString()
-                  .WithColumn("MovieId").AsInt32().WithDefaultValue(0);
+                  .WithColumn("Release").AsString();
         }
     }
 }

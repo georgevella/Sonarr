@@ -41,32 +41,6 @@ namespace NzbDrone.Core.Datastore.Migration
                 .WithColumn("FirstAired").AsDateTime().Nullable()
                 .WithColumn("NextAiring").AsDateTime().Nullable();
 
-            Create.TableForModel("Movies")
-                .WithColumn("ImdbId").AsString().Unique()
-                .WithColumn("Title").AsString()
-                .WithColumn("TitleSlug").AsString().Unique()
-                .WithColumn("SortTitle").AsString().Nullable()
-                .WithColumn("CleanTitle").AsString()
-                .WithColumn("Status").AsInt32()
-                .WithColumn("Overview").AsString().Nullable()
-                .WithColumn("Images").AsString()
-                .WithColumn("Path").AsString()
-                .WithColumn("Monitored").AsBoolean()
-                .WithColumn("ProfileId").AsInt32()
-                .WithColumn("LastInfoSync").AsDateTime().Nullable()
-                .WithColumn("LastDiskSync").AsDateTime().Nullable()
-                .WithColumn("Runtime").AsInt32()
-                .WithColumn("InCinemas").AsDateTime().Nullable()
-                .WithColumn("Year").AsInt32().Nullable()
-                .WithColumn("Added").AsDateTime().Nullable()
-                .WithColumn("Actors").AsString().Nullable()
-                .WithColumn("Ratings").AsString().Nullable()
-                .WithColumn("Genres").AsString().Nullable()
-                .WithColumn("Tags").AsString().Nullable()
-                .WithColumn("Certification").AsString().Nullable()
-                .WithColumn("AddOptions").AsString().Nullable();
-
-
             Create.TableForModel("Seasons")
                 .WithColumn("SeriesId").AsInt32()
                 .WithColumn("SeasonNumber").AsInt32()
