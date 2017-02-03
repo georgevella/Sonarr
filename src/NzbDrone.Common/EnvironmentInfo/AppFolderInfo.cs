@@ -15,18 +15,17 @@ namespace NzbDrone.Common.EnvironmentInfo
 
     public class AppFolderInfo : IAppFolderInfo
     {
-        private readonly Environment.SpecialFolder DATA_SPECIAL_FOLDER = Environment.SpecialFolder.CommonApplicationData;
+        private static readonly Environment.SpecialFolder DataSpecialFolder = (OsInfo.IsNotWindows)
+            ? Environment.SpecialFolder.CommonApplicationData
+            : Environment.SpecialFolder.ApplicationData;
+
+        private const string APP_NAME = "Dishh";
 
 
         private static readonly Logger Logger = NzbDroneLogger.GetLogger(typeof(AppFolderInfo));
 
         public AppFolderInfo(IStartupContext startupContext)
         {
-            if (OsInfo.IsNotWindows)
-            {
-                DATA_SPECIAL_FOLDER = Environment.SpecialFolder.ApplicationData;
-            }
-
             if (startupContext.Args.ContainsKey(StartupContext.APPDATA))
             {
                 AppDataFolder = startupContext.Args[StartupContext.APPDATA];
@@ -34,7 +33,7 @@ namespace NzbDrone.Common.EnvironmentInfo
             }
             else
             {
-                AppDataFolder = Path.Combine(Environment.GetFolderPath(DATA_SPECIAL_FOLDER, Environment.SpecialFolderOption.None), "Radarr");
+                AppDataFolder = Path.Combine(Environment.GetFolderPath(DataSpecialFolder, Environment.SpecialFolderOption.None), APP_NAME);
             }
 
             StartUpFolder = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory.FullName;
