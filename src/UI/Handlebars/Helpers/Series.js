@@ -202,8 +202,12 @@ Handlebars.registerHelper('tvMazeUrl', function() {
     return 'http://www.tvmaze.com/shows/' + this.tvMazeId + '/_';
 });
 
-Handlebars.registerHelper('route', function() {
-    return StatusModel.get('urlBase') + '/movies/' + this.titleSlug;
+Handlebars.registerHelper('slug', function() {
+    return this.titleSlug;
+});
+
+Handlebars.registerHelper('baseUrl', function() {
+    return StatusModel.get('urlBase');
 });
 
 Handlebars.registerHelper('percentOfEpisodes', function() {
