@@ -9,6 +9,7 @@ namespace NzbDrone.Api.RootFolders
     {
         public string Path { get; set; }
         public long? FreeSpace { get; set; }
+        public MediaType MediaType { get; set; }
 
         public List<UnmappedFolder> UnmappedFolders { get; set; }
     }
@@ -25,6 +26,7 @@ namespace NzbDrone.Api.RootFolders
 
                 Path = model.Path,
                 FreeSpace = model.FreeSpace,
+                MediaType = model.MediaType,
                 UnmappedFolders = model.UnmappedFolders
             };
         }
@@ -39,6 +41,7 @@ namespace NzbDrone.Api.RootFolders
 
                 Path = resource.Path,
                 FreeSpace = resource.FreeSpace,
+                MediaType = resource.MediaType,
                 UnmappedFolders = resource.UnmappedFolders
             };
         }

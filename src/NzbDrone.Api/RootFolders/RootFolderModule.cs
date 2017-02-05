@@ -1,5 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using FluentValidation;
+using NzbDrone.Api.REST;
 using NzbDrone.Core.RootFolders;
 using NzbDrone.Core.Validation.Paths;
 using NzbDrone.SignalR;
@@ -59,5 +63,24 @@ namespace NzbDrone.Api.RootFolders
         {
             _rootFolderService.Remove(id);
         }
+    }
+
+    public class RootFolderTypesModule : NzbDroneRestModule<RootFolderMediaTypeResource>
+    {
+        public RootFolderTypesModule()
+        {
+            GetResourceAll = () =>
+            {
+                return Enum.GetNames(typeof (MediaType)).Select(x => new RootFolderMediaTypeResource()
+                {
+                    DisplayName = x
+                }).ToList();
+            };
+        }
+    }
+
+    public class RootFolderMediaTypeResource : RestResource
+    {
+        public string DisplayName { get; set; }
     }
 }

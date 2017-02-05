@@ -11,5 +11,14 @@ namespace NzbDrone.Core.RootFolders
         public long? FreeSpace { get; set; }
 
         public List<UnmappedFolder> UnmappedFolders { get; set; }
+
+        public MediaType MediaType { get; set; }
+    }
+
+    public enum MediaType : int
+    {
+        General = 0,
+        Movies = 1,
+        TVShows = 2
     }
 }
