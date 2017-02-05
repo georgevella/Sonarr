@@ -27,34 +27,36 @@ namespace NzbDrone.Core.Update
 
         public UpdatePackage GetLatestUpdate(string branch, Version currentVersion)
         {
-            var request = _requestBuilder.Create()
-                                         .Resource("/update/{branch}")
-                                         .AddQueryParam("version", currentVersion)
-                                         .AddQueryParam("os", OsInfo.Os.ToString().ToLowerInvariant())
-                                         .AddQueryParam("runtimeVer", _platformInfo.Version)
-                                         .SetSegment("branch", branch)
-                                         .Build();
+            return null;
+            //var request = _requestBuilder.Create()
+            //                             .Resource("/update/{branch}")
+            //                             .AddQueryParam("version", currentVersion)
+            //                             .AddQueryParam("os", OsInfo.Os.ToString().ToLowerInvariant())
+            //                             .AddQueryParam("runtimeVer", _platformInfo.Version)
+            //                             .SetSegment("branch", branch)
+            //                             .Build();
 
-            var update = _httpClient.Get<UpdatePackageAvailable>(request).Resource;
+            //var update = _httpClient.Get<UpdatePackageAvailable>(request).Resource;
 
-            if (!update.Available) return null;
+            //if (!update.Available) return null;
 
-            return update.UpdatePackage;
+            //return update.UpdatePackage;
         }
 
         public List<UpdatePackage> GetRecentUpdates(string branch, Version currentVersion)
         {
-            var request = _requestBuilder.Create()
-                                         .Resource("/update/{branch}/changes")
-                                         .AddQueryParam("version", currentVersion)
-                                         .AddQueryParam("os", OsInfo.Os.ToString().ToLowerInvariant())
-                                         .AddQueryParam("runtimeVer", _platformInfo.Version)
-                                         .SetSegment("branch", branch)
-                                         .Build();
+            return new List<UpdatePackage>();
+            //var request = _requestBuilder.Create()
+            //                             .Resource("/update/{branch}/changes")
+            //                             .AddQueryParam("version", currentVersion)
+            //                             .AddQueryParam("os", OsInfo.Os.ToString().ToLowerInvariant())
+            //                             .AddQueryParam("runtimeVer", _platformInfo.Version)
+            //                             .SetSegment("branch", branch)
+            //                             .Build();
 
-            var updates = _httpClient.Get<List<UpdatePackage>>(request);
+            //var updates = _httpClient.Get<List<UpdatePackage>>(request);
 
-            return updates.Resource;
+            //return updates.Resource;
         }
     }
 }
