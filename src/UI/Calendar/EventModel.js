@@ -43,5 +43,15 @@ module.exports = Backbone.Model.extend({
       if (numOfMonths > 3) {
         return "released";//TODO: Update for PreDB.me
       }
-    }
+    },
+
+    isMovie : function(){
+        var mediaType = this.get('mediaType');
+        return mediaType === 'movies';
+    },
+
+    isTvShow : function(){
+        var mediaType = this.get('mediaType');
+        return mediaType === 'tvshows';
+    },
 });

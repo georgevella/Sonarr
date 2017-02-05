@@ -1,18 +1,25 @@
 <div class="event">
     <div class="date {{StatusLevel}}">
-        <h1>{{Day airDateUtc}}</h1>
-        <h4>{{Month airDateUtc}}</h4>
+        <h1>{{Day availableFrom}}</h1>
+        <h4>{{Month availableFrom}}</h4>
     </div>
-    {{#with series}}
-    <a href="{{route}}">
+    {{#if isMovie}}
+    <a href="{{baseUrl}}/movies/{{slug}}">
         <h4>{{title}}</h4>
     </a>
-    {{/with}}
-    <p>{{StartTime airDateUtc}} {{#unless_today airDateUtc}}{{ShortDate airDateUtc}}{{/unless_today}}</p>
+    <p>{{#unless_today availableFrom}}{{ShortDate availableFrom}}{{/unless_today}}</p>
+    
+    {{else}}
+    <a href="{{baseUrl}}/series/{{slug}}">
+        <h4>{{title}}</h4>
+    </a>
+    <p>{{StartTime availableFrom}} {{#unless_today availableFrom}}{{ShortDate availableFrom}}{{/unless_today}}</p>
     <p>
         <span class="episode-title x-episode-title">
-            {{title}}
+            {{item.title}}
         </span>
-        <span class="pull-right">{{seasonNumber}}x{{Pad2 episodeNumber}}</span>
+        <span class="pull-right">{{item.seasonNumber}}x{{Pad2 item.episodeNumber}}</span>
     </p>
+    {{/if}}
+    
 </div>

@@ -1,26 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using NzbDrone.Api.Common;
-using NzbDrone.Api.EpisodeFiles;
 using NzbDrone.Api.Episodes;
 using NzbDrone.Api.Movie;
-using NzbDrone.Api.REST;
-using NzbDrone.Api.Series;
-using NzbDrone.Core.Datastore.Events;
-using NzbDrone.Core.MediaCover;
-using NzbDrone.Core.MediaFiles;
-using NzbDrone.Core.MediaFiles.Events;
-using NzbDrone.Core.Messaging.Events;
-using NzbDrone.Core.MovieStats;
 using NzbDrone.Core.Tv;
-using NzbDrone.Core.Tv.Events;
-using NzbDrone.Core.Validation.Paths;
-using NzbDrone.Core.DataAugmentation.Scene;
-using NzbDrone.Core.Validation;
-using NzbDrone.Core.DecisionEngine;
-using NzbDrone.Core.Tv;
-using NzbDrone.SignalR;
 
 namespace NzbDrone.Api.Calendar
 {
@@ -29,24 +12,16 @@ namespace NzbDrone.Api.Calendar
         private readonly IMovieService _moviesService;
         private readonly ISeriesService _seriesService;
         private readonly IEpisodeService _episodeService;
-        private readonly IQualityUpgradableSpecification _qualityUpgradableSpecification;
-        private readonly IMovieStatisticsService _moviesStatisticsService;
-        private readonly IMapCoversToLocal _coverMapper;
 
         public CalendarModule(IMovieService moviesService,
                             ISeriesService seriesService,
-                            IEpisodeService episodeService,
-                            IQualityUpgradableSpecification qualityUpgradableSpecification,
-                            IMovieStatisticsService moviesStatisticsService,
-                            IMapCoversToLocal coverMapper)
+                            IEpisodeService episodeService
+                            )
             : base("calendar")
         {
             _moviesService = moviesService;
             _seriesService = seriesService;
             _episodeService = episodeService;
-            _qualityUpgradableSpecification = qualityUpgradableSpecification;
-            _moviesStatisticsService = moviesStatisticsService;
-            _coverMapper = coverMapper;
 
             GetResourceAll = GetCalendar;
         }
@@ -54,7 +29,7 @@ namespace NzbDrone.Api.Calendar
         private List<CalendarResource> GetCalendar()
         {
             var start = DateTime.Today;
-            var end = DateTime.Today.AddDays(2);
+            var end = DateTime.Today.AddDays(3);
             var includeUnmonitored = false;
 
             var queryStart = Request.Query.Start;
@@ -77,14 +52,12 @@ namespace NzbDrone.Api.Calendar
                 TitleSlug = x.TitleSlug,
                 Id = x.Id,
                 Grabbed = false,
+                Item = x.ToResource()
             });
 
             var episodeResources = _episodeService.EpisodesBetweenDates(start, end, includeUnmonitored).Select(MapEpisodeResource);
 
-            var result = new List<CalendarResource>();
-            result.AddRange(movieResources);
-            result.AddRange(episodeResources);
-            return result;
+            return movieResources.Union(episodeResources).OrderBy(x => x.AvailableFrom).ToList();
         }
 
         private CalendarResource MapEpisodeResource(Episode episode)
@@ -101,40 +74,10 @@ namespace NzbDrone.Api.Calendar
                 Title = series.Title,
                 TitleSlug = series.TitleSlug,
                 Id = episode.Id,
-                Grabbed = false
+                Grabbed = false,
+                Item = episode.ToResource()
             };
 
         }
-
-        protected MovieResource MapToResource(Core.Tv.Movie movies)
-        {
-            if (movies == null) return null;
-
-            var resource = movies.ToResource();
-            MapCoversToLocal(resource);
-            FetchAndLinkMovieStatistics(resource);
-
-            return resource;
-        }
-
-
-        private void MapCoversToLocal(params MovieResource[] movies)
-        {
-            foreach (var moviesResource in movies)
-            {
-                _coverMapper.ConvertToLocalUrls(moviesResource.Id, moviesResource.Images);
-            }
-        }
-
-
-        private void FetchAndLinkMovieStatistics(MovieResource resource)
-        {
-            LinkMovieStatistics(resource, _moviesStatisticsService.MovieStatistics(resource.Id));
-        }
-        private void LinkMovieStatistics(MovieResource resource, MovieStatistics moviesStatistics)
-        {
-            resource.SizeOnDisk = moviesStatistics.SizeOnDisk;
-        }
-
     }
 }

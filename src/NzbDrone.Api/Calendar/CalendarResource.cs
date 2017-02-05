@@ -1,4 +1,5 @@
 ﻿using System;
+using NzbDrone.Api.Common;
 using NzbDrone.Api.REST;
 using NzbDrone.Core.Tv;
 
@@ -16,5 +17,7 @@ namespace NzbDrone.Api.Calendar
         public MovieStatusType Status { get; set; }
         public MediaType MediaType { get; set; }
         public bool Grabbed { get; set; }
+
+        public MediaResource Item { get; set; }
     }
 }
