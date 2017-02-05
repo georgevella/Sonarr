@@ -252,7 +252,7 @@ module.exports = Marionette.ItemView.extend({
 						options.header = {
 								left   : 'prev,next today',
 								center : 'title',
-								right  : 'listYear'
+								right  : 'basicWeek,listYear'
 						};
 				}
 
@@ -262,7 +262,7 @@ module.exports = Marionette.ItemView.extend({
 						options.header = {
 								left   : 'prev,next today',
 								center : 'title',
-								right  : 'month,listYear'
+								right  : 'month,basicWeek,listYear'
 						};
 				}
 
