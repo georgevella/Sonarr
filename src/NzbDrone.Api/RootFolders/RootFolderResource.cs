@@ -2,6 +2,7 @@
 using System.Linq;
 using NzbDrone.Api.REST;
 using NzbDrone.Core.RootFolders;
+using NzbDrone.Core.Tv;
 
 namespace NzbDrone.Api.RootFolders
 {

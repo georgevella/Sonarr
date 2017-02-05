@@ -1,6 +1,7 @@
 ﻿using FluentMigrator;
 using NzbDrone.Core.Datastore.Migration.Framework;
 using NzbDrone.Core.RootFolders;
+using NzbDrone.Core.Tv;
 
 namespace NzbDrone.Core.Datastore.Migration
 {

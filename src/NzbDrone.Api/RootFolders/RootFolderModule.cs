@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.Remoting.Messaging;
 using FluentValidation;
 using NzbDrone.Core.RootFolders;
+using NzbDrone.Core.Tv;
 using NzbDrone.Core.Validation.Paths;
 using NzbDrone.SignalR;
 

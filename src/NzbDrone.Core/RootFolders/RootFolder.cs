@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using NzbDrone.Core.Datastore;
+using NzbDrone.Core.Tv;
 
 
 namespace NzbDrone.Core.RootFolders
@@ -13,12 +14,5 @@ namespace NzbDrone.Core.RootFolders
         public List<UnmappedFolder> UnmappedFolders { get; set; }
 
         public MediaType MediaType { get; set; }
-    }
-
-    public enum MediaType : int
-    {
-        General = 0,
-        Movies = 1,
-        TVShows = 2
     }
 }
