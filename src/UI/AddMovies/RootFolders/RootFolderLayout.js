@@ -48,7 +48,8 @@ var Layout = Marionette.Layout.extend({
         var self = this;
 
         var newDir = new RootFolderModel({
-            Path : this.ui.pathInput.val(),
+            Path: this.ui.pathInput.val(),
+            MediaType: 'movies'
         });
 
         this.bindToModelValidation(newDir);

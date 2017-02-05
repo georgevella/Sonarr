@@ -234,8 +234,10 @@
     <Compile Include="REST\ResourceValidator.cs" />
     <Compile Include="REST\RestModule.cs" />
     <Compile Include="REST\RestResource.cs" />
+    <Compile Include="RootFolders\RootFolderMediaTypeResource.cs" />
     <Compile Include="RootFolders\RootFolderModule.cs" />
     <Compile Include="RootFolders\RootFolderResource.cs" />
+    <Compile Include="RootFolders\RootFolderTypesModule.cs" />
     <Compile Include="SeasonPass\SeasonPassResource.cs" />
     <Compile Include="Series\AlternateTitleResource.cs" />
     <Compile Include="Series\MovieFileResource.cs" />

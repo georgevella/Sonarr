@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Remoting.Messaging;
 using FluentValidation;
-using NzbDrone.Api.REST;
 using NzbDrone.Core.RootFolders;
 using NzbDrone.Core.Validation.Paths;
 using NzbDrone.SignalR;
@@ -12,6 +11,9 @@ namespace NzbDrone.Api.RootFolders
 {
     public class RootFolderModule : NzbDroneRestModuleWithSignalR<RootFolderResource, RootFolder>
     {
+        private static Dictionary<string, MediaType> MediaTypeMapping =
+            Enum.GetValues(typeof(MediaType)).Cast<MediaType>().ToDictionary(x => x.ToString().ToLower());
+
         private readonly IRootFolderService _rootFolderService;
 
         public RootFolderModule(IRootFolderService rootFolderService,
@@ -56,31 +58,22 @@ namespace NzbDrone.Api.RootFolders
 
         private List<RootFolderResource> GetRootFolders()
         {
-            return _rootFolderService.AllWithUnmappedFolders().ToResource();
+            var folders = _rootFolderService.AllWithUnmappedFolders();
+
+            var type = (string)Request.Query.type;
+            if (!string.IsNullOrEmpty(type))
+            {
+                var selectedMediaType = MediaTypeMapping[type.ToLower()];
+                return
+                    folders.Where(x => x.MediaType == MediaType.General || x.MediaType == selectedMediaType)
+                        .ToResource();
+            }
+            return folders.ToResource();
         }
 
         private void DeleteFolder(int id)
         {
             _rootFolderService.Remove(id);
         }
-    }
-
-    public class RootFolderTypesModule : NzbDroneRestModule<RootFolderMediaTypeResource>
-    {
-        public RootFolderTypesModule()
-        {
-            GetResourceAll = () =>
-            {
-                return Enum.GetNames(typeof (MediaType)).Select(x => new RootFolderMediaTypeResource()
-                {
-                    DisplayName = x
-                }).ToList();
-            };
-        }
-    }
-
-    public class RootFolderMediaTypeResource : RestResource
-    {
-        public string DisplayName { get; set; }
     }
 }
