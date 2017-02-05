@@ -15,7 +15,7 @@ var MovieEditorLayout = require('./Movies/Editor/MovieEditorLayout');
 
 module.exports = NzbDroneController.extend({
     addSeries : function(action) {
-        this.setTitle('Add Movie');
+        this.setTitle('Add Series');
         this.showMainRegion(new AddSeriesLayout({ action : action }));
     },
 
