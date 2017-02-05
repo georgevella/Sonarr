@@ -19,7 +19,7 @@ namespace NzbDrone.Common.EnvironmentInfo
             ? Environment.SpecialFolder.CommonApplicationData
             : Environment.SpecialFolder.ApplicationData;
 
-        private const string APP_NAME = "Dishh";
+        private const string APP_NAME = "Lazrr";
 
 
         private static readonly Logger Logger = NzbDroneLogger.GetLogger(typeof(AppFolderInfo));

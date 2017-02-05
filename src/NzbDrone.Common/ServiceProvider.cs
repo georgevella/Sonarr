@@ -25,7 +25,7 @@ namespace NzbDrone.Common
 
     public class ServiceProvider : IServiceProvider
     {
-        public const string NZBDRONE_SERVICE_NAME = "Radarr";
+        public const string NZBDRONE_SERVICE_NAME = "Lazrr";
 
         private readonly IProcessProvider _processProvider;
         private readonly Logger _logger;
@@ -65,9 +65,9 @@ namespace NzbDrone.Common
 
 
             var installer = new ServiceProcessInstaller
-                                {
-                                    Account = ServiceAccount.LocalSystem
-                                };
+            {
+                Account = ServiceAccount.LocalSystem
+            };
 
             var serviceInstaller = new ServiceInstaller();
 
@@ -150,7 +150,7 @@ namespace NzbDrone.Common
 
         public ServiceControllerStatus GetStatus(string serviceName)
         {
-          return  GetService(serviceName).Status;
+            return GetService(serviceName).Status;
         }
 
         public void Start(string serviceName)
