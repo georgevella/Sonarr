@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using NzbDrone.Api.Common;
 using NzbDrone.Api.REST;
 using NzbDrone.Core.MediaCover;
 using NzbDrone.Core.Tv;
@@ -8,7 +9,7 @@ using NzbDrone.Api.Series;
 
 namespace NzbDrone.Api.Movie
 {
-    public class MovieResource : RestResource
+    public class MovieResource : MediaResource
     {
         public MovieResource()
         {
@@ -18,64 +19,26 @@ namespace NzbDrone.Api.Movie
         //Todo: Sorters should be done completely on the client
         //Todo: Is there an easy way to keep IgnoreArticlesWhenSorting in sync between, Series, History, Missing?
         //Todo: We should get the entire Profile instead of ID and Name separately
-         
+
         //View Only
-        public string Title { get; set; }
-        public List<AlternateTitleResource> AlternateTitles { get; set; }
-        public string SortTitle { get; set; }
-        public long? SizeOnDisk { get; set; }
         public MovieStatusType Status { get; set; }
-        public string Overview { get; set; }
         public DateTime? InCinemas { get; set; }
         public DateTime? PhysicalRelease { get; set; }
-        public List<MediaCover> Images { get; set; }
         public string Website { get; set; }
         public bool Downloaded { get; set; }
-        public string RemotePoster { get; set; }
-        public int Year { get; set; }
         public bool HasFile { get; set; }
         public string YouTubeTrailerId { get; set; }
         public string Studio { get; set; }
 
-        //View & Edit
-        public string Path { get; set; }
-        public int ProfileId { get; set; }
-
         //Editing Only
-        public bool Monitored { get; set; }
-        public int Runtime { get; set; }
         public DateTime? LastInfoSync { get; set; }
-        public string CleanTitle { get; set; }
         public string ImdbId { get; set; }
         public int TmdbId { get; set; }
-        public string TitleSlug { get; set; }
-        public string RootFolderPath { get; set; }
-        public string Certification { get; set; }
-        public List<string> Genres { get; set; }
-        public HashSet<int> Tags { get; set; }
-        public DateTime Added { get; set; }
         public AddMovieOptions AddOptions { get; set; }
-        public Ratings Ratings { get; set; }
         public List<string> AlternativeTitles { get; set; }
         public MovieFileResource MovieFile { get; set; }
 
-        //TODO: Add series statistics as a property of the series (instead of individual properties)
-
-        //Used to support legacy consumers
-        public int QualityProfileId
-        {
-            get
-            {
-                return ProfileId;
-            }
-            set
-            {
-                if (value > 0 && ProfileId == 0)
-                {
-                    ProfileId = value;
-                }
-            }
-        }
+        //TODO: Add series statistics as a property of the series (instead of individual properties)        
     }
 
     public static class MovieResourceMapper
@@ -89,8 +52,8 @@ namespace NzbDrone.Api.Movie
             bool downloaded = false;
             MovieFileResource movieFile = null;
 
-            
-            if(model.MovieFile != null)
+
+            if (model.MovieFile != null)
             {
                 model.MovieFile.LazyLoad();
             }
@@ -122,12 +85,12 @@ namespace NzbDrone.Api.Movie
                 //NextAiring
                 //PreviousAiring
                 Images = model.Images,
-                
+
                 Year = model.Year,
-                
+
                 Path = model.Path,
                 ProfileId = model.ProfileId,
-                
+
                 Monitored = model.Monitored,
 
                 SizeOnDisk = size,

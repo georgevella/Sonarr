@@ -1,13 +1,13 @@
 var Backbone = require('backbone');
-var EpisodeModel = require('../Movies/MovieModel');
+var EventModel = require('./EventModel');
 
 module.exports = Backbone.Collection.extend({
     url       : window.NzbDrone.ApiRoot + '/calendar',
-    model     : EpisodeModel,
+    model     : EventModel,
     tableName : 'calendar',
 
     comparator : function(model) {
-        var date = new Date(model.get('inCinemas'));
+        var date = new Date(model.get('availableFrom'));
         var time = date.getTime();
         return time;
     }

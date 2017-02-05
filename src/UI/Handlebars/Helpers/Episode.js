@@ -20,8 +20,8 @@ Handlebars.registerHelper('StatusLevel', function() {
     var currentTime = moment();
     var start = moment(this.airDateUtc);
     var end = moment(this.end);
-    var monitored = this.series.monitored && this.monitored;
-    debugger;
+    var monitored = this.monitored;
+    //debugger;
     if (hasFile) {
         return 'success';
     }

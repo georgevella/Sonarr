@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
+using NzbDrone.Api.Common;
 using NzbDrone.Api.EpisodeFiles;
 using NzbDrone.Api.REST;
 using NzbDrone.Api.Series;
@@ -9,20 +10,17 @@ using NzbDrone.Core.Tv;
 
 namespace NzbDrone.Api.Episodes
 {
-    public class EpisodeResource : RestResource
+    public class EpisodeResource : MediaResource
     {
         public int SeriesId { get; set; }
         public int EpisodeFileId { get; set; }
         public int SeasonNumber { get; set; }
         public int EpisodeNumber { get; set; }
-        public string Title { get; set; }
         public string AirDate { get; set; }
         public DateTime? AirDateUtc { get; set; }
-        public string Overview { get; set; }
         public EpisodeFileResource EpisodeFile { get; set; }
 
         public bool HasFile { get; set; }
-        public bool Monitored { get; set; }
         public int? AbsoluteEpisodeNumber { get; set; }
         public int? SceneAbsoluteEpisodeNumber { get; set; }
         public int? SceneEpisodeNumber { get; set; }

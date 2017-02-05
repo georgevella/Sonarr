@@ -145,11 +145,14 @@ module.exports = Marionette.ItemView.extend({
 
 				collection.each(function(model) {
 						var seriesTitle = model.get('title');
-						var start = model.get('inCinemas');
-						var startDate = new Date(start);
-						if (!(startD <= startDate && startDate <= endD)) {
-							start = model.get("physicalRelease");
-						}
+						var start = model.get('availableFrom');
+						var mediaType = model.get('mediaType');
+						var allDayEvent = mediaType === 'movies';
+						
+						// var startDate = new Date(start);
+						// if (!(startD <= startDate && startDate <= endD)) {
+						// 	start = model.get("physicalRelease");
+						// }
 						var runtime = model.get('runtime');
 						var end = moment(start).add('minutes', runtime).toISOString();
 
@@ -157,12 +160,21 @@ module.exports = Marionette.ItemView.extend({
 								title       : seriesTitle,
 								start       : moment(start),
 								end         : moment(end),
-								allDay      : true,
+								allDay      : allDayEvent,
 								statusLevel : self._getStatusLevel(model, end),
 								downloading : QueueCollection.findMovie(model.get('id')),
 								model       : model,
-								sortOrder   : 0
+								sortOrder   : 0,
 						};
+
+
+						if (mediaType === 'movies')
+						{
+							event.url = "movies/" + model.get('titleSlug');
+						}
+						else{
+							event.url = "series/" + model.get('titleSlug');
+						}
 
 						events.push(event);
 				});
@@ -171,17 +183,15 @@ module.exports = Marionette.ItemView.extend({
 		},
 
 		_getStatusLevel : function(element, endTime) {
-				var hasFile = element.get('hasFile');
 				var downloading = QueueCollection.findMovie(element.get('id')) || element.get('grabbed');
 				var currentTime = moment();
-				var start = moment(element.get('inCinemas'));
 				var status = element.getStatus();
 				var end = moment(endTime);
-				var monitored = element.get('monitored');
+				
 
 				var statusLevel = 'primary';
 
-				if (hasFile) {
+				if (status === "hasFile") {
 						statusLevel = 'success';
 				}
 
@@ -189,19 +199,19 @@ module.exports = Marionette.ItemView.extend({
 						statusLevel = 'purple';
 				}
 
-				else if (!monitored) {
+				else if (status === "unmonitored") {
 						statusLevel = 'unmonitored';
 				}
 
-				else if (status == "inCinemas") {
+				else if (status === "inCinemas") {
 						statusLevel = 'premiere';
 				}
 
-				else if (status == "released") {
+				else if (status === "released") {
 						statusLevel = 'danger';
 				}
 
-				else if (status == "announced") {
+				else if (status === "announced") {
 						statusLevel = 'primary';
 				}
 
@@ -230,10 +240,10 @@ module.exports = Marionette.ItemView.extend({
 						eventRender         : this._eventRender.bind(this),
 						eventAfterAllRender : this._eventAfterAllRender.bind(this),
 						windowResize        : this._windowResize.bind(this),
-						eventClick          : function(event) {
-								//vent.trigger(vent.Commands.ShowMovieDetails, { movie : event.model });
-								window.location.href = "movies/"+event.model.get("titleSlug");
-						}
+						// eventClick          : function(event) {
+						// 		//vent.trigger(vent.Commands.ShowMovieDetails, { movie : event.model });
+						// 		window.location.href = "movies/"+event.model.get("titleSlug");
+						// }
 				};
 
 				if ($(window).width() < 768) {
@@ -258,7 +268,7 @@ module.exports = Marionette.ItemView.extend({
 
 				options.titleFormat = "L";
 
-				options.columnFormat = "L"/*{
+				options.columnFormat = "L";/*{
 						month : 'ddd',
 						week  : UiSettings.get('calendarWeekColumnHeader'),
 						day   : 'dddd'
