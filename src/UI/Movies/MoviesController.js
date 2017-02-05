@@ -17,7 +17,7 @@ module.exports = NzbDroneController.extend({
 		},
 
 		series : function() {
-				this.setTitle('Movies XYZ');
+				this.setTitle('Movies');
 				this.showMainRegion(new MoviesIndexLayout());
 		},
 
