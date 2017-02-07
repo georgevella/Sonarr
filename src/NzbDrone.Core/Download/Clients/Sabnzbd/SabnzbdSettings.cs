@@ -25,12 +25,16 @@ namespace NzbDrone.Core.Download.Clients.Sabnzbd
                                     .When(c => string.IsNullOrWhiteSpace(c.ApiKey));
 
             RuleFor(c => c.TvCategory).NotEmpty()
-                                      .WithMessage("A category is recommended")
-                                      .AsWarning();
+                                      .WithMessage("A category for TV episodes is required.")
+                                      .When(c => string.IsNullOrWhiteSpace(c.TvCategory));
+
+            RuleFor(c => c.MovieCategory).NotEmpty()
+                                      .WithMessage("A category for movies is required.")
+                                      .When(c => string.IsNullOrWhiteSpace(c.MovieCategory));
         }
     }
 
-    public class SabnzbdSettings : IProviderConfig
+    public class SabnzbdSettings : IProviderConfig, IDownloadClientSupportsCategories
     {
         private static readonly SabnzbdSettingsValidator Validator = new SabnzbdSettingsValidator();
 
@@ -39,6 +43,7 @@ namespace NzbDrone.Core.Download.Clients.Sabnzbd
             Host = "localhost";
             Port = 8080;
             TvCategory = "tv";
+            MovieCategory = "movie";
             RecentTvPriority = (int)SabnzbdPriority.Default;
             OlderTvPriority = (int)SabnzbdPriority.Default;
         }
@@ -58,8 +63,11 @@ namespace NzbDrone.Core.Download.Clients.Sabnzbd
         [FieldDefinition(4, Label = "Password", Type = FieldType.Password)]
         public string Password { get; set; }
 
-        [FieldDefinition(5, Label = "Category", Type = FieldType.Textbox, HelpText = "Adding a category specific to Radarr avoids conflicts with unrelated downloads, but it's optional")]
+        [FieldDefinition(5, Label = "TV Shows Category", Type = FieldType.Textbox, HelpText = "Adding a category specific to Radarr avoids conflicts with unrelated downloads.")]
         public string TvCategory { get; set; }
+
+        [FieldDefinition(5, Label = "Movies Category", Type = FieldType.Textbox, HelpText = "Adding a category specific to Radarr avoids conflicts with unrelated downloads.")]
+        public string MovieCategory { get; set; }
 
         [FieldDefinition(6, Label = "Recent Priority", Type = FieldType.Select, SelectOptions = typeof(SabnzbdPriority), HelpText = "Priority to use when grabbing episodes that aired within the last 14 days")]
         public int RecentTvPriority { get; set; }
