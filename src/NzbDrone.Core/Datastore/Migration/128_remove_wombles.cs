@@ -3,7 +3,7 @@ using NzbDrone.Core.Datastore.Migration.Framework;
 
 namespace NzbDrone.Core.Datastore.Migration
 {
-    [Migration(127)]
+    [Migration(129)]
     public class remove_wombles : NzbDroneMigrationBase
     {
         protected override void MainDbUpgrade()

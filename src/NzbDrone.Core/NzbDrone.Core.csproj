@@ -125,7 +125,8 @@
     <Compile Include="Authentication\UserService.cs" />
     <Compile Include="Datastore\Migration\123_create_netimport_table.cs" />
     <Compile Include="Datastore\Migration\127_add_mediatype_rootfolder.cs" />
-    <Compile Include="Datastore\Migration\128_remove_kickass.cs" />
+    <Compile Include="Datastore\Migration\128_remove_wombles.cs" />
+    <Compile Include="Datastore\Migration\129_remove_kickass.cs" />
     <Compile Include="NetImport\Trakt\TraktAPI.cs" />
     <Compile Include="NetImport\Trakt\TraktImport.cs" />
     <Compile Include="NetImport\Trakt\TraktListType.cs" />
