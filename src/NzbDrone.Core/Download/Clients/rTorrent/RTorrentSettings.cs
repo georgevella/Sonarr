@@ -29,7 +29,8 @@ namespace NzbDrone.Core.Download.Clients.RTorrent
             Host = "localhost";
             Port = 8080;
             UrlBase = "RPC2";
-            MovieCategory = "radarr";
+            MovieCategory = "movies";
+			TvCategory = "tv";
         }
 
         [FieldDefinition(0, Label = "Host", Type = FieldType.Textbox)]
