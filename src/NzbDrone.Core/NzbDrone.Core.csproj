@@ -1108,6 +1108,7 @@
     <Compile Include="Rest\RestClientFactory.cs" />
     <Compile Include="Rest\RestException.cs" />
     <Compile Include="Rest\RestSharpExtensions.cs" />
+    <Compile Include="Download\IDownloadClientSupportsCategories.cs" />
     <Compile Include="Tv\MediaType.cs" />
     <Compile Include="RootFolders\RootFolder.cs" />
     <Compile Include="RootFolders\RootFolderRepository.cs" />
