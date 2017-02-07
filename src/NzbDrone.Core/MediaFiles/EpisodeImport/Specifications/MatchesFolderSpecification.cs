@@ -30,7 +30,7 @@ namespace NzbDrone.Core.MediaFiles.EpisodeImport.Specifications
                 return Decision.Accept();
             }
 
-            var folderInfo = Parser.Parser.ParseTitle(dirInfo.Name);
+            var folderInfo = Parser.Parser.ParseEpisodeTitle(dirInfo.Name);
 
             if (folderInfo == null)
             {
@@ -60,7 +60,7 @@ namespace NzbDrone.Core.MediaFiles.EpisodeImport.Specifications
                 return Decision.Accept();
             }
 
-            var folderInfo = Parser.Parser.ParseTitle(dirInfo.Name);
+            var folderInfo = Parser.Parser.ParseEpisodeTitle(dirInfo.Name);
 
             if (folderInfo == null)
             {

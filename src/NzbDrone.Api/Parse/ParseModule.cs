@@ -18,7 +18,7 @@ namespace NzbDrone.Api.Parse
         private ParseResource Parse()
         {
             var title = Request.Query.Title.Value as string;
-            var parsedEpisodeInfo = Parser.ParseTitle(title);
+            var parsedEpisodeInfo = Parser.ParseEpisodeTitle(title);
 
             if (parsedEpisodeInfo == null)
             {

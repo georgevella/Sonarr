@@ -144,7 +144,7 @@ namespace NzbDrone.Core.DecisionEngine
 
                 try
                 {
-                    var parsedEpisodeInfo = Parser.Parser.ParseTitle(report.Title);
+                    var parsedEpisodeInfo = Parser.Parser.ParseEpisodeTitle(report.Title);
 
                     if (parsedEpisodeInfo == null || parsedEpisodeInfo.IsPossibleSpecialEpisode)
                     {

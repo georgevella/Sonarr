@@ -17,7 +17,7 @@ namespace NzbDrone.Core.Test.ParserTests
         [TestCase("Mars.2016.E04.Power.720p.WEB-DL.DD5.1.H.264-MARS", "Mars 2016", 4)]
         public void should_parse_mini_series_episode(string postTitle, string title, int episodeNumber)
         {
-            var result = Parser.Parser.ParseTitle(postTitle);
+            var result = Parser.Parser.ParseEpisodeTitle(postTitle);
             result.Should().NotBeNull();
             result.EpisodeNumbers.Should().HaveCount(1);
             result.SeasonNumber.Should().Be(1);

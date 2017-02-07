@@ -157,7 +157,7 @@ namespace NzbDrone.Core.Parser
 
         public Series GetSeries(string title)
         {
-            var parsedEpisodeInfo = Parser.ParseTitle(title);
+            var parsedEpisodeInfo = Parser.ParseEpisodeTitle(title);
 
             if (parsedEpisodeInfo == null)
             {

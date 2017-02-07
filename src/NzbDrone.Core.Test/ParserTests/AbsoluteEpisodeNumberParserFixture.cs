@@ -88,7 +88,7 @@ namespace NzbDrone.Core.Test.ParserTests
         //[TestCase("", "", 0, 0, 0)]
         public void should_parse_absolute_numbers(string postTitle, string title, int absoluteEpisodeNumber, int seasonNumber, int episodeNumber)
         {
-            var result = Parser.Parser.ParseTitle(postTitle);
+            var result = Parser.Parser.ParseEpisodeTitle(postTitle);
             result.Should().NotBeNull();
             result.AbsoluteEpisodeNumbers.Single().Should().Be(absoluteEpisodeNumber);
             result.SeasonNumber.Should().Be(seasonNumber);
@@ -102,7 +102,7 @@ namespace NzbDrone.Core.Test.ParserTests
         [TestCase("[DeadFish] Kenzen Robo Daimidaler - 01 - OVD [BD][720p][AAC]", "Kenzen Robo Daimidaler", 1)]
         public void should_parse_absolute_specials(string postTitle, string title, int absoluteEpisodeNumber)
         {
-            var result = Parser.Parser.ParseTitle(postTitle);
+            var result = Parser.Parser.ParseEpisodeTitle(postTitle);
             result.Should().NotBeNull();
             result.AbsoluteEpisodeNumbers.Single().Should().Be(absoluteEpisodeNumber);
             result.SeasonNumber.Should().Be(0);
@@ -121,7 +121,7 @@ namespace NzbDrone.Core.Test.ParserTests
         [TestCase("[HorribleSubs] Haikyuu!! (01-25) [1080p] (Batch)", "Haikyuu!!", new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25 })]
         public void should_parse_multi_episode_absolute_numbers(string postTitle, string title, int[] absoluteEpisodeNumbers)
         {
-            var result = Parser.Parser.ParseTitle(postTitle);
+            var result = Parser.Parser.ParseEpisodeTitle(postTitle);
             result.Should().NotBeNull();
             result.AbsoluteEpisodeNumbers.Should().BeEquivalentTo(absoluteEpisodeNumbers);
             result.SeriesTitle.Should().Be(title);

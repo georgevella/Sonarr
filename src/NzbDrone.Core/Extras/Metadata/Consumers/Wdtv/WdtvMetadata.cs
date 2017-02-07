@@ -93,7 +93,7 @@ namespace NzbDrone.Core.Extras.Metadata.Consumers.Wdtv
                 return metadata;
             }
 
-            var parseResult = Parser.Parser.ParseTitle(filename);
+            var parseResult = Parser.Parser.ParseEpisodeTitle(filename);
 
             if (parseResult != null &&
                 !parseResult.FullSeason)

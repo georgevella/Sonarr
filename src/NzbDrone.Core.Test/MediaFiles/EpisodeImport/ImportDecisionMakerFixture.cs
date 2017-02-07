@@ -262,7 +262,7 @@ namespace NzbDrone.Core.Test.MediaFiles.EpisodeImport
             GivenSpecifications(_pass1);
             GivenVideoFiles(videoFiles);
 
-            var folderInfo = Parser.Parser.ParseTitle("Series.Title.S01");
+            var folderInfo = Parser.Parser.ParseEpisodeTitle("Series.Title.S01");
 
             Subject.GetImportDecisions(_videoFiles, _series, folderInfo, true);
 
@@ -285,7 +285,7 @@ namespace NzbDrone.Core.Test.MediaFiles.EpisodeImport
             GivenSpecifications(_pass1);
             GivenVideoFiles(videoFiles);
 
-            var folderInfo = Parser.Parser.ParseTitle("Series.Title.S01E01");
+            var folderInfo = Parser.Parser.ParseEpisodeTitle("Series.Title.S01E01");
 
             Subject.GetImportDecisions(_videoFiles, _series, folderInfo, true);
 
@@ -307,7 +307,7 @@ namespace NzbDrone.Core.Test.MediaFiles.EpisodeImport
             GivenSpecifications(_pass1);
             GivenVideoFiles(videoFiles);
 
-            var folderInfo = Parser.Parser.ParseTitle("Series.Title.S01E01");
+            var folderInfo = Parser.Parser.ParseEpisodeTitle("Series.Title.S01E01");
 
             Subject.GetImportDecisions(_videoFiles, _series, folderInfo, true);
 
@@ -334,7 +334,7 @@ namespace NzbDrone.Core.Test.MediaFiles.EpisodeImport
                   .Setup(s => s.IsSample(_series, It.IsAny<QualityModel>(), It.Is<string>(c => c.Contains("sample")), It.IsAny<long>(), It.IsAny<bool>()))
                   .Returns(true);
 
-            var folderInfo = Parser.Parser.ParseTitle("Series.Title.S01E01");
+            var folderInfo = Parser.Parser.ParseEpisodeTitle("Series.Title.S01E01");
 
             Subject.GetImportDecisions(_videoFiles, _series, folderInfo, true);
 
@@ -356,7 +356,7 @@ namespace NzbDrone.Core.Test.MediaFiles.EpisodeImport
             GivenSpecifications(_pass1);
             GivenVideoFiles(videoFiles);
 
-            var folderInfo = Parser.Parser.ParseTitle("Series.Title.S01E01.720p.HDTV-LOL");
+            var folderInfo = Parser.Parser.ParseEpisodeTitle("Series.Title.S01E01.720p.HDTV-LOL");
 
             Subject.GetImportDecisions(_videoFiles, _series, folderInfo, true);
 

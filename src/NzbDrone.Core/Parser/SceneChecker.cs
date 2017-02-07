@@ -9,7 +9,7 @@
             if (!title.Contains(".")) return false;
             if (title.Contains(" ")) return false;
 
-            var parsedTitle = Parser.ParseTitle(title);
+            var parsedTitle = Parser.ParseEpisodeTitle(title);
 
             if (parsedTitle == null ||
                 parsedTitle.ReleaseGroup == null ||

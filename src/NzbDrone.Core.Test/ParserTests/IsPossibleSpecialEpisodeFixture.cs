@@ -37,7 +37,7 @@ namespace NzbDrone.Core.Test.ParserTests
         [TestCase("Rookie.Blue.Behind.the.Badge.S05.Special.HDTV.x264-2HD")]
         public void IsPossibleSpecialEpisode_should_be_true(string title)
         {
-            Parser.Parser.ParseTitle(title).IsPossibleSpecialEpisode.Should().BeTrue();
+            Parser.Parser.ParseEpisodeTitle(title).IsPossibleSpecialEpisode.Should().BeTrue();
         }
     }
 }

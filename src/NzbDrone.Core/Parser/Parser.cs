@@ -314,18 +314,18 @@ namespace NzbDrone.Core.Parser
         {
             var fileInfo = new FileInfo(path);
 
-            var result = ParseTitle(fileInfo.Name);
+            var result = ParseEpisodeTitle(fileInfo.Name);
 
             if (result == null)
             {
                 Logger.Debug("Attempting to parse episode info using directory and file names. {0}", fileInfo.Directory.Name);
-                result = ParseTitle(fileInfo.Directory.Name + " " + fileInfo.Name);
+                result = ParseEpisodeTitle(fileInfo.Directory.Name + " " + fileInfo.Name);
             }
 
             if (result == null)
             {
                 Logger.Debug("Attempting to parse episode info using directory name. {0}", fileInfo.Directory.Name);
-                result = ParseTitle(fileInfo.Directory.Name + fileInfo.Extension);
+                result = ParseEpisodeTitle(fileInfo.Directory.Name + fileInfo.Extension);
             }
 
             return result;
@@ -469,7 +469,7 @@ namespace NzbDrone.Core.Parser
             return "";
         }
 
-        public static ParsedEpisodeInfo ParseTitle(string title)
+        public static ParsedEpisodeInfo ParseEpisodeTitle(string title)
         {
 
             ParsedEpisodeInfo realResult = null;
@@ -519,7 +519,7 @@ namespace NzbDrone.Core.Parser
                     }
                 }
 
-                
+
 
                 foreach (var regex in ReportTitleRegex)
                 {
@@ -589,7 +589,7 @@ namespace NzbDrone.Core.Parser
         {
             Logger.Debug("Parsing string '{0}'", title);
 
-            var parseResult = ParseTitle(title);
+            var parseResult = ParseEpisodeTitle(title);
 
             if (parseResult == null)
             {
@@ -706,8 +706,8 @@ namespace NzbDrone.Core.Parser
             {
                 return null;
             }
-            
-            
+
+
             var seriesName = matchCollection[0].Groups["title"].Value.Replace('.', ' ').Replace('_', ' ');
             seriesName = RequestInfoRegex.Replace(seriesName, "").Trim(' ');
 

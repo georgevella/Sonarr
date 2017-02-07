@@ -25,7 +25,7 @@ namespace NzbDrone.Core.Test.ParserTests
         [TestCase("[S-T-D] Soul Eater Not! - 06 (1280x720 10bit AAC) [59B3F2EA].mkv", "S-T-D", "59B3F2EA")]
         public void should_parse_absolute_numbers(string postTitle, string subGroup, string hash)
         {
-            var result = Parser.Parser.ParseTitle(postTitle);
+            var result = Parser.Parser.ParseEpisodeTitle(postTitle);
             result.Should().NotBeNull();
             result.ReleaseGroup.Should().Be(subGroup);
             result.ReleaseHash.Should().Be(hash);

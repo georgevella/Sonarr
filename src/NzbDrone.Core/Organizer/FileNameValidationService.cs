@@ -34,7 +34,7 @@ namespace NzbDrone.Core.Organizer
         public ValidationFailure ValidateStandardFilename(SampleResult sampleResult)
         {
             var validationFailure = new ValidationFailure("StandardEpisodeFormat", ERROR_MESSAGE);
-            var parsedEpisodeInfo = Parser.Parser.ParseTitle(sampleResult.FileName);
+            var parsedEpisodeInfo = Parser.Parser.ParseEpisodeTitle(sampleResult.FileName);
 
             if (parsedEpisodeInfo == null)
             {
@@ -52,7 +52,7 @@ namespace NzbDrone.Core.Organizer
         public ValidationFailure ValidateDailyFilename(SampleResult sampleResult)
         {
             var validationFailure = new ValidationFailure("DailyEpisodeFormat", ERROR_MESSAGE);
-            var parsedEpisodeInfo = Parser.Parser.ParseTitle(sampleResult.FileName);
+            var parsedEpisodeInfo = Parser.Parser.ParseEpisodeTitle(sampleResult.FileName);
 
             if (parsedEpisodeInfo == null)
             {
@@ -80,7 +80,7 @@ namespace NzbDrone.Core.Organizer
         public ValidationFailure ValidateAnimeFilename(SampleResult sampleResult)
         {
             var validationFailure = new ValidationFailure("AnimeEpisodeFormat", ERROR_MESSAGE);
-            var parsedEpisodeInfo = Parser.Parser.ParseTitle(sampleResult.FileName);
+            var parsedEpisodeInfo = Parser.Parser.ParseEpisodeTitle(sampleResult.FileName);
 
             if (parsedEpisodeInfo == null)
             {

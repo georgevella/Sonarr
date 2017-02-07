@@ -30,7 +30,7 @@ namespace NzbDrone.Core.Test.ParserTests
         //[TestCase("", "", 0, 0, 0)]
         public void should_parse_daily_episode(string postTitle, string title, int year, int month, int day)
         {
-            var result = Parser.Parser.ParseTitle(postTitle);
+            var result = Parser.Parser.ParseEpisodeTitle(postTitle);
             var airDate = new DateTime(year, month, day);
             result.Should().NotBeNull();
             result.SeriesTitle.Should().Be(title);
@@ -50,7 +50,7 @@ namespace NzbDrone.Core.Test.ParserTests
         public void should_not_accept_ancient_daily_series(string title)
         {
             var yearTooLow = title.Expand(new { year = 1950, month = 10, day = 14 });
-            Parser.Parser.ParseTitle(yearTooLow).Should().BeNull();
+            Parser.Parser.ParseEpisodeTitle(yearTooLow).Should().BeNull();
         }
 
         [TestCase("Conan {year} {month} {day} Emma Roberts HDTV XviD BFF")]
@@ -66,7 +66,7 @@ namespace NzbDrone.Core.Test.ParserTests
 
             var validDate = title.Expand(new { year = twoDaysFromNow.Year, month = twoDaysFromNow.Month.ToString("00"), day = twoDaysFromNow.Day.ToString("00") });
 
-            Parser.Parser.ParseTitle(validDate).Should().BeNull();
+            Parser.Parser.ParseEpisodeTitle(validDate).Should().BeNull();
         }
 
         [Test]
@@ -74,7 +74,7 @@ namespace NzbDrone.Core.Test.ParserTests
         {
             var title = string.Format("{0:yyyy.MM.dd} - Denis Leary - HD TV.mkv", DateTime.Now.AddDays(2));
 
-            Parser.Parser.ParseTitle(title).Should().BeNull();
+            Parser.Parser.ParseEpisodeTitle(title).Should().BeNull();
         }
     }
 }

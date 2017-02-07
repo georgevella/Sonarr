@@ -119,7 +119,7 @@ namespace NzbDrone.Core.MediaFiles.EpisodeImport.Manual
                 return files.Select(file => ProcessFile(file, downloadId, folder)).Where(i => i != null).ToList();
             }
 
-            var folderInfo = Parser.Parser.ParseTitle(directoryInfo.Name);
+            var folderInfo = Parser.Parser.ParseEpisodeTitle(directoryInfo.Name);
             var seriesFiles = _diskScanService.GetVideoFiles(folder).ToList();
             var decisions = _importDecisionMaker.GetImportDecisions(seriesFiles, series, folderInfo, SceneSource(series, folder));
 
