@@ -27,5 +27,6 @@ namespace NzbDrone.Core.Queue
         public RemoteEpisode RemoteEpisode { get; set; }
         public RemoteMovie RemoteMovie { get; set; }
         public DownloadProtocol Protocol { get; set; }
+        public MediaType MediaType { get; set; }
     }
 }

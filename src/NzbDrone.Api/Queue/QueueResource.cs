@@ -8,6 +8,7 @@ using NzbDrone.Api.Movie;
 using NzbDrone.Core.Download.TrackedDownloads;
 using NzbDrone.Core.Indexers;
 using System.Linq;
+using NzbDrone.Core.Tv;
 
 namespace NzbDrone.Api.Queue
 {
@@ -27,6 +28,8 @@ namespace NzbDrone.Api.Queue
         public List<TrackedDownloadStatusMessage> StatusMessages { get; set; }
         public string DownloadId { get; set; }
         public DownloadProtocol Protocol { get; set; }
+        public MediaType MediaType { get; set; }
+        public string TitleSlug { get; set; }
     }
 
     public static class QueueResourceMapper
@@ -43,7 +46,7 @@ namespace NzbDrone.Api.Queue
                 Episode = model.Episode.ToResource(),
                 Quality = model.Quality,
                 Size = model.Size,
-                Title = model.Title,
+                Title = model.MediaType == MediaType.TVShows ? $"{model.Series.Title} - {model.Episode.Title} ({model.Episode.SeasonNumber}x{model.Episode.EpisodeNumber:D2})" : model.Movie.Title,
                 Sizeleft = model.Sizeleft,
                 Timeleft = model.Timeleft,
                 EstimatedCompletionTime = model.EstimatedCompletionTime,
@@ -52,7 +55,9 @@ namespace NzbDrone.Api.Queue
                 StatusMessages = model.StatusMessages,
                 DownloadId = model.DownloadId,
                 Protocol = model.Protocol,
-                Movie = model.Movie.ToResource()
+                Movie = model.Movie.ToResource(),
+                MediaType = model.MediaType,
+                TitleSlug = model.MediaType == MediaType.TVShows ? model.Series.TitleSlug : model.Movie.TitleSlug
             };
         }
 

@@ -76,7 +76,8 @@ namespace NzbDrone.Core.Queue
                 RemoteMovie = trackedDownload.RemoteMovie,
                 DownloadId = trackedDownload.DownloadItem.DownloadId,
                 Protocol = trackedDownload.Protocol,
-                Movie = movie
+                Movie = movie,
+                MediaType = MediaType.Movies
             };
 
             if (queue.Timeleft.HasValue)
@@ -104,7 +105,8 @@ namespace NzbDrone.Core.Queue
                 StatusMessages = trackedDownload.StatusMessages.ToList(),
                 RemoteEpisode = trackedDownload.RemoteEpisode,
                 DownloadId = trackedDownload.DownloadItem.DownloadId,
-                Protocol = trackedDownload.Protocol
+                Protocol = trackedDownload.Protocol,
+                MediaType = MediaType.TVShows
             };
 
             if (queue.Timeleft.HasValue)
