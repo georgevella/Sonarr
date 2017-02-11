@@ -102,7 +102,7 @@ namespace NzbDrone.Core.Test.Download.Pending.PendingReleaseServiceTests
         {
             GivenHeldRelease(_parsedEpisodeInfo.Quality);
 
-            Subject.Handle(new EpisodeGrabbedEvent(_remoteEpisode));
+            Subject.Handle(new RemoteItemGrabbedEvent(_remoteEpisode));
 
             VerifyDelete();
         }
@@ -112,7 +112,7 @@ namespace NzbDrone.Core.Test.Download.Pending.PendingReleaseServiceTests
         {
             GivenHeldRelease(new QualityModel(Quality.SDTV));
 
-            Subject.Handle(new EpisodeGrabbedEvent(_remoteEpisode));
+            Subject.Handle(new RemoteItemGrabbedEvent(_remoteEpisode));
 
             VerifyDelete();
         }
@@ -122,7 +122,7 @@ namespace NzbDrone.Core.Test.Download.Pending.PendingReleaseServiceTests
         {
             GivenHeldRelease(new QualityModel(Quality.Bluray720p));
 
-            Subject.Handle(new EpisodeGrabbedEvent(_remoteEpisode));
+            Subject.Handle(new RemoteItemGrabbedEvent(_remoteEpisode));
 
             VerifyNoDelete();
         }

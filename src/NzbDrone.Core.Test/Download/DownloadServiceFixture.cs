@@ -85,7 +85,7 @@ namespace NzbDrone.Core.Test.Download
             
             Subject.DownloadReport(_parseResult);
 
-            VerifyEventPublished<EpisodeGrabbedEvent>();
+            VerifyEventPublished<RemoteItemGrabbedEvent>();
         }
 
         [Test]
@@ -108,7 +108,7 @@ namespace NzbDrone.Core.Test.Download
 
             Assert.Throws<WebException>(() => Subject.DownloadReport(_parseResult));
 
-            VerifyEventNotPublished<EpisodeGrabbedEvent>();
+            VerifyEventNotPublished<RemoteItemGrabbedEvent>();
         }
 
         [Test]
@@ -185,7 +185,7 @@ namespace NzbDrone.Core.Test.Download
             Subject.DownloadReport(_parseResult);
 
             Mocker.GetMock<IDownloadClient>().Verify(c => c.Download(It.IsAny<RemoteEpisode>()), Times.Never());
-            VerifyEventNotPublished<EpisodeGrabbedEvent>();
+            VerifyEventNotPublished<RemoteItemGrabbedEvent>();
 
             ExceptionVerification.ExpectedWarns(1);
         }

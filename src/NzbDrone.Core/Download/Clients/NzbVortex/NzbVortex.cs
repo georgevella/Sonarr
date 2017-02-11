@@ -8,6 +8,7 @@ using NzbDrone.Common.Disk;
 using NzbDrone.Common.Extensions;
 using NzbDrone.Common.Http;
 using NzbDrone.Core.Configuration;
+using NzbDrone.Core.Parser;
 using NzbDrone.Core.Parser.Model;
 using NzbDrone.Core.Validation;
 using NzbDrone.Core.RemotePathMappings;
@@ -29,25 +30,17 @@ namespace NzbDrone.Core.Download.Clients.NzbVortex
             _proxy = proxy;
         }
 
-        protected override string AddFromNzbFile(RemoteEpisode remoteEpisode, string filename, byte[] fileContents)
+        protected override string AddFromNzbFile(RemoteItem remoteItem, string filename, byte[] fileContents)
         {
-            var priority = remoteEpisode.IsRecentEpisode() ? Settings.RecentTvPriority : Settings.OlderTvPriority;
-            
-            var response = _proxy.DownloadNzb(fileContents, filename, priority, Settings);
-
-            if (response == null)
-            {
-                throw new DownloadClientException("Failed to add nzb {0}", filename);
-            }
-
-            return response;
-        }
-
-        protected override string AddFromNzbFile(RemoteMovie remoteMovie, string filename, byte[] fileContents)
-        {
+            var category = GetItemCategory(remoteItem);
             var priority = Settings.RecentTvPriority;
 
-            var response = _proxy.DownloadNzb(fileContents, filename, priority, Settings);
+            if (remoteItem.IsEpisode())
+            {
+                priority = remoteItem.AsRemoteEpisode().IsRecentEpisode() ? Settings.RecentTvPriority : Settings.OlderTvPriority;
+            }
+
+            var response = _proxy.DownloadNzb(fileContents, filename, priority, category, Settings);
 
             if (response == null)
             {
@@ -86,28 +79,28 @@ namespace NzbDrone.Core.Download.Clients.NzbVortex
                 queueItem.TotalSize = vortexQueueItem.TotalDownloadSize;
                 queueItem.RemainingSize = vortexQueueItem.TotalDownloadSize - vortexQueueItem.DownloadedSize;
                 queueItem.RemainingTime = null;
-                
+
                 if (vortexQueueItem.IsPaused)
                 {
                     queueItem.Status = DownloadItemStatus.Paused;
                 }
                 else switch (vortexQueueItem.State)
-                {
-                    case NzbVortexStateType.Waiting:
-                        queueItem.Status = DownloadItemStatus.Queued;
-                        break;
-                    case NzbVortexStateType.Done:
-                        queueItem.Status = DownloadItemStatus.Completed;
-                        break;
-                    case NzbVortexStateType.UncompressFailed:
-                    case NzbVortexStateType.CheckFailedDataCorrupt:
-                    case NzbVortexStateType.BadlyEncoded:
-                        queueItem.Status = DownloadItemStatus.Failed;
-                        break;
-                    default:
-                        queueItem.Status = DownloadItemStatus.Downloading;
-                        break;
-                }
+                    {
+                        case NzbVortexStateType.Waiting:
+                            queueItem.Status = DownloadItemStatus.Queued;
+                            break;
+                        case NzbVortexStateType.Done:
+                            queueItem.Status = DownloadItemStatus.Completed;
+                            break;
+                        case NzbVortexStateType.UncompressFailed:
+                        case NzbVortexStateType.CheckFailedDataCorrupt:
+                        case NzbVortexStateType.BadlyEncoded:
+                            queueItem.Status = DownloadItemStatus.Failed;
+                            break;
+                        default:
+                            queueItem.Status = DownloadItemStatus.Downloading;
+                            break;
+                    }
 
                 queueItem.OutputPath = GetOutputPath(vortexQueueItem, queueItem);
 
@@ -146,7 +139,7 @@ namespace NzbDrone.Core.Download.Clients.NzbVortex
                 {
                     _proxy.Remove(queueItem.Id, deleteData, Settings);
                 }
-            }            
+            }
         }
 
         protected List<NzbVortexGroup> GetGroups()

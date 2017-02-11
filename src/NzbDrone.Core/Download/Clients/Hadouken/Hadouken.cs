@@ -43,7 +43,7 @@ namespace NzbDrone.Core.Download.Clients.Hadouken
             }
             catch (DownloadClientException ex)
             {
-                _logger.ErrorException(ex.Message, ex);
+                _logger.Error(ex, ex.Message);
                 return Enumerable.Empty<DownloadClientItem>();
             }
 
@@ -51,7 +51,7 @@ namespace NzbDrone.Core.Download.Clients.Hadouken
 
             foreach (var torrent in torrents)
             {
-                if (Settings.Category.IsNotNullOrWhiteSpace() && torrent.Label != Settings.Category)
+                if (torrent.Label != Settings.MovieCategory || torrent.Label != Settings.TvCategory)
                 {
                     continue;
                 }
@@ -72,7 +72,8 @@ namespace NzbDrone.Core.Download.Clients.Hadouken
                     RemainingSize = torrent.TotalSize - torrent.DownloadedBytes,
                     RemainingTime = eta,
                     Title = torrent.Name,
-                    TotalSize = torrent.TotalSize
+                    TotalSize = torrent.TotalSize,
+                    Category = torrent.Label
                 };
 
                 if (!string.IsNullOrEmpty(torrent.Error))
@@ -149,16 +150,18 @@ namespace NzbDrone.Core.Download.Clients.Hadouken
             failures.AddIfNotNull(TestGetTorrents());
         }
 
-        protected override string AddFromMagnetLink(RemoteEpisode remoteEpisode, string hash, string magnetLink)
+        protected override string AddFromMagnetLink(RemoteItem remoteItem, string hash, string magnetLink)
         {
-            _proxy.AddTorrentUri(Settings, magnetLink);
+            var category = GetItemCategory(remoteItem);
+            _proxy.AddTorrentUri(Settings, magnetLink, category);
 
             return hash.ToUpper();
         }
 
-        protected override string AddFromTorrentFile(RemoteEpisode remoteEpisode, string hash, string filename, byte[] fileContent)
+        protected override string AddFromTorrentFile(RemoteItem remoteItem, string hash, string filename, byte[] fileContent)
         {
-            return _proxy.AddTorrentFile(Settings, fileContent).ToUpper();
+            var category = GetItemCategory(remoteItem);
+            return _proxy.AddTorrentFile(Settings, fileContent, category).ToUpper();
         }
 
         private ValidationFailure TestConnection()
@@ -170,7 +173,7 @@ namespace NzbDrone.Core.Download.Clients.Hadouken
 
                 if (version < new Version("5.1"))
                 {
-                    return new ValidationFailure(string.Empty, "Old Hadouken client with unsupported API, need 5.1 or higher");                    
+                    return new ValidationFailure(string.Empty, "Old Hadouken client with unsupported API, need 5.1 or higher");
                 }
             }
             catch (DownloadClientAuthenticationException ex)

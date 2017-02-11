@@ -15,7 +15,7 @@ namespace NzbDrone.Core.Download.Clients.UTorrent
         }
     }
 
-    public class UTorrentSettings : IProviderConfig
+    public class UTorrentSettings : IProviderConfig, IDownloadClientSupportsCategories
     {
         private static readonly UTorrentSettingsValidator Validator = new UTorrentSettingsValidator();
 
@@ -41,15 +41,19 @@ namespace NzbDrone.Core.Download.Clients.UTorrent
         [FieldDefinition(4, Label = "Category", Type = FieldType.Textbox, HelpText = "Adding a category specific to Radarr avoids conflicts with unrelated downloads, but it's optional")]
         public string TvCategory { get; set; }
 
-        [FieldDefinition(5, Label = "Recent Priority", Type = FieldType.Select, SelectOptions = typeof(UTorrentPriority), HelpText = "Priority to use when grabbing episodes that aired within the last 14 days")]
+        [FieldDefinition(5, Label = "Category", Type = FieldType.Textbox, HelpText = "Adding a category specific to Radarr avoids conflicts with unrelated downloads, but it's optional")]
+        public string MovieCategory { get; set; }
+
+        [FieldDefinition(6, Label = "Recent Priority", Type = FieldType.Select, SelectOptions = typeof(UTorrentPriority), HelpText = "Priority to use when grabbing episodes that aired within the last 14 days")]
         public int RecentTvPriority { get; set; }
 
-        [FieldDefinition(6, Label = "Older Priority", Type = FieldType.Select, SelectOptions = typeof(UTorrentPriority), HelpText = "Priority to use when grabbing episodes that aired over 14 days ago")]
+        [FieldDefinition(7, Label = "Older Priority", Type = FieldType.Select, SelectOptions = typeof(UTorrentPriority), HelpText = "Priority to use when grabbing episodes that aired over 14 days ago")]
         public int OlderTvPriority { get; set; }
 
         public NzbDroneValidationResult Validate()
         {
             return new NzbDroneValidationResult(Validator.Validate(this));
         }
+
     }
 }

@@ -5,7 +5,7 @@ using NzbDrone.Core.Parser.Model;
 
 namespace NzbDrone.Core.DecisionEngine.Specifications
 {
-    public class SameEpisodesGrabSpecification : IDecisionEngineSpecification
+    public class SameEpisodesGrabSpecification : TypeDependentDecisionEngineSpecification
     {
         private readonly SameEpisodesSpecification _sameEpisodesSpecification;
         private readonly Logger _logger;
@@ -16,9 +16,9 @@ namespace NzbDrone.Core.DecisionEngine.Specifications
             _logger = logger;
         }
 
-        public RejectionType Type => RejectionType.Permanent;
+        public override RejectionType Type => RejectionType.Permanent;
 
-        public virtual Decision IsSatisfiedBy(RemoteEpisode subject, SearchCriteriaBase searchCriteria)
+        public override Decision IsSatisfiedBy(RemoteEpisode subject, SearchCriteriaBase searchCriteria)
         {
             if (_sameEpisodesSpecification.IsSatisfiedBy(subject.Episodes))
             {
@@ -29,7 +29,7 @@ namespace NzbDrone.Core.DecisionEngine.Specifications
             return Decision.Reject("Episode file on disk contains more episodes than this release contains");
         }
 
-        public Decision IsSatisfiedBy(RemoteMovie subject, SearchCriteriaBase searchCriteria)
+        public override Decision IsSatisfiedBy(RemoteMovie subject, SearchCriteriaBase searchCriteria)
         {
             throw new NotImplementedException();
         }

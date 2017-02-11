@@ -7,14 +7,15 @@ using RestSharp;
 using NzbDrone.Core.Qualities;
 using NzbDrone.Core.Parser.Model;
 using System.Collections.Generic;
+using NzbDrone.Core.Parser;
 
 namespace NzbDrone.Core.Notifications.Webhook
 {
     public interface IWebhookService
     {
-        void OnDownload(Series series, EpisodeFile episodeFile, WebhookSettings settings);
-        void OnRename(Series series, WebhookSettings settings);
-        void OnGrab(Series series, RemoteEpisode episode, QualityModel quality, WebhookSettings settings);
+        void OnDownload(EpisodeFile episodeFile, WebhookSettings settings);
+        void OnRename(WebhookSettings settings);
+        void OnGrab(RemoteItem episode, QualityModel quality, WebhookSettings settings);
         ValidationFailure Test(WebhookSettings settings);
     }
 
@@ -26,7 +27,8 @@ namespace NzbDrone.Core.Notifications.Webhook
             {
                 EventType = "Download",
                 Series = new WebhookSeries(series),
-                Episodes = episodeFile.Episodes.Value.ConvertAll(x => new WebhookEpisode(x) {
+                Episodes = episodeFile.Episodes.Value.ConvertAll(x => new WebhookEpisode(x)
+                {
                     Quality = episodeFile.Quality.Quality.Name,
                     QualityVersion = episodeFile.Quality.Revision.Version,
                     ReleaseGroup = episodeFile.ReleaseGroup,
@@ -48,17 +50,19 @@ namespace NzbDrone.Core.Notifications.Webhook
             NotifyWebhook(payload, settings);
         }
 
-        public void OnGrab(Series series, RemoteEpisode episode, QualityModel quality, WebhookSettings settings)
+        public void OnGrab(Series series, RemoteItem item, QualityModel quality, WebhookSettings settings)
         {
+            var episode = item.AsRemoteEpisode();
+
             var payload = new WebhookPayload
             {
                 EventType = "Grab",
-                Series = new WebhookSeries(series),
+                Series = new WebhookSeries(episode.Series),
                 Episodes = episode.Episodes.ConvertAll(x => new WebhookEpisode(x)
                 {
                     Quality = quality.Quality.Name,
                     QualityVersion = quality.Revision.Version,
-                    ReleaseGroup = episode.ParsedEpisodeInfo.ReleaseGroup
+                    ReleaseGroup = episode.Info.ReleaseGroup
                 })
             };
             NotifyWebhook(payload, settings);
@@ -66,9 +70,10 @@ namespace NzbDrone.Core.Notifications.Webhook
 
         public void NotifyWebhook(WebhookPayload body, WebhookSettings settings)
         {
-            try {
+            try
+            {
                 var client = RestClientFactory.BuildClient(settings.Url);
-                var request = new RestRequest((Method) settings.Method);
+                var request = new RestRequest((Method)settings.Method);
                 request.RequestFormat = DataFormat.Json;
                 request.AddBody(body);
                 client.ExecuteAndValidate(request);

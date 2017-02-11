@@ -9,8 +9,10 @@ namespace NzbDrone.Core.Download
     {
         DownloadProtocol Protocol { get; }
 
-        string Download(RemoteEpisode remoteEpisode);
-        string Download(RemoteMovie remoteMovie);
+        //string Download(RemoteEpisode remoteEpisode);
+        //string Download(RemoteMovie remoteMovie);
+        string Download(RemoteItem remoteItem);
+
         IEnumerable<DownloadClientItem> GetItems();
         void RemoveItem(string downloadId, bool deleteData);
         DownloadClientStatus GetStatus();

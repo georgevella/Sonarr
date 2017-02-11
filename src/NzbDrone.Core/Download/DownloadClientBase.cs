@@ -7,6 +7,7 @@ using NzbDrone.Common.Disk;
 using NzbDrone.Common.Extensions;
 using NzbDrone.Core.Configuration;
 using NzbDrone.Core.Indexers;
+using NzbDrone.Core.Parser;
 using NzbDrone.Core.Parser.Model;
 using NzbDrone.Core.RemotePathMappings;
 using NzbDrone.Core.ThingiProvider;
@@ -36,8 +37,8 @@ namespace NzbDrone.Core.Download
 
         protected TSettings Settings => (TSettings)Definition.Settings;
 
-        protected DownloadClientBase(IConfigService configService, 
-            IDiskProvider diskProvider, 
+        protected DownloadClientBase(IConfigService configService,
+            IDiskProvider diskProvider,
             IRemotePathMappingService remotePathMappingService,
             Logger logger)
         {
@@ -57,8 +58,8 @@ namespace NzbDrone.Core.Download
             get;
         }
 
-        
-        public abstract string Download(RemoteEpisode remoteEpisode);
+
+        public abstract string Download(RemoteItem remoteItem);
         public abstract IEnumerable<DownloadClientItem> GetItems();
         public abstract void RemoveItem(string downloadId, bool deleteData);
         public abstract DownloadClientStatus GetStatus();
@@ -111,7 +112,7 @@ namespace NzbDrone.Core.Download
         public ValidationResult Test()
         {
             var failures = new List<ValidationFailure>();
-            
+
             try
             {
                 Test(failures);
@@ -149,6 +150,21 @@ namespace NzbDrone.Core.Download
             return null;
         }
 
-        public abstract string Download(RemoteMovie remoteMovie);
+        protected string GetItemCategory(RemoteItem remoteItem)
+        {
+            var categorySettings = Settings as IDownloadClientSupportsCategories;
+            if (categorySettings == null) return string.Empty;
+
+            if (remoteItem.IsMovie())
+            {
+                return categorySettings.MovieCategory;
+            }
+            else if (remoteItem.IsEpisode())
+            {
+                return categorySettings.TvCategory;
+            }
+
+            return String.Empty;
+        }
     }
 }

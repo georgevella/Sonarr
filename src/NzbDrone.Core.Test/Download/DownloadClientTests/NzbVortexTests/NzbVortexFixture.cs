@@ -69,14 +69,14 @@ namespace NzbDrone.Core.Test.Download.DownloadClientTests.NzbVortexTests
         protected void GivenFailedDownload()
         {
             Mocker.GetMock<INzbVortexProxy>()
-                .Setup(s => s.DownloadNzb(It.IsAny<byte[]>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<NzbVortexSettings>()))
+                .Setup(s => s.DownloadNzb(It.IsAny<byte[]>(), It.IsAny<string>(), It.IsAny<int>(), TODO, It.IsAny<NzbVortexSettings>()))
                 .Returns((string)null);
         }
 
         protected void GivenSuccessfulDownload()
         {
             Mocker.GetMock<INzbVortexProxy>()
-                .Setup(s => s.DownloadNzb(It.IsAny<byte[]>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<NzbVortexSettings>()))
+                .Setup(s => s.DownloadNzb(It.IsAny<byte[]>(), It.IsAny<string>(), It.IsAny<int>(), TODO, It.IsAny<NzbVortexSettings>()))
                 .Returns(Guid.NewGuid().ToString().Replace("-", ""));
         }
 

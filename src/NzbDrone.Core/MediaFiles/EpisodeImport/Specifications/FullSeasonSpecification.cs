@@ -13,19 +13,15 @@ namespace NzbDrone.Core.MediaFiles.EpisodeImport.Specifications
             _logger = logger;
         }
 
-        public Decision IsSatisfiedBy(LocalEpisode localEpisode)
+        public Decision IsSatisfiedBy(LocalItem localItem)
         {
-            if (localEpisode.ParsedEpisodeInfo.FullSeason)
+            var localEpisode = localItem as LocalEpisode;
+            if (localEpisode != null && localEpisode.ParsedEpisodeInfo.FullSeason)
             {
                 _logger.Debug("Single episode file detected as containing all episodes in the season"); //Not needed for Movies mwhahahahah
                 return Decision.Reject("Single episode file contains all episodes in seasons");
             }
 
-            return Decision.Accept();
-        }
-
-        public Decision IsSatisfiedBy(LocalMovie localMovie)
-        {
             return Decision.Accept();
         }
     }

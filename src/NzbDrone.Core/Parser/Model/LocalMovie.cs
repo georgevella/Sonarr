@@ -6,24 +6,9 @@ using NzbDrone.Core.MediaFiles.MediaInfo;
 
 namespace NzbDrone.Core.Parser.Model
 {
-    public class LocalMovie
+    public class LocalMovie : LocalItem
     {
-        public LocalMovie()
-        {
-        }
-
-        public string Path { get; set; }
-        public long Size { get; set; }
-        public ParsedMovieInfo ParsedMovieInfo { get; set; }
-        public Movie Movie { get; set; }
-        public QualityModel Quality { get; set; }
-        public MediaInfoModel MediaInfo { get; set; }
-        public bool ExistingFile { get; set; }
-        
-
-        public override string ToString()
-        {
-            return Path;
-        }
+        public Movie Movie => (Movie)Media;
+        public ParsedMovieInfo ParsedMovieInfo => (ParsedMovieInfo)Info;
     }
 }

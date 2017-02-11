@@ -20,7 +20,7 @@ namespace NzbDrone.Core.Download.Clients.RTorrent
         }
     }
 
-    public class RTorrentSettings : IProviderConfig
+    public class RTorrentSettings : IProviderConfig, IDownloadClientSupportsCategories
     {
         private static readonly RTorrentSettingsValidator Validator = new RTorrentSettingsValidator();
 
@@ -30,7 +30,7 @@ namespace NzbDrone.Core.Download.Clients.RTorrent
             Port = 8080;
             UrlBase = "RPC2";
             MovieCategory = "movies";
-			TvCategory = "tv";
+            TvCategory = "tv";
         }
 
         [FieldDefinition(0, Label = "Host", Type = FieldType.Textbox)]

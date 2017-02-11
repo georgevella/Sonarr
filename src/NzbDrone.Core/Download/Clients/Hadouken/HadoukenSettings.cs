@@ -17,10 +17,15 @@ namespace NzbDrone.Core.Download.Clients.Hadouken
 
             RuleFor(c => c.Password).NotEmpty()
                                     .WithMessage("Password must not be empty.");
+
+            RuleFor(c => c.TvCategory).NotEmpty()
+                                    .WithMessage("Category must not be empty.");
+            RuleFor(c => c.MovieCategory).NotEmpty()
+                                    .WithMessage("Password must not be empty.");
         }
     }
 
-    public class HadoukenSettings : IProviderConfig
+    public class HadoukenSettings : IProviderConfig, IDownloadClientSupportsCategories
     {
         private static readonly HadoukenSettingsValidator Validator = new HadoukenSettingsValidator();
 
@@ -28,7 +33,8 @@ namespace NzbDrone.Core.Download.Clients.Hadouken
         {
             Host = "localhost";
             Port = 7070;
-            Category = "sonarr-tv";
+            TvCategory = "tv";
+            MovieCategory = "movie";
         }
 
         [FieldDefinition(0, Label = "Host", Type = FieldType.Textbox)]
@@ -43,8 +49,11 @@ namespace NzbDrone.Core.Download.Clients.Hadouken
         [FieldDefinition(3, Label = "Password", Type = FieldType.Password)]
         public string Password { get; set; }
 
-        [FieldDefinition(4, Label = "Category", Type = FieldType.Textbox)]
-        public string Category { get; set; }
+        [FieldDefinition(4, Label = "TV Category", Type = FieldType.Textbox)]
+        public string TvCategory { get; set; }
+
+        [FieldDefinition(4, Label = "Movie Category", Type = FieldType.Textbox)]
+        public string MovieCategory { get; set; }
 
         [FieldDefinition(5, Label = "Use SSL", Type = FieldType.Checkbox, Advanced = true)]
         public bool UseSsl { get; set; }

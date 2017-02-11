@@ -8,7 +8,7 @@ using NzbDrone.Core.Tv;
 
 namespace NzbDrone.Core.DecisionEngine.Specifications
 {
-    public class FullSeasonSpecification : IDecisionEngineSpecification
+    public class FullSeasonSpecification : TypeDependentDecisionEngineSpecification
     {
         private readonly Logger _logger;
         private readonly IEpisodeService _episodeService;
@@ -19,9 +19,9 @@ namespace NzbDrone.Core.DecisionEngine.Specifications
             _episodeService = episodeService;
         }
 
-        public RejectionType Type => RejectionType.Permanent;
+        public override RejectionType Type => RejectionType.Permanent;
 
-        public virtual Decision IsSatisfiedBy(RemoteEpisode subject, SearchCriteriaBase searchCriteria)
+        public override Decision IsSatisfiedBy(RemoteEpisode subject, SearchCriteriaBase searchCriteria)
         {
             if (subject.ParsedEpisodeInfo.FullSeason)
             {
@@ -30,14 +30,14 @@ namespace NzbDrone.Core.DecisionEngine.Specifications
                 if (subject.Episodes.Any(e => !e.AirDateUtc.HasValue || e.AirDateUtc.Value.After(DateTime.UtcNow)))
                 {
                     _logger.Debug("Full season release {0} rejected. All episodes haven't aired yet.", subject.Release.Title);
-                    //return Decision.Reject("Full season release rejected. All episodes haven't aired yet.");
+                    return Decision.Reject("Full season release rejected. All episodes haven't aired yet.");
                 }
             }
 
             return Decision.Accept();
         }
 
-        public Decision IsSatisfiedBy(RemoteMovie subject, SearchCriteriaBase searchCriteria)
+        public override Decision IsSatisfiedBy(RemoteMovie subject, SearchCriteriaBase searchCriteria)
         {
             throw new NotImplementedException();
         }

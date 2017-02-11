@@ -4,6 +4,7 @@ using System.Linq;
 using NzbDrone.Common.Crypto;
 using NzbDrone.Core.Download.TrackedDownloads;
 using NzbDrone.Core.Messaging.Events;
+using NzbDrone.Core.Parser;
 using NzbDrone.Core.Tv;
 
 namespace NzbDrone.Core.Queue
@@ -44,77 +45,54 @@ namespace NzbDrone.Core.Queue
 
         private IEnumerable<Queue> MapQueue(TrackedDownload trackedDownload)
         {
-            if (trackedDownload.RemoteEpisode != null && trackedDownload.RemoteEpisode.Episodes != null && trackedDownload.RemoteEpisode.Episodes.Any())
-            {
-                foreach (var episode in trackedDownload.RemoteEpisode.Episodes)
+            var queueItems = trackedDownload.RemoteItem.ForEachMediaItem(
+                (remoteEpisode, episode) => new Queue
                 {
-                    yield return MapEpisode(trackedDownload, episode);
+                    Id = HashConverter.GetHashInt31(
+                    $"trackedDownload-{trackedDownload.DownloadItem.DownloadId}-ep{episode.Id}"),
+                    Series = trackedDownload.RemoteItem.GetSeriesSafely(),
+                    Episode = episode,
+                    Quality = trackedDownload.RemoteItem.Info.Quality,
+                    Title = trackedDownload.DownloadItem.Title,
+                    Size = trackedDownload.DownloadItem.TotalSize,
+                    Sizeleft = trackedDownload.DownloadItem.RemainingSize,
+                    Timeleft = trackedDownload.DownloadItem.RemainingTime,
+                    Status = trackedDownload.DownloadItem.Status.ToString(),
+                    TrackedDownloadStatus = trackedDownload.Status.ToString(),
+                    StatusMessages = trackedDownload.StatusMessages.ToList(),
+                    RemoteItem = trackedDownload.RemoteItem,
+                    DownloadId = trackedDownload.DownloadItem.DownloadId,
+                    Protocol = trackedDownload.Protocol,
+                    MediaType = MediaType.TVShows
+                }, movie => new Queue
+                {
+                    Id = HashConverter.GetHashInt31($"trackedDownload-{trackedDownload.DownloadItem.DownloadId}"),
+                    Series = null,
+                    Episode = null,
+                    Quality = trackedDownload.RemoteItem.Info.Quality,
+                    Title = trackedDownload.DownloadItem.Title,
+                    Size = trackedDownload.DownloadItem.TotalSize,
+                    Sizeleft = trackedDownload.DownloadItem.RemainingSize,
+                    Timeleft = trackedDownload.DownloadItem.RemainingTime,
+                    Status = trackedDownload.DownloadItem.Status.ToString(),
+                    TrackedDownloadStatus = trackedDownload.Status.ToString(),
+                    StatusMessages = trackedDownload.StatusMessages.ToList(),
+                    RemoteItem = trackedDownload.RemoteItem,
+                    DownloadId = trackedDownload.DownloadItem.DownloadId,
+                    Protocol = trackedDownload.Protocol,
+                    Movie = movie.GetMovie(),
+                    MediaType = MediaType.Movies
+                }).ToList();
+
+            queueItems.ForEach(queue =>
+            {
+                if (queue.Timeleft.HasValue)
+                {
+                    queue.EstimatedCompletionTime = DateTime.UtcNow.Add(queue.Timeleft.Value);
                 }
-            }
-            else if (trackedDownload.RemoteMovie != null && trackedDownload.RemoteMovie.Movie != null)
-            {
-                yield return MapMovie(trackedDownload, trackedDownload.RemoteMovie.Movie);
-            }
-        }
+            });
 
-        private Queue MapMovie(TrackedDownload trackedDownload, Movie movie)
-        {
-            var queue = new Queue
-            {
-                Id = HashConverter.GetHashInt31(string.Format("trackedDownload-{0}", trackedDownload.DownloadItem.DownloadId)),
-                Series = null,
-                Episode = null,
-                Quality = trackedDownload.RemoteMovie.ParsedMovieInfo.Quality,
-                Title = trackedDownload.DownloadItem.Title,
-                Size = trackedDownload.DownloadItem.TotalSize,
-                Sizeleft = trackedDownload.DownloadItem.RemainingSize,
-                Timeleft = trackedDownload.DownloadItem.RemainingTime,
-                Status = trackedDownload.DownloadItem.Status.ToString(),
-                TrackedDownloadStatus = trackedDownload.Status.ToString(),
-                StatusMessages = trackedDownload.StatusMessages.ToList(),
-                RemoteEpisode = trackedDownload.RemoteEpisode,
-                RemoteMovie = trackedDownload.RemoteMovie,
-                DownloadId = trackedDownload.DownloadItem.DownloadId,
-                Protocol = trackedDownload.Protocol,
-                Movie = movie,
-                MediaType = MediaType.Movies
-            };
-
-            if (queue.Timeleft.HasValue)
-            {
-                queue.EstimatedCompletionTime = DateTime.UtcNow.Add(queue.Timeleft.Value);
-            }
-
-            return queue;
-        }
-
-        private Queue MapEpisode(TrackedDownload trackedDownload, Episode episode)
-        {
-            var queue = new Queue
-            {
-                Id = HashConverter.GetHashInt31(string.Format("trackedDownload-{0}-ep{1}", trackedDownload.DownloadItem.DownloadId, episode.Id)),
-                Series = trackedDownload.RemoteEpisode.Series,
-                Episode = episode,
-                Quality = trackedDownload.RemoteEpisode.ParsedEpisodeInfo.Quality,
-                Title = trackedDownload.DownloadItem.Title,
-                Size = trackedDownload.DownloadItem.TotalSize,
-                Sizeleft = trackedDownload.DownloadItem.RemainingSize,
-                Timeleft = trackedDownload.DownloadItem.RemainingTime,
-                Status = trackedDownload.DownloadItem.Status.ToString(),
-                TrackedDownloadStatus = trackedDownload.Status.ToString(),
-                StatusMessages = trackedDownload.StatusMessages.ToList(),
-                RemoteEpisode = trackedDownload.RemoteEpisode,
-                DownloadId = trackedDownload.DownloadItem.DownloadId,
-                Protocol = trackedDownload.Protocol,
-                MediaType = MediaType.TVShows
-            };
-
-            if (queue.Timeleft.HasValue)
-            {
-                queue.EstimatedCompletionTime = DateTime.UtcNow.Add(queue.Timeleft.Value);
-            }
-
-            return queue;
+            return queueItems;
         }
     }
 }

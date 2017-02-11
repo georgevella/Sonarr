@@ -16,7 +16,7 @@ namespace NzbDrone.Core.MediaFiles
     {
         List<ImportResult> ProcessRootFolder(DirectoryInfo directoryInfo);
         List<ImportResult> ProcessPath(string path, ImportMode importMode = ImportMode.Auto, Series series = null, DownloadClientItem downloadClientItem = null);
-        bool ShouldDeleteFolder(DirectoryInfo directoryInfo, Series series);
+        bool ShouldDeleteFolder(DirectoryInfo directoryInfo, IMediaItem series);
     }
 
     public class DownloadedEpisodesImportService : IDownloadedEpisodesImportService
@@ -24,7 +24,7 @@ namespace NzbDrone.Core.MediaFiles
         private readonly IDiskProvider _diskProvider;
         private readonly IDiskScanService _diskScanService;
         private readonly ISeriesService _seriesService;
-        private readonly IParsingService _parsingService;
+        private readonly ITvShowParsingService _parsingService;
         private readonly IMakeImportDecision _importDecisionMaker;
         private readonly IImportApprovedEpisodes _importApprovedEpisodes;
         private readonly IDetectSample _detectSample;
@@ -33,7 +33,7 @@ namespace NzbDrone.Core.MediaFiles
         public DownloadedEpisodesImportService(IDiskProvider diskProvider,
                                                IDiskScanService diskScanService,
                                                ISeriesService seriesService,
-                                               IParsingService parsingService,
+                                               IParsingServiceProvider parsingServiceProvider,
                                                IMakeImportDecision importDecisionMaker,
                                                IImportApprovedEpisodes importApprovedEpisodes,
                                                IDetectSample detectSample,
@@ -42,7 +42,7 @@ namespace NzbDrone.Core.MediaFiles
             _diskProvider = diskProvider;
             _diskScanService = diskScanService;
             _seriesService = seriesService;
-            _parsingService = parsingService;
+            _parsingService = parsingServiceProvider.GetTvShowParsingService();
             _importDecisionMaker = importDecisionMaker;
             _importApprovedEpisodes = importApprovedEpisodes;
             _detectSample = detectSample;
@@ -98,7 +98,7 @@ namespace NzbDrone.Core.MediaFiles
             return new List<ImportResult>();
         }
 
-        public bool ShouldDeleteFolder(DirectoryInfo directoryInfo, Series series)
+        public bool ShouldDeleteFolder(DirectoryInfo directoryInfo, IMediaItem series)
         {
             var videoFiles = _diskScanService.GetVideoFiles(directoryInfo.FullName);
             var rarFiles = _diskProvider.GetFiles(directoryInfo.FullName, SearchOption.AllDirectories).Where(f => Path.GetExtension(f) == ".rar");
@@ -135,7 +135,7 @@ namespace NzbDrone.Core.MediaFiles
         private List<ImportResult> ProcessFolder(DirectoryInfo directoryInfo, ImportMode importMode, DownloadClientItem downloadClientItem)
         {
             var cleanedUpName = GetCleanedUpFolderName(directoryInfo.Name);
-            var series = _parsingService.GetSeries(cleanedUpName);
+            var series = _parsingService.GetMediaItem(cleanedUpName);
 
             if (series == null)
             {
@@ -150,7 +150,7 @@ namespace NzbDrone.Core.MediaFiles
             return ProcessFolder(directoryInfo, importMode, series, downloadClientItem);
         }
 
-        private List<ImportResult> ProcessFolder(DirectoryInfo directoryInfo, ImportMode importMode, Series series, DownloadClientItem downloadClientItem)
+        private List<ImportResult> ProcessFolder(DirectoryInfo directoryInfo, ImportMode importMode, IMediaItem series, DownloadClientItem downloadClientItem)
         {
             if (_seriesService.SeriesPathExists(directoryInfo.FullName))
             {
@@ -182,7 +182,7 @@ namespace NzbDrone.Core.MediaFiles
                 }
             }
 
-            var decisions = _importDecisionMaker.GetImportDecisions(videoFiles.ToList(), series, folderInfo, true);
+            var decisions = _importDecisionMaker.GetImportDecisions(videoFiles.ToList(), series, folderInfo, shouldCheckQuality: true);
             var importResults = _importApprovedEpisodes.Import(decisions, true, downloadClientItem, importMode);
 
             if ((downloadClientItem == null || !downloadClientItem.IsReadOnly) &&
@@ -198,7 +198,7 @@ namespace NzbDrone.Core.MediaFiles
 
         private List<ImportResult> ProcessFile(FileInfo fileInfo, ImportMode importMode, DownloadClientItem downloadClientItem)
         {
-            var series = _parsingService.GetSeries(Path.GetFileNameWithoutExtension(fileInfo.Name));
+            var series = _parsingService.GetMediaItem(Path.GetFileNameWithoutExtension(fileInfo.Name)) as Series;
 
             if (series == null)
             {

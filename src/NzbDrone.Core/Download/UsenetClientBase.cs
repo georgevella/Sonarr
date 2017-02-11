@@ -27,17 +27,15 @@ namespace NzbDrone.Core.Download
         {
             _httpClient = httpClient;
         }
-        
+
         public override DownloadProtocol Protocol => DownloadProtocol.Usenet;
 
-        protected abstract string AddFromNzbFile(RemoteEpisode remoteEpisode, string filename, byte[] fileContents);
+        protected abstract string AddFromNzbFile(RemoteItem remoteItem, string filename, byte[] fileContents);
 
-        protected abstract string AddFromNzbFile(RemoteMovie remoteMovie, string filename, byte[] fileContents);
-
-        public override string Download(RemoteEpisode remoteEpisode)
+        public override string Download(RemoteItem remoteItem)
         {
-            var url = remoteEpisode.Release.DownloadUrl;
-            var filename =  FileNameBuilder.CleanFileName(remoteEpisode.Release.Title) + ".nzb";
+            var url = remoteItem.Release.DownloadUrl;
+            var filename = FileNameBuilder.CleanFileName(remoteItem.Release.Title) + ".nzb";
 
             byte[] nzbData;
 
@@ -45,7 +43,7 @@ namespace NzbDrone.Core.Download
             {
                 nzbData = _httpClient.Get(new HttpRequest(url)).ResponseData;
 
-                _logger.Debug("Downloaded nzb for episode '{0}' finished ({1} bytes from {2})", remoteEpisode.Release.Title, nzbData.Length, url);
+                _logger.Debug("Downloaded nzb for episode '{0}' finished ({1} bytes from {2})", remoteItem.Release.Title, nzbData.Length, url);
             }
             catch (HttpException ex)
             {
@@ -55,57 +53,20 @@ namespace NzbDrone.Core.Download
                 }
                 else
                 {
-                    _logger.Error(ex, "Downloading nzb for episode '{0}' failed ({1})", remoteEpisode.Release.Title, url);
+                    _logger.Error(ex, "Downloading nzb for episode '{0}' failed ({1})", remoteItem.Release.Title, url);
                 }
 
-                throw new ReleaseDownloadException(remoteEpisode.Release, "Downloading nzb failed", ex);
+                throw new ReleaseDownloadException(remoteItem.Release, "Downloading nzb failed", ex);
             }
             catch (WebException ex)
             {
-                _logger.Error(ex, "Downloading nzb for episode '{0}' failed ({1})", remoteEpisode.Release.Title, url);
+                _logger.Error(ex, "Downloading nzb for episode '{0}' failed ({1})", remoteItem.Release.Title, url);
 
-                throw new ReleaseDownloadException(remoteEpisode.Release, "Downloading nzb failed", ex);
+                throw new ReleaseDownloadException(remoteItem.Release, "Downloading nzb failed", ex);
             }
 
-            _logger.Info("Adding report [{0}] to the queue.", remoteEpisode.Release.Title);
-            return AddFromNzbFile(remoteEpisode, filename, nzbData);
-        }
-
-        public override string Download(RemoteMovie remoteEpisode)
-        {
-            var url = remoteEpisode.Release.DownloadUrl;
-            var filename = FileNameBuilder.CleanFileName(remoteEpisode.Release.Title) + ".nzb";
-
-            byte[] nzbData;
-
-            try
-            {
-                nzbData = _httpClient.Get(new HttpRequest(url)).ResponseData;
-
-                _logger.Debug("Downloaded nzb for episode '{0}' finished ({1} bytes from {2})", remoteEpisode.Release.Title, nzbData.Length, url);
-            }
-            catch (HttpException ex)
-            {
-                if ((int)ex.Response.StatusCode == 429)
-                {
-                    _logger.Error("API Grab Limit reached for {0}", url);
-                }
-                else
-                {
-                    _logger.Error(ex, "Downloading nzb for episode '{0}' failed ({1})", remoteEpisode.Release.Title, url);
-                }
-
-                throw new ReleaseDownloadException(remoteEpisode.Release, "Downloading nzb failed", ex);
-            }
-            catch (WebException ex)
-            {
-                _logger.Error(ex, "Downloading nzb for episode '{0}' failed ({1})", remoteEpisode.Release.Title, url);
-
-                throw new ReleaseDownloadException(remoteEpisode.Release, "Downloading nzb failed", ex);
-            }
-
-            _logger.Info("Adding report [{0}] to the queue.", remoteEpisode.Release.Title);
-            return AddFromNzbFile(remoteEpisode, filename, nzbData);
+            _logger.Info("Adding report [{0}] to the queue.", remoteItem.Release.Title);
+            return AddFromNzbFile(remoteItem, filename, nzbData);
         }
     }
 }

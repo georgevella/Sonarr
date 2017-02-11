@@ -7,7 +7,7 @@ using NzbDrone.Core.Profiles;
 
 namespace NzbDrone.Core.Tv
 {
-    public class Series : ModelBase
+    public class Series : ModelBase, IMediaItem
     {
         public Series()
         {

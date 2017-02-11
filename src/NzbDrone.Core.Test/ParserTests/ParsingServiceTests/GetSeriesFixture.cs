@@ -7,7 +7,7 @@ using NzbDrone.Core.Tv;
 namespace NzbDrone.Core.Test.ParserTests.ParsingServiceTests
 {
     [TestFixture]
-    public class GetSeriesFixture : CoreTest<ParsingService>
+    public class GetSeriesFixture : CoreTest<TvShowParsingService>
     {
         [Test]
         public void should_use_passed_in_title_when_it_cannot_be_parsed()

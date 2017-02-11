@@ -66,7 +66,7 @@ namespace NzbDrone.Core.Datastore
                   .Ignore(i => i.SupportsOnDownload)
                   .Ignore(i => i.SupportsOnUpgrade)
                   .Ignore(i => i.SupportsOnRename);
-            
+
             Mapper.Entity<MetadataDefinition>().RegisterDefinition("Metadata");
 
             Mapper.Entity<DownloadClientDefinition>().RegisterDefinition("DownloadClients")
@@ -88,24 +88,24 @@ namespace NzbDrone.Core.Datastore
                   .Ignore(f => f.Path)
                   .Relationships.AutoMapICollectionOrComplexProperties()
                   .For("Episodes")
-                  .LazyLoad(condition: parent => parent.Id > 0, 
+                  .LazyLoad(condition: parent => parent.Id > 0,
                             query: (db, parent) => db.Query<Episode>().Where(c => c.EpisodeFileId == parent.Id).ToList())
                   .HasOne(file => file.Series, file => file.SeriesId);
 
-                Mapper.Entity<MovieFile>().RegisterModel("MovieFiles")
-                .Ignore(f => f.Path)
-                .Relationships.AutoMapICollectionOrComplexProperties()
-                .For("Movie")
-                .LazyLoad(condition: parent => parent.Id > 0,
-                            query: (db, parent) => db.Query<Movie>().Where(c => c.MovieFileId == parent.Id).ToList())
-                .HasOne(file => file.Movie, file => file.MovieId);
+            Mapper.Entity<MovieFile>().RegisterModel("MovieFiles")
+            .Ignore(f => f.Path)
+            .Relationships.AutoMapICollectionOrComplexProperties()
+            .For("Movie")
+            .LazyLoad(condition: parent => parent.Id > 0,
+                        query: (db, parent) => db.Query<Movie>().Where(c => c.MovieFileId == parent.Id).ToList())
+            .HasOne(file => file.Movie, file => file.MovieId);
 
-                Mapper.Entity<Movie>().RegisterModel("Movies")
-                .Ignore(s => s.RootFolderPath)
-                .Relationship()
-                .HasOne(s => s.Profile, s => s.ProfileId)
-                .HasOne(m => m.MovieFile, m => m.MovieFileId);
-       
+            Mapper.Entity<Movie>().RegisterModel("Movies")
+            .Ignore(s => s.RootFolderPath)
+            .Relationship()
+            .HasOne(s => s.Profile, s => s.ProfileId)
+            .HasOne(m => m.MovieFile, m => m.MovieFileId);
+
 
             Mapper.Entity<Episode>().RegisterModel("Episodes")
                   .Ignore(e => e.SeriesTitle)
@@ -126,8 +126,7 @@ namespace NzbDrone.Core.Datastore
             Mapper.Entity<SubtitleFile>().RegisterModel("SubtitleFiles");
             Mapper.Entity<OtherExtraFile>().RegisterModel("ExtraFiles");
 
-            Mapper.Entity<PendingRelease>().RegisterModel("PendingReleases")
-                  .Ignore(e => e.RemoteEpisode);
+            Mapper.Entity<PendingRelease>().RegisterModel("PendingReleases");
 
             Mapper.Entity<RemotePathMapping>().RegisterModel("RemotePathMappings");
             Mapper.Entity<Tag>().RegisterModel("Tags");
@@ -146,7 +145,7 @@ namespace NzbDrone.Core.Datastore
             RegisterEmbeddedConverter();
             RegisterProviderSettingConverter();
 
-            
+
             MapRepository.Instance.RegisterTypeConverter(typeof(int), new Int32Converter());
             MapRepository.Instance.RegisterTypeConverter(typeof(double), new DoubleConverter());
             MapRepository.Instance.RegisterTypeConverter(typeof(DateTime), new UtcConverter());

@@ -32,25 +32,22 @@ namespace NzbDrone.Core.Download.Clients.Sabnzbd
         // patch can be a number (releases) or 'x' (git)
         private static readonly Regex VersionRegex = new Regex(@"(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+|x)", RegexOptions.Compiled);
 
-        protected override string AddFromNzbFile(RemoteEpisode remoteEpisode, string filename, byte[] fileContents)
+        protected override string AddFromNzbFile(RemoteItem remoteItem, string filename, byte[] fileContents)
         {
-            var category = Settings.TvCategory;
-            var priority = remoteEpisode.IsRecentEpisode() ? Settings.RecentTvPriority : Settings.OlderTvPriority;
+            string category;
 
-            var response = _proxy.DownloadNzb(fileContents, filename, category, priority, Settings);
-
-            if (response != null && response.Ids.Any())
-            {
-                return response.Ids.First();
-            }
-
-            return null;
-        }
-
-        protected override string AddFromNzbFile(RemoteMovie remoteMovie, string filename, byte[] fileContents)
-        {
-            var category = Settings.TvCategory;
             var priority = Settings.RecentTvPriority;
+
+            var remoteEpisode = remoteItem as RemoteEpisode;
+            if (remoteEpisode != null)
+            {
+                category = Settings.TvCategory;
+                priority = remoteEpisode.IsRecentEpisode() ? Settings.RecentTvPriority : Settings.OlderTvPriority;
+            }
+            else
+            {
+                category = Settings.MovieCategory;
+            }
 
             var response = _proxy.DownloadNzb(fileContents, filename, category, priority, Settings);
 

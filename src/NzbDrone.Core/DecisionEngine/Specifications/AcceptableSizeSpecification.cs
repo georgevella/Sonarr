@@ -9,7 +9,7 @@ using System.Collections.Generic;
 
 namespace NzbDrone.Core.DecisionEngine.Specifications
 {
-    public class AcceptableSizeSpecification : IDecisionEngineSpecification
+    public class AcceptableSizeSpecification : TypeDependentDecisionEngineSpecification
     {
         private readonly IQualityDefinitionService _qualityDefinitionService;
         private readonly IEpisodeService _episodeService;
@@ -22,9 +22,9 @@ namespace NzbDrone.Core.DecisionEngine.Specifications
             _logger = logger;
         }
 
-        public RejectionType Type => RejectionType.Permanent;
+        public override RejectionType Type => RejectionType.Permanent;
 
-        public Decision IsSatisfiedBy(RemoteEpisode subject, SearchCriteriaBase searchCriteria)
+        public override Decision IsSatisfiedBy(RemoteEpisode subject, SearchCriteriaBase searchCriteria)
         {
             _logger.Debug("Beginning size check for: {0}", subject);
 
@@ -108,7 +108,7 @@ namespace NzbDrone.Core.DecisionEngine.Specifications
             return Decision.Accept();
         }
 
-        public Decision IsSatisfiedBy(RemoteMovie subject, SearchCriteriaBase searchCriteria)
+        public override Decision IsSatisfiedBy(RemoteMovie subject, SearchCriteriaBase searchCriteria)
         {
             _logger.Debug("Beginning size check for: {0}", subject);
 
@@ -150,7 +150,8 @@ namespace NzbDrone.Core.DecisionEngine.Specifications
 
                 //If the parsed size is greater than maxSize we don't want it
                 if (subject.Release.Size > maxSize)
-                {;
+                {
+                    ;
 
                     _logger.Debug("Item: {0}, Size: {1} is greater than maximum allowed size ({2} for {3}), rejecting.", subject, subject.Release.Size, maxSize, subject.Movie.Title);
                     return Decision.Reject("{0} is larger than maximum allowed {1} (for {2})", subject.Release.Size.SizeSuffix(), maxSize.SizeSuffix(), subject.Movie.Title);

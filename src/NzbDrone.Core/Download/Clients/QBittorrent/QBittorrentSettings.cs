@@ -14,7 +14,7 @@ namespace NzbDrone.Core.Download.Clients.QBittorrent
         }
     }
 
-    public class QBittorrentSettings : IProviderConfig
+    public class QBittorrentSettings : IProviderConfig, IDownloadClientSupportsCategories
     {
         private static readonly QBittorrentSettingsValidator Validator = new QBittorrentSettingsValidator();
 
@@ -40,7 +40,10 @@ namespace NzbDrone.Core.Download.Clients.QBittorrent
         [FieldDefinition(4, Label = "Category", Type = FieldType.Textbox, HelpText = "Adding a category specific to Radarr avoids conflicts with unrelated downloads, but it's optional")]
         public string MovieCategory { get; set; }
 
-        [FieldDefinition(5, Label = "Use SSL", Type = FieldType.Checkbox, HelpText = "Use a secure connection. See Options -> Web UI -> 'Use HTTPS instead of HTTP' in qBittorrent.")]
+        [FieldDefinition(5, Label = "Category", Type = FieldType.Textbox, HelpText = "Adding a category specific to Radarr avoids conflicts with unrelated downloads, but it's optional")]
+        public string TvCategory { get; set; }
+
+        [FieldDefinition(6, Label = "Use SSL", Type = FieldType.Checkbox, HelpText = "Use a secure connection. See Options -> Web UI -> 'Use HTTPS instead of HTTP' in qBittorrent.")]
         public bool UseSsl { get; set; }
 
         public NzbDroneValidationResult Validate()

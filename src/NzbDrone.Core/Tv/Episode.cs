@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using Marr.Data;
+using NzbDrone.Common.Crypto;
 using NzbDrone.Common.Extensions;
 using NzbDrone.Core.Datastore;
+using NzbDrone.Core.Download.Pending;
 using NzbDrone.Core.MediaFiles;
 
 namespace NzbDrone.Core.Tv
@@ -44,6 +46,14 @@ namespace NzbDrone.Core.Tv
         public override string ToString()
         {
             return string.Format("[{0}]{1}", Id, Title.NullSafe());
+        }
+    }
+
+    public static class EpisodeExtensions
+    {
+        public static int GetQueueId(this Episode episode, IPendingRelease pendingRelease)
+        {
+            return HashConverter.GetHashInt31($"pending-{pendingRelease.Dao.Id}-ep{episode.Id}");
         }
     }
 }

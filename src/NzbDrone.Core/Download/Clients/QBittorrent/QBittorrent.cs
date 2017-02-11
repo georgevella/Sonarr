@@ -31,36 +31,22 @@ namespace NzbDrone.Core.Download.Clients.QBittorrent
             _proxy = proxy;
         }
 
-        protected override string AddFromMagnetLink(RemoteEpisode remoteEpisode, string hash, string magnetLink)
-        {
-            throw new NotImplementedException("Episodes are not working with Radarr");
-        }
-
-        protected override string AddFromTorrentFile(RemoteEpisode remoteEpisode, string hash, string filename, Byte[] fileContent)
-        {
-            throw new NotImplementedException("Episodes are not working with Radarr");
-        }
-
-        protected override string AddFromMagnetLink(RemoteMovie remoteMovie, string hash, string magnetLink)
+        protected override string AddFromMagnetLink(RemoteItem remoteItem, string hash, string magnetLink)
         {
             _proxy.AddTorrentFromUrl(magnetLink, Settings);
 
-            if (Settings.MovieCategory.IsNotNullOrWhiteSpace())
-            {
-                _proxy.SetTorrentLabel(hash.ToLower(), Settings.MovieCategory, Settings);
-            }
+            var category = GetItemCategory(remoteItem);
+            _proxy.SetTorrentLabel(hash, category, Settings);
 
             return hash;
         }
 
-        protected override string AddFromTorrentFile(RemoteMovie remoteMovie, string hash, string filename, Byte[] fileContent)
+        protected override string AddFromTorrentFile(RemoteItem remoteItem, string hash, string filename, Byte[] fileContent)
         {
             _proxy.AddTorrentFromFile(filename, fileContent, Settings);
 
-            if (Settings.MovieCategory.IsNotNullOrWhiteSpace())
-            {
-                _proxy.SetTorrentLabel(hash.ToLower(), Settings.MovieCategory, Settings);
-            }
+            var category = GetItemCategory(remoteItem);
+            _proxy.SetTorrentLabel(hash, category, Settings);
 
             return hash;
         }

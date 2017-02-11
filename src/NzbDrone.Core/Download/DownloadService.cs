@@ -13,8 +13,7 @@ namespace NzbDrone.Core.Download
 {
     public interface IDownloadService
     {
-        void DownloadReport(RemoteEpisode remoteEpisode);
-        void DownloadReport(RemoteMovie remoteMovie);
+        void DownloadReport(RemoteItem remoteItem);
     }
 
 
@@ -39,105 +38,48 @@ namespace NzbDrone.Core.Download
             _logger = logger;
         }
 
-        public void DownloadReport(RemoteEpisode remoteEpisode)
+        public void DownloadReport(RemoteItem remoteItem)
         {
-            //Ensure.That(remoteEpisode.Series, () => remoteEpisode.Series).IsNotNull();
-            //Ensure.That(remoteEpisode.Episodes, () => remoteEpisode.Episodes).HasItems(); TODO update this shit
+            //Ensure.That(remoteItem.Series, () => remoteItem.Series).IsNotNull();
+            //Ensure.That(remoteItem.Episodes, () => remoteItem.Episodes).HasItems(); TODO update this shit
 
-            var downloadTitle = remoteEpisode.Release.Title;
-            var downloadClient = _downloadClientProvider.GetDownloadClient(remoteEpisode.Release.DownloadProtocol);
+            var downloadTitle = remoteItem.Release.Title;
+            var downloadClient = _downloadClientProvider.GetDownloadClient(remoteItem.Release.DownloadProtocol);
 
             if (downloadClient == null)
             {
-                _logger.Warn("{0} Download client isn't configured yet.", remoteEpisode.Release.DownloadProtocol);
+                _logger.Warn("{0} Download client isn't configured yet.", remoteItem.Release.DownloadProtocol);
                 return;
             }
 
             // Limit grabs to 2 per second.
-            if (remoteEpisode.Release.DownloadUrl.IsNotNullOrWhiteSpace() && !remoteEpisode.Release.DownloadUrl.StartsWith("magnet:"))
+            if (remoteItem.Release.DownloadUrl.IsNotNullOrWhiteSpace() && !remoteItem.Release.DownloadUrl.StartsWith("magnet:"))
             {
-                var url = new HttpUri(remoteEpisode.Release.DownloadUrl);
+                var url = new HttpUri(remoteItem.Release.DownloadUrl);
                 _rateLimitService.WaitAndPulse(url.Host, TimeSpan.FromSeconds(2));
             }
 
             string downloadClientId;
             try
             {
-                downloadClientId = downloadClient.Download(remoteEpisode);
-                _indexerStatusService.RecordSuccess(remoteEpisode.Release.IndexerId);
+                downloadClientId = downloadClient.Download(remoteItem);
+                _indexerStatusService.RecordSuccess(remoteItem.Release.IndexerId);
             }
             catch (ReleaseDownloadException ex)
             {
                 var http429 = ex.InnerException as TooManyRequestsException;
                 if (http429 != null)
                 {
-                    _indexerStatusService.RecordFailure(remoteEpisode.Release.IndexerId, http429.RetryAfter);
+                    _indexerStatusService.RecordFailure(remoteItem.Release.IndexerId, http429.RetryAfter);
                 }
                 else
                 {
-                    _indexerStatusService.RecordFailure(remoteEpisode.Release.IndexerId);
+                    _indexerStatusService.RecordFailure(remoteItem.Release.IndexerId);
                 }
                 throw;
             }
 
-            var episodeGrabbedEvent = new EpisodeGrabbedEvent(remoteEpisode);
-            episodeGrabbedEvent.DownloadClient = downloadClient.GetType().Name;
-
-            if (!string.IsNullOrWhiteSpace(downloadClientId))
-            {
-                episodeGrabbedEvent.DownloadId = downloadClientId;
-            }
-
-            _logger.ProgressInfo("Report sent to {0}. {1}", downloadClient.Definition.Name, downloadTitle);
-            _eventAggregator.PublishEvent(episodeGrabbedEvent);
-        }
-
-        public void DownloadReport(RemoteMovie remoteMovie)
-        {
-            //Ensure.That(remoteEpisode.Series, () => remoteEpisode.Series).IsNotNull();
-            //Ensure.That(remoteEpisode.Episodes, () => remoteEpisode.Episodes).HasItems(); TODO update this shit
-
-            var downloadTitle = remoteMovie.Release.Title;
-            var downloadClient = _downloadClientProvider.GetDownloadClient(remoteMovie.Release.DownloadProtocol);
-
-            if (downloadClient == null)
-            {
-                _logger.Warn("{0} Download client isn't configured yet.", remoteMovie.Release.DownloadProtocol);
-                return;
-            }
-
-            // Limit grabs to 2 per second.
-            if (remoteMovie.Release.DownloadUrl.IsNotNullOrWhiteSpace() && !remoteMovie.Release.DownloadUrl.StartsWith("magnet:"))
-            {
-                var url = new HttpUri(remoteMovie.Release.DownloadUrl);
-                _rateLimitService.WaitAndPulse(url.Host, TimeSpan.FromSeconds(2));
-            }
-
-            string downloadClientId = "";
-            try
-            {
-                downloadClientId = downloadClient.Download(remoteMovie);
-                _indexerStatusService.RecordSuccess(remoteMovie.Release.IndexerId);
-            }
-            catch (NotImplementedException ex)
-            {
-                _logger.Error(ex, "The download client you are using is currently not configured to download movies. Please choose another one.");
-            }
-            catch (ReleaseDownloadException ex)
-            {
-                var http429 = ex.InnerException as TooManyRequestsException;
-                if (http429 != null)
-                {
-                    _indexerStatusService.RecordFailure(remoteMovie.Release.IndexerId, http429.RetryAfter);
-                }
-                else
-                {
-                    _indexerStatusService.RecordFailure(remoteMovie.Release.IndexerId);
-                }
-                throw;
-            }
-
-            var episodeGrabbedEvent = new MovieGrabbedEvent(remoteMovie);
+            var episodeGrabbedEvent = new RemoteItemGrabbedEvent(remoteItem);
             episodeGrabbedEvent.DownloadClient = downloadClient.GetType().Name;
 
             if (!string.IsNullOrWhiteSpace(downloadClientId))

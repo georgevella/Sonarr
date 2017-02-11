@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using NzbDrone.Core.Parser;
 
 namespace NzbDrone.Core.MediaFiles
 {
@@ -70,7 +71,7 @@ namespace NzbDrone.Core.MediaFiles
                 {
                     _logger.Debug("External directory scan request for known download {0}. [{1}]", message.DownloadClientId, message.Path);
 
-                    return _downloadedMovieImportService.ProcessPath(message.Path, message.ImportMode, trackedDownload.RemoteMovie.Movie, trackedDownload.DownloadItem);
+                    return _downloadedMovieImportService.ProcessPath(message.Path, message.ImportMode, trackedDownload.RemoteItem.AsRemoteMovie().Movie, trackedDownload.DownloadItem);
                 }
                 else
                 {

@@ -24,8 +24,7 @@ namespace NzbDrone.Core.Queue
         public string TrackedDownloadStatus { get; set; }
         public List<TrackedDownloadStatusMessage> StatusMessages { get; set; }
         public string DownloadId { get; set; }
-        public RemoteEpisode RemoteEpisode { get; set; }
-        public RemoteMovie RemoteMovie { get; set; }
+        public RemoteItem RemoteItem { get; set; }
         public DownloadProtocol Protocol { get; set; }
         public MediaType MediaType { get; set; }
     }

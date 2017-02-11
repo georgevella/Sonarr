@@ -16,7 +16,7 @@ namespace NzbDrone.Core.DecisionEngine.Specifications
             _logger = logger;
         }
 
-        public Decision IsSatisfiedBy(RemoteEpisode subject, SearchCriteriaBase searchCriteria)
+        public Decision IsSatisfiedBy(RemoteItem subject, SearchCriteriaBase searchCriteria)
         {
             if (subject.Release.Title.ToLower().Contains("sample") && subject.Release.Size < 70.Megabytes())
             {
@@ -27,15 +27,5 @@ namespace NzbDrone.Core.DecisionEngine.Specifications
             return Decision.Accept();
         }
 
-        public Decision IsSatisfiedBy(RemoteMovie subject, SearchCriteriaBase searchCriteria)
-        {
-            if (subject.Release.Title.ToLower().Contains("sample") && subject.Release.Size < 70.Megabytes())
-            {
-                _logger.Debug("Sample release, rejecting.");
-                return Decision.Reject("Sample");
-            }
-
-            return Decision.Accept();
-        }
     }
 }

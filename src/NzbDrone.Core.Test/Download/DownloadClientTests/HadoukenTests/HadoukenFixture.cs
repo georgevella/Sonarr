@@ -92,11 +92,11 @@ namespace NzbDrone.Core.Test.Download.DownloadClientTests.HadoukenTests
         protected void GivenFailedDownload()
         {
             Mocker.GetMock<IHadoukenProxy>()
-                .Setup(s => s.AddTorrentUri(It.IsAny<HadoukenSettings>(), It.IsAny<string>()))
+                .Setup(s => s.AddTorrentUri(It.IsAny<HadoukenSettings>(), It.IsAny<string>(), TODO))
                 .Throws<InvalidOperationException>();
 
             Mocker.GetMock<IHadoukenProxy>()
-                .Setup(s => s.AddTorrentFile(It.IsAny<HadoukenSettings>(), It.IsAny<byte[]>()))
+                .Setup(s => s.AddTorrentFile(It.IsAny<HadoukenSettings>(), It.IsAny<byte[]>(), TODO))
                 .Throws<InvalidOperationException>();
         }
 
@@ -107,11 +107,11 @@ namespace NzbDrone.Core.Test.Download.DownloadClientTests.HadoukenTests
                   .Returns<HttpRequest>(r => new HttpResponse(r, new HttpHeader(), new byte[1000]));
 
             Mocker.GetMock<IHadoukenProxy>()
-                .Setup(s => s.AddTorrentUri(It.IsAny<HadoukenSettings>(), It.IsAny<string>()))
+                .Setup(s => s.AddTorrentUri(It.IsAny<HadoukenSettings>(), It.IsAny<string>(), TODO))
                 .Callback(PrepareClientToReturnQueuedItem);
 
             Mocker.GetMock<IHadoukenProxy>()
-                .Setup(s => s.AddTorrentFile(It.IsAny<HadoukenSettings>(), It.IsAny<byte[]>()))
+                .Setup(s => s.AddTorrentFile(It.IsAny<HadoukenSettings>(), It.IsAny<byte[]>(), TODO))
                 .Returns("CBC2F069FE8BB2F544EAE707D75BCD3DE9DCF951".ToLower())
                 .Callback(PrepareClientToReturnQueuedItem);
         }
@@ -281,7 +281,7 @@ namespace NzbDrone.Core.Test.Download.DownloadClientTests.HadoukenTests
             remoteEpisode.Release.DownloadUrl = "magnet:?xt=urn:btih:a45129e59d8750f9da982f53552b1e4f0457ee9f";
 
             Mocker.GetMock<IHadoukenProxy>()
-               .Setup(v => v.AddTorrentUri(It.IsAny<HadoukenSettings>(), It.IsAny<string>()));
+               .Setup(v => v.AddTorrentUri(It.IsAny<HadoukenSettings>(), It.IsAny<string>(), TODO));
 
             var result = Subject.Download(remoteEpisode);
 
@@ -294,7 +294,7 @@ namespace NzbDrone.Core.Test.Download.DownloadClientTests.HadoukenTests
             var remoteEpisode = CreateRemoteEpisode();
 
             Mocker.GetMock<IHadoukenProxy>()
-               .Setup(v => v.AddTorrentFile(It.IsAny<HadoukenSettings>(), It.IsAny<byte[]>()))
+               .Setup(v => v.AddTorrentFile(It.IsAny<HadoukenSettings>(), It.IsAny<byte[]>(), TODO))
                .Returns("hash");
 
             var result = Subject.Download(remoteEpisode);

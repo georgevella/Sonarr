@@ -15,7 +15,7 @@ using NzbDrone.Test.Common;
 namespace NzbDrone.Core.Test.ParserTests.ParsingServiceTests
 {
     [TestFixture]
-    public class MapFixture : TestBase<ParsingService>
+    public class MapFixture : TestBase<TvShowParsingService>
     {
         private Series _series;
         private List<Episode> _episodes;

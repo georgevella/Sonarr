@@ -19,7 +19,7 @@ namespace NzbDrone.Core.Notifications.Webhook
 
         public override void OnGrab(GrabMessage message)
         {
-            _service.OnGrab(message.Series, message.Episode, message.Quality, Settings);
+            _service.OnGrab(message.Series, message.Item, message.Quality, Settings);
         }
 
         public override void OnDownload(DownloadMessage message)
@@ -30,7 +30,7 @@ namespace NzbDrone.Core.Notifications.Webhook
         public override void OnMovieRename(Movie movie)
         {
         }
-		
+
         public override void OnRename(Series series)
         {
             _service.OnRename(series, Settings);

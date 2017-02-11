@@ -15,7 +15,7 @@ namespace NzbDrone.Core.DecisionEngine.Specifications.Search
 
         public RejectionType Type => RejectionType.Permanent;
 
-        public Decision IsSatisfiedBy(RemoteEpisode remoteEpisode, SearchCriteriaBase searchCriteria)
+        public Decision IsSatisfiedBy(RemoteItem remoteEpisode, SearchCriteriaBase searchCriteria)
         {
             if (searchCriteria == null)
             {

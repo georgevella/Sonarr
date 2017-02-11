@@ -8,6 +8,7 @@ using NzbDrone.Common.Disk;
 using NzbDrone.Common.Extensions;
 using NzbDrone.Common.Http;
 using NzbDrone.Core.Configuration;
+using NzbDrone.Core.Parser;
 using NzbDrone.Core.Parser.Model;
 using NzbDrone.Core.Validation;
 using NzbDrone.Core.RemotePathMappings;
@@ -29,35 +30,21 @@ namespace NzbDrone.Core.Download.Clients.Nzbget
             _proxy = proxy;
         }
 
-        protected override string AddFromNzbFile(RemoteEpisode remoteEpisode, string filename, byte[] fileContents)
+        protected override string AddFromNzbFile(RemoteItem remoteItem, string filename, byte[] fileContents)
         {
-            var category = Settings.TvCategory;
+            var category = GetItemCategory(remoteItem);
+            var priority = Settings.RecentTvPriority;
 
-            var priority = remoteEpisode.IsRecentEpisode() ? Settings.RecentTvPriority : Settings.OlderTvPriority;
+            if (remoteItem.IsEpisode())
+            {
+                priority = remoteItem.AsRemoteEpisode().IsRecentEpisode() ? Settings.RecentTvPriority : Settings.OlderTvPriority;
+            }
 
             var addpaused = Settings.AddPaused;
 
             var response = _proxy.DownloadNzb(fileContents, filename, category, priority, addpaused, Settings);
 
             if (response == null)
-            {
-                throw new DownloadClientException("Failed to add nzb {0}", filename);
-            }
-
-            return response;
-        }
-
-        protected override string AddFromNzbFile(RemoteMovie remoteMovie, string filename, byte[] fileContents)
-        {
-            var category = Settings.TvCategory; // TODO: Update this to MovieCategory?
-
-            var priority = Settings.RecentTvPriority;
-
-            var addpaused = Settings.AddPaused;
-
-            var response = _proxy.DownloadNzb(fileContents, filename, category, priority, addpaused, Settings);
-
-            if(response == null)
             {
                 throw new DownloadClientException("Failed to add nzb {0}", filename);
             }

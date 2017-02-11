@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using Marr.Data;
+using NzbDrone.Common.Crypto;
 using NzbDrone.Common.Extensions;
 using NzbDrone.Core.Datastore;
+using NzbDrone.Core.Download.Pending;
 using NzbDrone.Core.Profiles;
 using NzbDrone.Core.MediaFiles;
 
 namespace NzbDrone.Core.Tv
 {
-    public class Movie : ModelBase
+    public class Movie : ModelBase, IMediaItem
     {
         public Movie()
         {
@@ -48,19 +50,27 @@ namespace NzbDrone.Core.Tv
         public LazyLoaded<MovieFile> MovieFile { get; set; }
         public int MovieFileId { get; set; }
         public List<string> AlternativeTitles { get; set; }
-        public string YouTubeTrailerId{ get; set; }
+        public string YouTubeTrailerId { get; set; }
         public string Studio { get; set; }
 
         public bool HasFile => MovieFileId > 0;
 
         public override string ToString()
         {
-            return string.Format("[{0}][{1}]", ImdbId, Title.NullSafe());
+            return $"[{ImdbId}][{Title.NullSafe()}]";
         }
     }
 
     public class AddMovieOptions : MonitoringOptions
     {
         public bool SearchForMovie { get; set; }
+    }
+
+    public static class MovieExtensions
+    {
+        public static int GetQueueId(this Movie movie, IPendingRelease pendingRelease)
+        {
+            return HashConverter.GetHashInt31($"pending-{pendingRelease.Dao.Id}-movie{movie.Id}");
+        }
     }
 }

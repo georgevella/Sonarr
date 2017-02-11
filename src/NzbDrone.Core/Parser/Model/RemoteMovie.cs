@@ -5,17 +5,23 @@ using NzbDrone.Core.Tv;
 
 namespace NzbDrone.Core.Parser.Model
 {
-    public class RemoteMovie
+    public class RemoteMovie : RemoteItem
     {
-        public ReleaseInfo Release { get; set; }
-        public ParsedEpisodeInfo ParsedEpisodeInfo { get; set; } //TODO: Change to ParsedMovieInfo, for now though ParsedEpisodeInfo will do.
-        public ParsedMovieInfo ParsedMovieInfo { get; set; }
-        public Movie Movie { get; set; }
-        public bool DownloadAllowed { get; set; }
-
-        public override string ToString()
+        public RemoteMovie(ReleaseInfo releaseInfo, ParsedItemInfo itemInfo, Movie movie) : base(releaseInfo, itemInfo, movie)
         {
-            return Release.Title;
         }
+
+        public RemoteMovie()
+        {
+
+        }
+
+        public override IEnumerable<int> GetItemIds()
+        {
+            return new[] { Media.Id };
+        }
+
+        public Movie Movie => (Movie)Media;
+        public ParsedMovieInfo ParsedMovieInfo => (ParsedMovieInfo)Info;
     }
 }

@@ -38,18 +38,18 @@ namespace NzbDrone.Core.Download.Clients.Blackhole
             ScanGracePeriod = TimeSpan.FromSeconds(30);
         }
 
-        protected override string AddFromMagnetLink(RemoteEpisode remoteEpisode, string hash, string magnetLink)
+        protected override string AddFromMagnetLink(RemoteItem remoteItem, string hash, string magnetLink)
         {
             if (!Settings.SaveMagnetFiles)
             {
                 throw new NotSupportedException("Blackhole does not support magnet links.");
             }
 
-            var title = remoteEpisode.Release.Title;
+            var title = remoteItem.Release.Title;
 
             title = FileNameBuilder.CleanFileName(title);
 
-            var filepath = Path.Combine(Settings.TorrentFolder, string.Format("{0}.magnet", title));
+            var filepath = Path.Combine(Settings.TorrentFolder, $"{title}.magnet");
 
             var fileContent = Encoding.UTF8.GetBytes(magnetLink);
             using (var stream = _diskProvider.OpenWriteStream(filepath))
@@ -62,13 +62,13 @@ namespace NzbDrone.Core.Download.Clients.Blackhole
             return null;
         }
 
-        protected override string AddFromTorrentFile(RemoteEpisode remoteEpisode, string hash, string filename, byte[] fileContent)
+        protected override string AddFromTorrentFile(RemoteItem remoteItem, string hash, string filename, byte[] fileContent)
         {
-            var title = remoteEpisode.Release.Title;
+            var title = remoteItem.Release.Title;
 
             title = FileNameBuilder.CleanFileName(title);
 
-            var filepath = Path.Combine(Settings.TorrentFolder, string.Format("{0}.torrent", title));
+            var filepath = Path.Combine(Settings.TorrentFolder, $"{title}.torrent");
 
             using (var stream = _diskProvider.OpenWriteStream(filepath))
             {

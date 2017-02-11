@@ -1,9 +1,14 @@
 using System.Text;
+using NzbDrone.Core.Tv;
 
 namespace NzbDrone.Core.Parser.Model
 {
     public class TorrentInfo : ReleaseInfo
     {
+        public TorrentInfo(MediaType mediaType) : base(mediaType)
+        {
+        }
+
         public string MagnetUrl { get; set; }
         public string InfoHash { get; set; }
         public int? Seeders { get; set; }

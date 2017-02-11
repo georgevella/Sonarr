@@ -5,7 +5,7 @@ using NzbDrone.Core.Parser.Model;
 
 namespace NzbDrone.Core.DecisionEngine.Specifications
 {
-    public class UpgradeDiskSpecification : IDecisionEngineSpecification
+    public class UpgradeDiskSpecification : TypeDependentDecisionEngineSpecification
     {
         private readonly QualityUpgradableSpecification _qualityUpgradableSpecification;
         private readonly Logger _logger;
@@ -16,9 +16,9 @@ namespace NzbDrone.Core.DecisionEngine.Specifications
             _logger = logger;
         }
 
-        public RejectionType Type => RejectionType.Permanent;
+        public override RejectionType Type => RejectionType.Permanent;
 
-        public virtual Decision IsSatisfiedBy(RemoteEpisode subject, SearchCriteriaBase searchCriteria)
+        public override Decision IsSatisfiedBy(RemoteEpisode subject, SearchCriteriaBase searchCriteria)
         {
             foreach (var file in subject.Episodes.Where(c => c.EpisodeFileId != 0).Select(c => c.EpisodeFile.Value))
             {
@@ -33,7 +33,7 @@ namespace NzbDrone.Core.DecisionEngine.Specifications
             return Decision.Accept();
         }
 
-        public virtual Decision IsSatisfiedBy(RemoteMovie subject, SearchCriteriaBase searchCriteria)
+        public override Decision IsSatisfiedBy(RemoteMovie subject, SearchCriteriaBase searchCriteria)
         {
             if (subject.Movie.MovieFile.Value == null)
             {
@@ -41,13 +41,13 @@ namespace NzbDrone.Core.DecisionEngine.Specifications
             }
 
             var file = subject.Movie.MovieFile.Value;
-                _logger.Debug("Comparing file quality with report. Existing file is {0}", file.Quality);
+            _logger.Debug("Comparing file quality with report. Existing file is {0}", file.Quality);
 
-                if (!_qualityUpgradableSpecification.IsUpgradable(subject.Movie.Profile, file.Quality, subject.ParsedMovieInfo.Quality))
-                {
-                    return Decision.Reject("Quality for existing file on disk is of equal or higher preference: {0}", file.Quality);
-                }
-            
+            if (!_qualityUpgradableSpecification.IsUpgradable(subject.Movie.Profile, file.Quality, subject.ParsedMovieInfo.Quality))
+            {
+                return Decision.Reject("Quality for existing file on disk is of equal or higher preference: {0}", file.Quality);
+            }
+
 
             return Decision.Accept();
         }

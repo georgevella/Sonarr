@@ -29,8 +29,7 @@ namespace NzbDrone.Core.History
     }
 
     public class HistoryService : IHistoryService,
-                                  IHandle<EpisodeGrabbedEvent>,
-                                  IHandle<MovieGrabbedEvent>,
+                                  IHandle<RemoteItemGrabbedEvent>,
                                   IHandle<MovieImportedEvent>,
                                   IHandle<EpisodeImportedEvent>,
                                   IHandle<DownloadFailedEvent>,
@@ -134,43 +133,71 @@ namespace NzbDrone.Core.History
             return downloadId;
         }
 
-        public void Handle(EpisodeGrabbedEvent message)
+        private IEnumerable<History> BuildRemoteItemHistory(RemoteItemGrabbedEvent message)
         {
-            foreach (var episode in message.Episode.Episodes)
+            var episodeItem = message.Item as RemoteEpisode;
+            if (episodeItem != null)
             {
-                var history = new History
+                foreach (var episode in episodeItem.Episodes)
                 {
-                    EventType = HistoryEventType.Grabbed,
-                    Date = DateTime.UtcNow,
-                    Quality = message.Episode.ParsedEpisodeInfo.Quality,
-                    SourceTitle = message.Episode.Release.Title,
-                    SeriesId = episode.SeriesId,
-                    EpisodeId = episode.Id,
-                    DownloadId = message.DownloadId,
-                    MovieId = 0
-                };
+                    yield return new History
+                    {
+                        EventType = HistoryEventType.Grabbed,
+                        Date = DateTime.UtcNow,
+                        Quality = message.Item.Info.Quality,
+                        SourceTitle = message.Item.Release.Title,
+                        SeriesId = episode.SeriesId,
+                        EpisodeId = episode.Id,
+                        DownloadId = message.DownloadId,
+                        MovieId = 0
+                    };
+                }
+            }
+            else
+            {
+                var movieItem = message.Item as RemoteMovie;
+                if (movieItem != null)
+                {
+                    yield return new History
+                    {
+                        EventType = HistoryEventType.Grabbed,
+                        Date = DateTime.UtcNow,
+                        Quality = message.Item.Info.Quality,
+                        SourceTitle = message.Item.Release.Title,
+                        SeriesId = 0,
+                        EpisodeId = 0,
+                        DownloadId = message.DownloadId,
+                        MovieId = movieItem.Media.Id
+                    };
+                }
+            }
+        }
 
-                history.Data.Add("Indexer", message.Episode.Release.Indexer);
-                history.Data.Add("NzbInfoUrl", message.Episode.Release.InfoUrl);
-                history.Data.Add("ReleaseGroup", message.Episode.ParsedEpisodeInfo.ReleaseGroup);
-                history.Data.Add("Age", message.Episode.Release.Age.ToString());
-                history.Data.Add("AgeHours", message.Episode.Release.AgeHours.ToString());
-                history.Data.Add("AgeMinutes", message.Episode.Release.AgeMinutes.ToString());
-                history.Data.Add("PublishedDate", message.Episode.Release.PublishDate.ToString("s") + "Z");
+        public void Handle(RemoteItemGrabbedEvent message)
+        {
+            foreach (var history in BuildRemoteItemHistory(message))
+            {
+                history.Data.Add("Indexer", message.Item.Release.Indexer);
+                history.Data.Add("NzbInfoUrl", message.Item.Release.InfoUrl);
+                history.Data.Add("ReleaseGroup", message.Item.Info.ReleaseGroup);
+                history.Data.Add("Age", message.Item.Release.Age.ToString());
+                history.Data.Add("AgeHours", message.Item.Release.AgeHours.ToString());
+                history.Data.Add("AgeMinutes", message.Item.Release.AgeMinutes.ToString());
+                history.Data.Add("PublishedDate", message.Item.Release.PublishDate.ToString("s") + "Z");
                 history.Data.Add("DownloadClient", message.DownloadClient);
-                history.Data.Add("Size", message.Episode.Release.Size.ToString());
-                history.Data.Add("DownloadUrl", message.Episode.Release.DownloadUrl);
-                history.Data.Add("Guid", message.Episode.Release.Guid);
-                history.Data.Add("TvdbId", message.Episode.Release.TvdbId.ToString());
-                history.Data.Add("TvRageId", message.Episode.Release.TvRageId.ToString());
-                history.Data.Add("Protocol", ((int)message.Episode.Release.DownloadProtocol).ToString());
+                history.Data.Add("Size", message.Item.Release.Size.ToString());
+                history.Data.Add("DownloadUrl", message.Item.Release.DownloadUrl);
+                history.Data.Add("Guid", message.Item.Release.Guid);
+                history.Data.Add("TvdbId", message.Item.Release.TvdbId.ToString());
+                history.Data.Add("TvRageId", message.Item.Release.TvRageId.ToString());
+                history.Data.Add("Protocol", ((int)message.Item.Release.DownloadProtocol).ToString());
 
-                if (!message.Episode.ParsedEpisodeInfo.ReleaseHash.IsNullOrWhiteSpace())
+                if (!message.Item.Info.ReleaseHash.IsNullOrWhiteSpace())
                 {
-                    history.Data.Add("ReleaseHash", message.Episode.ParsedEpisodeInfo.ReleaseHash);
+                    history.Data.Add("ReleaseHash", message.Item.Info.ReleaseHash);
                 }
 
-                var torrentRelease = message.Episode.Release as TorrentInfo;
+                var torrentRelease = message.Item.Release as TorrentInfo;
 
                 if (torrentRelease != null)
                 {
@@ -179,50 +206,6 @@ namespace NzbDrone.Core.History
 
                 _historyRepository.Insert(history);
             }
-        }
-
-        public void Handle(MovieGrabbedEvent message)
-        {
-            var history = new History
-            {
-                EventType = HistoryEventType.Grabbed,
-                Date = DateTime.UtcNow,
-                Quality = message.Movie.ParsedMovieInfo.Quality,
-                SourceTitle = message.Movie.Release.Title,
-                SeriesId = 0,
-                EpisodeId = 0,
-                DownloadId = message.DownloadId,
-                MovieId = message.Movie.Movie.Id
-            };
-
-                history.Data.Add("Indexer", message.Movie.Release.Indexer);
-                history.Data.Add("NzbInfoUrl", message.Movie.Release.InfoUrl);
-                history.Data.Add("ReleaseGroup", message.Movie.ParsedMovieInfo.ReleaseGroup);
-                history.Data.Add("Age", message.Movie.Release.Age.ToString());
-                history.Data.Add("AgeHours", message.Movie.Release.AgeHours.ToString());
-                history.Data.Add("AgeMinutes", message.Movie.Release.AgeMinutes.ToString());
-                history.Data.Add("PublishedDate", message.Movie.Release.PublishDate.ToString("s") + "Z");
-                history.Data.Add("DownloadClient", message.DownloadClient);
-                history.Data.Add("Size", message.Movie.Release.Size.ToString());
-                history.Data.Add("DownloadUrl", message.Movie.Release.DownloadUrl);
-                history.Data.Add("Guid", message.Movie.Release.Guid);
-                history.Data.Add("TvdbId", message.Movie.Release.TvdbId.ToString());
-                history.Data.Add("TvRageId", message.Movie.Release.TvRageId.ToString());
-                history.Data.Add("Protocol", ((int)message.Movie.Release.DownloadProtocol).ToString());
-
-                if (!message.Movie.ParsedMovieInfo.ReleaseHash.IsNullOrWhiteSpace())
-                {
-                    history.Data.Add("ReleaseHash", message.Movie.ParsedMovieInfo.ReleaseHash);
-                }
-
-                var torrentRelease = message.Movie.Release as TorrentInfo;
-
-                if (torrentRelease != null)
-                {
-                    history.Data.Add("TorrentInfoHash", torrentRelease.InfoHash);
-                }
-
-                _historyRepository.Insert(history);
         }
 
         public void Handle(EpisodeImportedEvent message)
@@ -280,28 +263,28 @@ namespace NzbDrone.Core.History
             }
 
             var movie = message.MovieInfo.Movie;
-                var history = new History
-                {
-                    EventType = HistoryEventType.DownloadFolderImported,
-                    Date = DateTime.UtcNow,
-                    Quality = message.MovieInfo.Quality,
-                    SourceTitle = movie.Title,
-                    SeriesId = 0,
-                    EpisodeId = 0,
-                    DownloadId = downloadId,
-                    MovieId = movie.Id,
+            var history = new History
+            {
+                EventType = HistoryEventType.DownloadFolderImported,
+                Date = DateTime.UtcNow,
+                Quality = message.MovieInfo.Quality,
+                SourceTitle = movie.Title,
+                SeriesId = 0,
+                EpisodeId = 0,
+                DownloadId = downloadId,
+                MovieId = movie.Id,
 
 
-                };
+            };
 
-                //Won't have a value since we publish this event before saving to DB.
-                //history.Data.Add("FileId", message.ImportedEpisode.Id.ToString());
-                history.Data.Add("DroppedPath", message.MovieInfo.Path);
-                history.Data.Add("ImportedPath", Path.Combine(movie.Path, message.ImportedMovie.RelativePath));
-                history.Data.Add("DownloadClient", message.DownloadClient);
+            //Won't have a value since we publish this event before saving to DB.
+            //history.Data.Add("FileId", message.ImportedEpisode.Id.ToString());
+            history.Data.Add("DroppedPath", message.MovieInfo.Path);
+            history.Data.Add("ImportedPath", Path.Combine(movie.Path, message.ImportedMovie.RelativePath));
+            history.Data.Add("DownloadClient", message.DownloadClient);
 
-                _historyRepository.Insert(history);
-            
+            _historyRepository.Insert(history);
+
         }
 
         public void Handle(DownloadFailedEvent message)

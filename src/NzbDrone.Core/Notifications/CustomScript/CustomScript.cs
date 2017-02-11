@@ -7,6 +7,7 @@ using FluentValidation.Results;
 using NLog;
 using NzbDrone.Common.Disk;
 using NzbDrone.Common.Processes;
+using NzbDrone.Core.Parser;
 using NzbDrone.Core.Tv;
 using NzbDrone.Core.Validation;
 
@@ -33,9 +34,8 @@ namespace NzbDrone.Core.Notifications.CustomScript
         {
             var movie = message.Movie;
             var series = message.Series;
-            var remoteEpisode = message.Episode;
-            var remoteMovie = message.RemoteMovie;
-            var releaseGroup = remoteMovie.ParsedMovieInfo.ReleaseGroup;
+            var remoteEpisode = message.Item;
+            var releaseGroup = message.Item.Info.ReleaseGroup;
             var environmentVariables = new StringDictionary();
 
             environmentVariables.Add("Radarr_EventType", "Grab");
@@ -46,12 +46,17 @@ namespace NzbDrone.Core.Notifications.CustomScript
             environmentVariables.Add("Sonarr_Series_Title", series.Title);
             environmentVariables.Add("Sonarr_Series_TvdbId", series.TvdbId.ToString());
             environmentVariables.Add("Sonarr_Series_Type", series.SeriesType.ToString());
-            environmentVariables.Add("Sonarr_Release_EpisodeCount", remoteEpisode.Episodes.Count.ToString());
-            environmentVariables.Add("Sonarr_Release_SeasonNumber", remoteEpisode.ParsedEpisodeInfo.SeasonNumber.ToString());
-            environmentVariables.Add("Sonarr_Release_EpisodeNumbers", string.Join(",", remoteEpisode.Episodes.Select(e => e.EpisodeNumber)));
-            environmentVariables.Add("Radarr_Release_Title", remoteMovie.Release.Title);
-            environmentVariables.Add("Radarr_Release_Indexer", remoteMovie.Release.Indexer);
-            environmentVariables.Add("Radarr_Release_Size", remoteMovie.Release.Size.ToString());
+
+            if (message.Item.IsEpisode())
+            {
+                var episode = message.Item.AsRemoteEpisode();
+                environmentVariables.Add("Sonarr_Release_EpisodeCount", episode.Episodes.Count.ToString());
+                environmentVariables.Add("Sonarr_Release_SeasonNumber", episode.ParsedEpisodeInfo.SeasonNumber.ToString());
+                environmentVariables.Add("Sonarr_Release_EpisodeNumbers", string.Join(",", episode.Episodes.Select(e => e.EpisodeNumber)));
+            }
+            environmentVariables.Add("Radarr_Release_Title", message.Item.Release.Title);
+            environmentVariables.Add("Radarr_Release_Indexer", message.Item.Release.Indexer);
+            environmentVariables.Add("Radarr_Release_Size", message.Item.Release.Size.ToString());
             environmentVariables.Add("Radarr_Release_ReleaseGroup", releaseGroup);
 
             ExecuteScript(environmentVariables);

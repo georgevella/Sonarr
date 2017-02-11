@@ -14,11 +14,12 @@ namespace NzbDrone.Core.Download.Clients.Nzbget
             RuleFor(c => c.Username).NotEmpty().When(c => !string.IsNullOrWhiteSpace(c.Password));
             RuleFor(c => c.Password).NotEmpty().When(c => !string.IsNullOrWhiteSpace(c.Username));
 
-            RuleFor(c => c.TvCategory).NotEmpty().WithMessage("A category is recommended").AsWarning();
+            RuleFor(c => c.TvCategory).NotEmpty().WithMessage("A category is recommended");
+            RuleFor(c => c.MovieCategory).NotEmpty().WithMessage("A category is recommended");
         }
     }
 
-    public class NzbgetSettings : IProviderConfig
+    public class NzbgetSettings : IProviderConfig, IDownloadClientSupportsCategories
     {
         private static readonly NzbgetSettingsValidator Validator = new NzbgetSettingsValidator();
 
@@ -45,19 +46,22 @@ namespace NzbDrone.Core.Download.Clients.Nzbget
         [FieldDefinition(3, Label = "Password", Type = FieldType.Password)]
         public string Password { get; set; }
 
-        [FieldDefinition(4, Label = "Category", Type = FieldType.Textbox, HelpText = "Adding a category specific to Radarr avoids conflicts with unrelated downloads, but it's optional")]
-        public string TvCategory { get; set; }        
+        [FieldDefinition(4, Label = "Tv Category", Type = FieldType.Textbox, HelpText = "Adding a category specific to Radarr avoids conflicts with unrelated downloads, but it's optional")]
+        public string TvCategory { get; set; }
 
-        [FieldDefinition(5, Label = "Recent Priority", Type = FieldType.Select, SelectOptions = typeof(NzbgetPriority), HelpText = "Priority to use when grabbing episodes that aired within the last 14 days")]
+        [FieldDefinition(5, Label = "Movie Category", Type = FieldType.Textbox, HelpText = "Adding a category specific to Radarr avoids conflicts with unrelated downloads, but it's optional")]
+        public string MovieCategory { get; set; }
+
+        [FieldDefinition(6, Label = "Recent Priority", Type = FieldType.Select, SelectOptions = typeof(NzbgetPriority), HelpText = "Priority to use when grabbing episodes that aired within the last 14 days")]
         public int RecentTvPriority { get; set; }
 
-        [FieldDefinition(6, Label = "Older Priority", Type = FieldType.Select, SelectOptions = typeof(NzbgetPriority), HelpText = "Priority to use when grabbing episodes that aired over 14 days ago")]
+        [FieldDefinition(7, Label = "Older Priority", Type = FieldType.Select, SelectOptions = typeof(NzbgetPriority), HelpText = "Priority to use when grabbing episodes that aired over 14 days ago")]
         public int OlderTvPriority { get; set; }
 
-        [FieldDefinition(7, Label = "Use SSL", Type = FieldType.Checkbox)]
+        [FieldDefinition(8, Label = "Use SSL", Type = FieldType.Checkbox)]
         public bool UseSsl { get; set; }
 
-        [FieldDefinition(8, Label = "Add Paused", Type = FieldType.Checkbox, HelpText = "This option requires at least NzbGet version 16.0")]
+        [FieldDefinition(9, Label = "Add Paused", Type = FieldType.Checkbox, HelpText = "This option requires at least NzbGet version 16.0")]
         public bool AddPaused { get; set; }
 
         public NzbDroneValidationResult Validate()

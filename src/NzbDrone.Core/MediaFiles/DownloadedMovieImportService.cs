@@ -34,7 +34,7 @@ namespace NzbDrone.Core.MediaFiles
         public DownloadedMovieImportService(IDiskProvider diskProvider,
                                                IDiskScanService diskScanService,
                                                IMovieService movieService,
-                                               IParsingService parsingService,
+                                               IParsingServiceProvider parsingServiceProvider,
                                                IMakeImportDecision importDecisionMaker,
                                                IImportApprovedMovie importApprovedMovie,
                                                IDetectSample detectSample,
@@ -43,7 +43,7 @@ namespace NzbDrone.Core.MediaFiles
             _diskProvider = diskProvider;
             _diskScanService = diskScanService;
             _movieService = movieService;
-            _parsingService = parsingService;
+            _parsingService = parsingServiceProvider.GetMovieParsingService();
             _importDecisionMaker = importDecisionMaker;
             _importApprovedMovie = importApprovedMovie;
             _detectSample = detectSample;
@@ -136,7 +136,7 @@ namespace NzbDrone.Core.MediaFiles
         private List<ImportResult> ProcessFolder(DirectoryInfo directoryInfo, ImportMode importMode, DownloadClientItem downloadClientItem)
         {
             var cleanedUpName = GetCleanedUpFolderName(directoryInfo.Name);
-            var movie = _parsingService.GetMovie(cleanedUpName);
+            var movie = _parsingService.GetMediaItem(cleanedUpName) as Movie;
 
             if (movie == null)
             {
@@ -199,7 +199,7 @@ namespace NzbDrone.Core.MediaFiles
 
         private List<ImportResult> ProcessFile(FileInfo fileInfo, ImportMode importMode, DownloadClientItem downloadClientItem)
         {
-            var movie = _parsingService.GetMovie(Path.GetFileNameWithoutExtension(fileInfo.Name));
+            var movie = _parsingService.GetMediaItem(Path.GetFileNameWithoutExtension(fileInfo.Name)) as Movie;
 
             if (movie == null)
             {

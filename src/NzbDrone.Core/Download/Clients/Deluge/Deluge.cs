@@ -11,6 +11,7 @@ using NzbDrone.Core.Validation;
 using NLog;
 using FluentValidation.Results;
 using System.Net;
+using NzbDrone.Core.Parser;
 using NzbDrone.Core.RemotePathMappings;
 
 namespace NzbDrone.Core.Download.Clients.Deluge
@@ -31,120 +32,152 @@ namespace NzbDrone.Core.Download.Clients.Deluge
             _proxy = proxy;
         }
 
-        protected override string AddFromMagnetLink(RemoteMovie remoteMovie, string hash, string magnetLink)
+        protected override string AddFromMagnetLink(RemoteItem remoteItem, string hash, string magnetLink)
         {
             var actualHash = _proxy.AddTorrentFromMagnet(magnetLink, Settings);
 
-            if (!Settings.MovieCategory.IsNullOrWhiteSpace())
-            {
-                _proxy.SetLabel(actualHash, Settings.MovieCategory, Settings);
-            }
+            var category = GetItemCategory(remoteItem);
+            _proxy.SetLabel(actualHash, category, Settings);
 
             _proxy.SetTorrentConfiguration(actualHash, "remove_at_ratio", false, Settings);
 
             return actualHash.ToUpper();
         }
 
-        protected override string AddFromTorrentFile(RemoteMovie remoteEpisode, string hash, string filename, byte[] fileContent)
+        protected override string AddFromTorrentFile(RemoteItem remoteItem, string hash, string filename, byte[] fileContent)
         {
             var actualHash = _proxy.AddTorrentFromFile(filename, fileContent, Settings);
 
-            if (!Settings.MovieCategory.IsNullOrWhiteSpace())
-            {
-                _proxy.SetLabel(actualHash, Settings.MovieCategory, Settings);
-            }
+            var category = GetItemCategory(remoteItem);
+            _proxy.SetLabel(actualHash, category, Settings);
 
             _proxy.SetTorrentConfiguration(actualHash, "remove_at_ratio", false, Settings);
 
             return actualHash.ToUpper();
-        }
-
-        protected override string AddFromMagnetLink(RemoteEpisode remoteEpisode, string hash, string magnetLink)
-        {
-            throw new NotImplementedException("Episodes are not working with Radarr");
-        }
-
-        protected override string AddFromTorrentFile(RemoteEpisode remoteEpisode, string hash, string filename, byte[] fileContent)
-        {
-            throw new NotImplementedException("Episodes are not working with Radarr");
         }
 
         public override string Name => "Deluge";
 
         public override IEnumerable<DownloadClientItem> GetItems()
         {
-            IEnumerable<DelugeTorrent> torrents;
+            List<DownloadClientItem> torrents = new List<DownloadClientItem>();
 
             try
             {
-                if (!Settings.MovieCategory.IsNullOrWhiteSpace())
+                torrents.AddRange(_proxy.GetTorrentsByLabel(Settings.MovieCategory, Settings).Select(torrent =>
                 {
-                    torrents = _proxy.GetTorrentsByLabel(Settings.MovieCategory, Settings);
-                }
-                else
-                {
-                    torrents = _proxy.GetTorrents(Settings);
-                }
+                    var outputPath = _remotePathMappingService.RemapRemoteToLocal(Settings.Host,
+                        new OsPath(torrent.DownloadPath));
+
+                    var item = new DownloadClientItem
+                    {
+                        DownloadId = torrent.Hash.ToUpper(),
+                        Title = torrent.Name,
+                        Category = Settings.MovieCategory,
+                        DownloadClient = Definition.Name,
+                        OutputPath = outputPath + torrent.Name,
+                        RemainingSize = torrent.Size - torrent.BytesDownloaded,
+                        RemainingTime = TimeSpan.FromSeconds(torrent.Eta),
+                        TotalSize = torrent.Size
+                    };
+
+                    if (torrent.State == DelugeTorrentStatus.Error)
+                    {
+                        item.Status = DownloadItemStatus.Warning;
+                        item.Message = "Deluge is reporting an error";
+                    }
+                    else if (torrent.IsFinished && torrent.State != DelugeTorrentStatus.Checking)
+                    {
+                        item.Status = DownloadItemStatus.Completed;
+                    }
+                    else if (torrent.State == DelugeTorrentStatus.Queued)
+                    {
+                        item.Status = DownloadItemStatus.Queued;
+                    }
+                    else if (torrent.State == DelugeTorrentStatus.Paused)
+                    {
+                        item.Status = DownloadItemStatus.Paused;
+                    }
+                    else
+                    {
+                        item.Status = DownloadItemStatus.Downloading;
+                    }
+
+                    // Here we detect if Deluge is managing the torrent and whether the seed criteria has been met. This allows drone to delete the torrent as appropriate.
+                    if (torrent.IsAutoManaged && torrent.StopAtRatio && torrent.Ratio >= torrent.StopRatio &&
+                        torrent.State == DelugeTorrentStatus.Paused)
+                    {
+                        item.IsReadOnly = false;
+                    }
+                    else
+                    {
+                        item.IsReadOnly = true;
+                    }
+
+                    return item;
+                }));
+
+                torrents.AddRange(
+                    _proxy.GetTorrentsByLabel(Settings.TvCategory, Settings).Select(torrent =>
+                        {
+                            var outputPath = _remotePathMappingService.RemapRemoteToLocal(Settings.Host,
+                                new OsPath(torrent.DownloadPath));
+
+                            var item = new DownloadClientItem
+                            {
+                                DownloadId = torrent.Hash.ToUpper(),
+                                Title = torrent.Name,
+                                Category = Settings.TvCategory,
+                                DownloadClient = Definition.Name,
+                                OutputPath = outputPath + torrent.Name,
+                                RemainingSize = torrent.Size - torrent.BytesDownloaded,
+                                RemainingTime = TimeSpan.FromSeconds(torrent.Eta),
+                                TotalSize = torrent.Size
+                            };
+
+                            if (torrent.State == DelugeTorrentStatus.Error)
+                            {
+                                item.Status = DownloadItemStatus.Warning;
+                                item.Message = "Deluge is reporting an error";
+                            }
+                            else if (torrent.IsFinished && torrent.State != DelugeTorrentStatus.Checking)
+                            {
+                                item.Status = DownloadItemStatus.Completed;
+                            }
+                            else if (torrent.State == DelugeTorrentStatus.Queued)
+                            {
+                                item.Status = DownloadItemStatus.Queued;
+                            }
+                            else if (torrent.State == DelugeTorrentStatus.Paused)
+                            {
+                                item.Status = DownloadItemStatus.Paused;
+                            }
+                            else
+                            {
+                                item.Status = DownloadItemStatus.Downloading;
+                            }
+
+                            // Here we detect if Deluge is managing the torrent and whether the seed criteria has been met. This allows drone to delete the torrent as appropriate.
+                            if (torrent.IsAutoManaged && torrent.StopAtRatio && torrent.Ratio >= torrent.StopRatio &&
+                                torrent.State == DelugeTorrentStatus.Paused)
+                            {
+                                item.IsReadOnly = false;
+                            }
+                            else
+                            {
+                                item.IsReadOnly = true;
+                            }
+
+                            return item;
+                        }
+                    ));
             }
             catch (DownloadClientException ex)
             {
                 _logger.Error(ex, "Couldn't get list of torrents");
                 return Enumerable.Empty<DownloadClientItem>();
             }
-
-            var items = new List<DownloadClientItem>();
-
-            foreach (var torrent in torrents)
-            {
-                var item = new DownloadClientItem();
-                item.DownloadId = torrent.Hash.ToUpper();
-                item.Title = torrent.Name;
-                item.Category = Settings.MovieCategory;
-
-                item.DownloadClient = Definition.Name;
-
-                var outputPath = _remotePathMappingService.RemapRemoteToLocal(Settings.Host, new OsPath(torrent.DownloadPath));
-                item.OutputPath = outputPath + torrent.Name;
-                item.RemainingSize = torrent.Size - torrent.BytesDownloaded;
-                item.RemainingTime = TimeSpan.FromSeconds(torrent.Eta);
-                item.TotalSize = torrent.Size;
-
-                if (torrent.State == DelugeTorrentStatus.Error)
-                {
-                    item.Status = DownloadItemStatus.Warning;
-                    item.Message = "Deluge is reporting an error";
-                }
-                else if (torrent.IsFinished && torrent.State != DelugeTorrentStatus.Checking)
-                {
-                    item.Status = DownloadItemStatus.Completed;
-                }
-                else if (torrent.State == DelugeTorrentStatus.Queued)
-                {
-                    item.Status = DownloadItemStatus.Queued;
-                }
-                else if (torrent.State == DelugeTorrentStatus.Paused)
-                {
-                    item.Status = DownloadItemStatus.Paused;
-                }
-                else
-                {
-                    item.Status = DownloadItemStatus.Downloading;
-                }
-
-                // Here we detect if Deluge is managing the torrent and whether the seed criteria has been met. This allows drone to delete the torrent as appropriate.
-                if (torrent.IsAutoManaged && torrent.StopAtRatio && torrent.Ratio >= torrent.StopRatio && torrent.State == DelugeTorrentStatus.Paused)
-                {
-                    item.IsReadOnly = false;
-                }
-                else
-                {
-                    item.IsReadOnly = true;
-                }
-
-                items.Add(item);
-            }
-
-            return items;
+            return torrents;
         }
 
         public override void RemoveItem(string downloadId, bool deleteData)
@@ -172,7 +205,7 @@ namespace NzbDrone.Core.Download.Clients.Deluge
             {
                 status.OutputRootFolders = new List<OsPath> { _remotePathMappingService.RemapRemoteToLocal(Settings.Host, destDir) };
             }
-            
+
             return status;
         }
 

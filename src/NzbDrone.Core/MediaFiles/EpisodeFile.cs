@@ -8,7 +8,7 @@ using NzbDrone.Core.MediaFiles.MediaInfo;
 
 namespace NzbDrone.Core.MediaFiles
 {
-    public class EpisodeFile : ModelBase
+    public class EpisodeFile : ModelBase, IMediaFile
     {
         public int SeriesId { get; set; }
         public int SeasonNumber { get; set; }
@@ -25,7 +25,7 @@ namespace NzbDrone.Core.MediaFiles
 
         public override string ToString()
         {
-            return string.Format("[{0}] {1}", Id, RelativePath);
+            return $"[{Id}] {RelativePath}";
         }
     }
 }

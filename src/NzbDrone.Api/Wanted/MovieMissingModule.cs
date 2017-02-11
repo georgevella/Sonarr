@@ -13,14 +13,14 @@ using NzbDrone.Core.Datastore.Events;
 namespace NzbDrone.Api.Wanted
 {
     class MovieMissingModule : NzbDroneRestModuleWithSignalR<MovieResource, Core.Tv.Movie>,
-        IHandle<MovieGrabbedEvent>,
+        IHandle<RemoteItemGrabbedEvent>,
         IHandle<MovieDownloadedEvent>
     {
         protected readonly IMovieService _movieService;
 
-        public MovieMissingModule(IMovieService movieService, 
-                                  IQualityUpgradableSpecification qualityUpgradableSpecification, 
-                                  IBroadcastSignalRMessage signalRBroadcaster) 
+        public MovieMissingModule(IMovieService movieService,
+                                  IQualityUpgradableSpecification qualityUpgradableSpecification,
+                                  IBroadcastSignalRMessage signalRBroadcaster)
             : base(signalRBroadcaster, "wanted/missing")
         {
 
@@ -59,14 +59,16 @@ namespace NzbDrone.Api.Wanted
             return resource;
         }
 
-        public void Handle(MovieGrabbedEvent message)
+        public void Handle(RemoteItemGrabbedEvent message)
         {
-            var resource = message.Movie.Movie.ToResource();
+            //var resource = message.Movie.Movie.ToResource();
 
-            //add a grabbed field in MovieResource?
-            //resource.Grabbed = true;
+            ////add a grabbed field in MovieResource?
+            ////resource.Grabbed = true;
 
-            BroadcastResourceChange(ModelAction.Updated, resource);
+            //BroadcastResourceChange(ModelAction.Updated, resource);
+
+            // TODO: GEORGE implement this
         }
 
         public void Handle(MovieDownloadedEvent message)

@@ -13,7 +13,7 @@ using NzbDrone.SignalR;
 namespace NzbDrone.Api.Episodes
 {
     public abstract class EpisodeModuleWithSignalR : NzbDroneRestModuleWithSignalR<EpisodeResource, Episode>,
-        IHandle<EpisodeGrabbedEvent>,
+        IHandle<RemoteItemGrabbedEvent>,
         IHandle<EpisodeDownloadedEvent>
     {
         protected readonly IEpisodeService _episodeService;
@@ -104,9 +104,9 @@ namespace NzbDrone.Api.Episodes
             return result;
         }
 
-        public void Handle(EpisodeGrabbedEvent message)
+        public void Handle(RemoteItemGrabbedEvent message)
         {
-            foreach (var episode in message.Episode.Episodes)
+            foreach (var episode in message.Item.Episodes)
             {
                 var resource = episode.ToResource();
                 resource.Grabbed = true;

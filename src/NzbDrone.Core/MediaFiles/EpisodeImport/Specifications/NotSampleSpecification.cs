@@ -16,7 +16,7 @@ namespace NzbDrone.Core.MediaFiles.EpisodeImport.Specifications
             _logger = logger;
         }
 
-        public Decision IsSatisfiedBy(LocalEpisode localEpisode)
+        public Decision IsSatisfiedBy(LocalItem localEpisode)
         {
             if (localEpisode.ExistingFile)
             {
@@ -24,27 +24,11 @@ namespace NzbDrone.Core.MediaFiles.EpisodeImport.Specifications
                 return Decision.Accept();
             }
 
-            var sample = _detectSample.IsSample(localEpisode.Series,
+            var sample = _detectSample.IsSample(localEpisode.Media,
                                                 localEpisode.Quality,
                                                 localEpisode.Path,
                                                 localEpisode.Size,
-                                                localEpisode.IsSpecial);
-
-            if (sample)
-            {
-                return Decision.Reject("Sample");
-            }
-
-            return Decision.Accept();
-        }
-
-        public Decision IsSatisfiedBy(LocalMovie localEpisode)
-        {
-            var sample = _detectSample.IsSample(localEpisode.Movie,
-                                                localEpisode.Quality,
-                                                localEpisode.Path,
-                                                localEpisode.Size,
-                                                false);
+                                                localEpisode.Info.IsSpecial);
 
             if (sample)
             {

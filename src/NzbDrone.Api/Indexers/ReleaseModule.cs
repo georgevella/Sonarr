@@ -25,8 +25,7 @@ namespace NzbDrone.Api.Indexers
         private readonly IDownloadService _downloadService;
         private readonly Logger _logger;
 
-        private readonly ICached<RemoteEpisode> _remoteEpisodeCache;
-        private readonly ICached<RemoteMovie> _remoteMovieCache;
+        private readonly ICached<RemoteItem> _remoteItemCache;
 
         public ReleaseModule(IFetchAndParseRss rssFetcherAndParser,
                              ISearchForNzb nzbSearchService,
@@ -49,47 +48,26 @@ namespace NzbDrone.Api.Indexers
             PostValidator.RuleFor(s => s.DownloadAllowed).Equal(true);
             PostValidator.RuleFor(s => s.Guid).NotEmpty();
 
-            _remoteEpisodeCache = cacheManager.GetCache<RemoteEpisode>(GetType(), "remoteEpisodes");
-            _remoteMovieCache = cacheManager.GetCache<RemoteMovie>(GetType(), "remoteMovies");
+            _remoteItemCache = cacheManager.GetCache<RemoteItem>(GetType(), "remoteItems");
         }
 
         private Response DownloadRelease(ReleaseResource release)
         {
-            var remoteEpisode = _remoteEpisodeCache.Find(release.Guid);
+            var remoteItem = _remoteItemCache.Find(release.Guid);
 
-            if (remoteEpisode == null)
+            if (remoteItem == null)
             {
                 _logger.Debug("Couldn't find requested release in cache, cache timeout probably expired.");
-
-                var remoteMovie = _remoteMovieCache.Find(release.Guid);
-
-                if (remoteMovie == null)
-                {
-                    return new NotFoundResponse();
-                }
-
-                try
-                {
-                    _downloadService.DownloadReport(remoteMovie);
-                }
-                catch (ReleaseDownloadException ex)
-                {
-                    _logger.Error(ex, ex.Message);
-                    throw new NzbDroneClientException(HttpStatusCode.Conflict, "Getting release from indexer failed");
-                }
-
-                return release.AsResponse();
-
-
+                return new NotFoundResponse();
             }
 
             try
             {
-                _downloadService.DownloadReport(remoteEpisode);
+                _downloadService.DownloadReport(remoteItem);
             }
             catch (ReleaseDownloadException ex)
             {
-                _logger.Error(ex);
+                _logger.Error(ex, ex.Message);
                 throw new NzbDroneClientException(HttpStatusCode.Conflict, "Getting release from indexer failed");
             }
 
@@ -160,16 +138,8 @@ namespace NzbDrone.Api.Indexers
 
         protected override ReleaseResource MapDecision(DownloadDecision decision, int initialWeight)
         {
-            if (decision.IsForMovie)
-            {
-                _remoteMovieCache.Set(decision.RemoteMovie.Release.Guid, decision.RemoteMovie, TimeSpan.FromMinutes(30));
-            }
-            else
-            {
-                _remoteEpisodeCache.Set(decision.RemoteEpisode.Release.Guid, decision.RemoteEpisode, TimeSpan.FromMinutes(30));
-            }
-            
-           return base.MapDecision(decision, initialWeight);
+            _remoteItemCache.Set(decision.Item.Release.Guid, decision.Item, TimeSpan.FromMinutes(30));
+            return base.MapDecision(decision, initialWeight);
         }
     }
 }

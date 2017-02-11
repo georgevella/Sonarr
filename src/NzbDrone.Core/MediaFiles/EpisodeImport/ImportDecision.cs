@@ -8,31 +8,19 @@ namespace NzbDrone.Core.MediaFiles.EpisodeImport
 {
     public class ImportDecision
     {
-        public LocalEpisode LocalEpisode { get; private set; }
-        public LocalMovie LocalMovie { get; private set; }
+        public LocalItem LocalItem { get; }
+
+        public LocalEpisode LocalEpisode => LocalItem as LocalEpisode;
+        public LocalMovie LocalMovie => LocalItem as LocalMovie;
+
         public IEnumerable<Rejection> Rejections { get; private set; }
 
         public bool Approved => Rejections.Empty();
 
-        public ImportDecision(LocalEpisode localEpisode, params Rejection[] rejections)
+        public ImportDecision(LocalItem localItem, params Rejection[] rejections)
         {
-            LocalEpisode = localEpisode;
+            LocalItem = localItem;
             Rejections = rejections.ToList();
-        }
-
-        public ImportDecision(LocalMovie localMovie, params Rejection[] rejections)
-        {
-            LocalMovie = localMovie;
-            Rejections = rejections.ToList();
-            //LocalMovie = new LocalMovie
-            //{
-            //    Quality = localMovie.Quality,
-            //    ExistingFile = localMovie.ExistingFile,
-            //    MediaInfo = localMovie.MediaInfo,
-            //    ParsedMovieInfo = localMovie.ParsedMovieInfo,
-            //    Path = localMovie.Path,
-            //    Size = localMovie.Size
-            //};
         }
     }
 }

@@ -37,22 +37,13 @@ namespace NzbDrone.Core.Download.Clients.RTorrent
             _rTorrentDirectoryValidator = rTorrentDirectoryValidator;
         }
 
-        protected override string AddFromMagnetLink(RemoteEpisode remoteEpisode, string hash, string magnetLink)
-        {
-            throw new NotImplementedException("Episodes are not working with Radarr");
-        }
-
-        protected override string AddFromTorrentFile(RemoteEpisode remoteEpisode, string hash, string filename, byte[] fileContent)
-        {
-            throw new NotImplementedException("Episodes are not working with Radarr");
-        }
-
-        protected override string AddFromMagnetLink(RemoteMovie remoteMovie, string hash, string magnetLink)
+        protected override string AddFromMagnetLink(RemoteItem remoteItem, string hash, string magnetLink)
         {
             _proxy.AddTorrentFromUrl(magnetLink, Settings);
 
             // Download the magnet to the appropriate directory.
-            _proxy.SetTorrentLabel(hash, Settings.MovieCategory, Settings);
+            var category = GetItemCategory(remoteItem);
+            _proxy.SetTorrentLabel(hash, category, Settings);
             SetDownloadDirectory(hash);
             _proxy.StartTorrent(hash, Settings);
 
@@ -71,15 +62,16 @@ namespace NzbDrone.Core.Download.Clients.RTorrent
             }
         }
 
-        protected override string AddFromTorrentFile(RemoteMovie remoteMovie, string hash, string filename, byte[] fileContent)
+        protected override string AddFromTorrentFile(RemoteItem remoteItem, string hash, string filename, byte[] fileContent)
         {
+            var category = GetItemCategory(remoteItem);
             _proxy.AddTorrentFromFile(filename, fileContent, Settings);
 
             var tries = 2;
             var retryDelay = 100;
             if (WaitForTorrent(hash, tries, retryDelay))
             {
-                _proxy.SetTorrentLabel(hash, Settings.MovieCategory, Settings);
+                _proxy.SetTorrentLabel(hash, category, Settings);
                 SetDownloadDirectory(hash);
                 _proxy.StartTorrent(hash, Settings);
                 return hash;
@@ -89,7 +81,7 @@ namespace NzbDrone.Core.Download.Clients.RTorrent
                 _logger.Debug("rTorrent could not add file");
 
                 RemoveItem(hash, true);
-                throw new ReleaseDownloadException(remoteMovie.Release, "Downloading torrent failed");
+                throw new ReleaseDownloadException(remoteItem.Release, "Downloading torrent failed");
             }
         }
 
@@ -125,10 +117,13 @@ namespace NzbDrone.Core.Download.Clients.RTorrent
                     item.RemainingSize = torrent.RemainingSize;
                     item.Category = torrent.Category;
 
-                    if (torrent.DownRate > 0) {
+                    if (torrent.DownRate > 0)
+                    {
                         var secondsLeft = torrent.RemainingSize / torrent.DownRate;
                         item.RemainingTime = TimeSpan.FromSeconds(secondsLeft);
-                    } else {
+                    }
+                    else
+                    {
                         item.RemainingTime = TimeSpan.Zero;
                     }
 

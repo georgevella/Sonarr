@@ -16,15 +16,12 @@ namespace NzbDrone.Core.Download.Clients.Transmission
 
             RuleFor(c => c.UrlBase).ValidUrlBase();
 
-            RuleFor(c => c.MovieCategory).Matches(@"^\.?[-a-z]*$", RegexOptions.IgnoreCase).WithMessage("Allowed characters a-z and -");
-
-            RuleFor(c => c.MovieCategory).Empty()
-                .When(c => c.MovieDirectory.IsNotNullOrWhiteSpace())
-                .WithMessage("Cannot use Category and Directory");
+            RuleFor(c => c.MovieCategory).NotEmpty().Matches(@"^\.?[-a-z]*$", RegexOptions.IgnoreCase).WithMessage("Allowed characters a-z and -");
+            RuleFor(c => c.TvCategory).NotEmpty().Matches(@"^\.?[-a-z]*$", RegexOptions.IgnoreCase).WithMessage("Allowed characters a-z and -");
         }
     }
 
-    public class TransmissionSettings : IProviderConfig
+    public class TransmissionSettings : IProviderConfig, IDownloadClientSupportsCategories
     {
         private static readonly TransmissionSettingsValidator Validator = new TransmissionSettingsValidator();
 
@@ -50,13 +47,19 @@ namespace NzbDrone.Core.Download.Clients.Transmission
         [FieldDefinition(4, Label = "Password", Type = FieldType.Password)]
         public string Password { get; set; }
 
-        [FieldDefinition(5, Label = "Category", Type = FieldType.Textbox, HelpText = "Adding a category specific to Radarr avoids conflicts with unrelated downloads, but it's optional. Creates a [category] subdirectory in the output directory.")]
+        [FieldDefinition(5, Label = "Movie Category", Type = FieldType.Textbox, HelpText = "Adding a category specific to Radarr avoids conflicts with unrelated downloads, but it's optional. Creates a [category] subdirectory in the output directory.")]
         public string MovieCategory { get; set; }
 
-        [FieldDefinition(6, Label = "Directory", Type = FieldType.Textbox, Advanced = true, HelpText = "Optional location to put downloads in, leave blank to use the default Transmission location")]
+        [FieldDefinition(6, Label = "Movie Directory", Type = FieldType.Textbox, Advanced = true, HelpText = "Optional location to put downloads in, leave blank to use the default Transmission location")]
         public string MovieDirectory { get; set; }
 
-        [FieldDefinition(7, Label = "Use SSL", Type = FieldType.Checkbox)]
+        [FieldDefinition(7, Label = "TV Category", Type = FieldType.Textbox, HelpText = "Adding a category specific to Radarr avoids conflicts with unrelated downloads, but it's optional. Creates a [category] subdirectory in the output directory.")]
+        public string TvCategory { get; set; }
+
+        [FieldDefinition(8, Label = "TV Directory", Type = FieldType.Textbox, Advanced = true, HelpText = "Optional location to put downloads in, leave blank to use the default Transmission location")]
+        public string TvDirectory { get; set; }
+
+        [FieldDefinition(9, Label = "Use SSL", Type = FieldType.Checkbox)]
         public bool UseSsl { get; set; }
 
         public NzbDroneValidationResult Validate()

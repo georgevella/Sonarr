@@ -1,11 +1,13 @@
 using System;
 using System.Text;
 using NzbDrone.Core.Indexers;
+using NzbDrone.Core.Tv;
 
 namespace NzbDrone.Core.Parser.Model
 {
     public class ReleaseInfo
     {
+        public MediaType MediaType { get; }
         public string Guid { get; set; }
         public string Title { get; set; }
         public long Size { get; set; }
@@ -25,6 +27,11 @@ namespace NzbDrone.Core.Parser.Model
         public string Container { get; set; }
         public string Codec { get; set; }
         public string Resolution { get; set; }
+
+        public ReleaseInfo(MediaType mediaType)
+        {
+            MediaType = mediaType;
+        }
 
         public int Age
         {

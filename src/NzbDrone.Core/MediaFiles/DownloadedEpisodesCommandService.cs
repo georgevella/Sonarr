@@ -9,6 +9,7 @@ using NzbDrone.Core.Download.TrackedDownloads;
 using NzbDrone.Core.MediaFiles.Commands;
 using NzbDrone.Core.MediaFiles.EpisodeImport;
 using NzbDrone.Core.Messaging.Commands;
+using NzbDrone.Core.Parser;
 
 namespace NzbDrone.Core.MediaFiles
 {
@@ -68,7 +69,7 @@ namespace NzbDrone.Core.MediaFiles
                 {
                     _logger.Debug("External directory scan request for known download {0}. [{1}]", message.DownloadClientId, message.Path);
 
-                    return _downloadedEpisodesImportService.ProcessPath(message.Path, message.ImportMode, trackedDownload.RemoteEpisode.Series, trackedDownload.DownloadItem);
+                    return _downloadedEpisodesImportService.ProcessPath(message.Path, message.ImportMode, trackedDownload.RemoteItem.GetSeries(), trackedDownload.DownloadItem);
                 }
                 else
                 {

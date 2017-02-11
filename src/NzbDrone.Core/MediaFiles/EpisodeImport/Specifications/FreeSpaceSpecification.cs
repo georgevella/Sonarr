@@ -21,7 +21,7 @@ namespace NzbDrone.Core.MediaFiles.EpisodeImport.Specifications
             _logger = logger;
         }
 
-        public Decision IsSatisfiedBy(LocalEpisode localEpisode)
+        public Decision IsSatisfiedBy(LocalItem localEpisode)
         {
             if (_configService.SkipFreeSpaceCheckWhenImporting)
             {
@@ -37,7 +37,7 @@ namespace NzbDrone.Core.MediaFiles.EpisodeImport.Specifications
                     return Decision.Accept();
                 }
 
-                var path = Directory.GetParent(localEpisode.Series.Path);
+                var path = Directory.GetParent(localEpisode.Media.Path);
                 var freeSpace = _diskProvider.GetAvailableSpace(path.FullName);
 
                 if (!freeSpace.HasValue)
@@ -48,7 +48,8 @@ namespace NzbDrone.Core.MediaFiles.EpisodeImport.Specifications
 
                 if (freeSpace < localEpisode.Size + 100.Megabytes())
                 {
-                    _logger.Warn("Not enough free space ({0}) to import: {1} ({2})", freeSpace, localEpisode, localEpisode.Size);
+                    _logger.Warn("Not enough free space ({0}) to import: {1} ({2})", freeSpace, localEpisode,
+                        localEpisode.Size);
                     return Decision.Reject("Not enough free space");
                 }
             }
@@ -59,49 +60,6 @@ namespace NzbDrone.Core.MediaFiles.EpisodeImport.Specifications
             catch (Exception ex)
             {
                 _logger.Error(ex, "Unable to check free disk space while importing. {0}", localEpisode.Path);
-            }
-
-            return Decision.Accept();
-        }
-
-        public Decision IsSatisfiedBy(LocalMovie localMovie)
-        {
-            if (_configService.SkipFreeSpaceCheckWhenImporting)
-            {
-                _logger.Debug("Skipping free space check when importing");
-                return Decision.Accept();
-            }
-
-            try
-            {
-                if (localMovie.ExistingFile)
-                {
-                    _logger.Debug("Skipping free space check for existing episode");
-                    return Decision.Accept();
-                }
-
-                var path = Directory.GetParent(localMovie.Movie.Path);
-                var freeSpace = _diskProvider.GetAvailableSpace(path.FullName);
-
-                if (!freeSpace.HasValue)
-                {
-                    _logger.Debug("Free space check returned an invalid result for: {0}", path);
-                    return Decision.Accept();
-                }
-
-                if (freeSpace < localMovie.Size + 100.Megabytes())
-                {
-                    _logger.Warn("Not enough free space ({0}) to import: {1} ({2})", freeSpace, localMovie, localMovie.Size);
-                    return Decision.Reject("Not enough free space");
-                }
-            }
-            catch (DirectoryNotFoundException ex)
-            {
-                _logger.Error("Unable to check free disk space while importing. " + ex.Message);
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex, "Unable to check free disk space while importing: " + localMovie.Path);
             }
 
             return Decision.Accept();

@@ -23,8 +23,7 @@ namespace NzbDrone.Core.MediaFiles
         List<MovieFile> GetFilesByMovie(int movieId);
         List<EpisodeFile> GetFilesBySeason(int seriesId, int seasonNumber);
         List<EpisodeFile> GetFilesWithoutMediaInfo();
-        List<string> FilterExistingFiles(List<string> files, Series series);
-        List<string> FilterExistingFiles(List<string> files, Movie movie);
+        List<string> FilterExistingFiles(List<string> files, IMediaItem item);
         EpisodeFile Get(int id);
         MovieFile GetMovie(int id);
         List<EpisodeFile> Get(IEnumerable<int> ids);
@@ -34,7 +33,7 @@ namespace NzbDrone.Core.MediaFiles
     }
 
     public class MediaFileService : IMediaFileService, IHandleAsync<SeriesDeletedEvent>,
-														IHandleAsync<MovieDeletedEvent>
+                                                        IHandleAsync<MovieDeletedEvent>
     {
         private readonly IEventAggregator _eventAggregator;
         private readonly IMediaFileRepository _mediaFileRepository;
@@ -63,7 +62,7 @@ namespace NzbDrone.Core.MediaFiles
 
         public void Delete(EpisodeFile episodeFile, DeleteMediaFileReason reason)
         {
-            //Little hack so we have the episodes and series attached for the event consumers
+            //Little hack so we have the episodes and item attached for the event consumers
             episodeFile.Episodes.LazyLoad();
             episodeFile.Path = Path.Combine(episodeFile.Series.Value.Path, episodeFile.RelativePath);
 
@@ -73,7 +72,7 @@ namespace NzbDrone.Core.MediaFiles
 
         public void Delete(MovieFile episodeFile, DeleteMediaFileReason reason)
         {
-            //Little hack so we have the episodes and series attached for the event consumers
+            //Little hack so we have the episodes and item attached for the event consumers
             episodeFile.Movie.LazyLoad();
             episodeFile.Path = Path.Combine(episodeFile.Movie.Value.Path, episodeFile.RelativePath);
 
@@ -101,22 +100,17 @@ namespace NzbDrone.Core.MediaFiles
             return _mediaFileRepository.GetFilesWithoutMediaInfo();
         }
 
-        public List<string> FilterExistingFiles(List<string> files, Series series)
+        public List<string> FilterExistingFiles(List<string> files, IMediaItem item)
         {
-            var seriesFiles = GetFilesBySeries(series.Id).Select(f => Path.Combine(series.Path, f.RelativePath)).ToList();
+            var action = item is Series
+                ? (Func<int, IEnumerable<IMediaFile>>)((x) => _mediaFileRepository.GetFilesBySeries(x))
+                : ((x) => _movieFileRepository.GetFilesByMovie(x));
+
+            var seriesFiles = action(item.Id).Select(f => Path.Combine(item.Path, f.RelativePath)).ToList();
 
             if (!seriesFiles.Any()) return files;
 
             return files.Except(seriesFiles, PathEqualityComparer.Instance).ToList();
-        }
-
-        public List<string> FilterExistingFiles(List<string> files, Movie movie)
-        {
-            var movieFiles = GetFilesByMovie(movie.Id).Select(f => Path.Combine(movie.Path, f.RelativePath)).ToList();
-
-            if (!movieFiles.Any()) return files;
-
-            return files.Except(movieFiles, PathEqualityComparer.Instance).ToList();
         }
 
         public EpisodeFile Get(int id)
@@ -157,13 +151,13 @@ namespace NzbDrone.Core.MediaFiles
             return _movieFileRepository.Get(id);
         }
 
-		public void HandleAsync(MovieDeletedEvent message)
-		{
-			if (message.DeleteFiles == true)
-			{
-				var files = GetFilesByMovie(message.Movie.Id);
-				_movieFileRepository.DeleteMany(files);
-			}
-		}
-	}
+        public void HandleAsync(MovieDeletedEvent message)
+        {
+            if (message.DeleteFiles == true)
+            {
+                var files = GetFilesByMovie(message.Movie.Id);
+                _movieFileRepository.DeleteMany(files);
+            }
+        }
+    }
 }

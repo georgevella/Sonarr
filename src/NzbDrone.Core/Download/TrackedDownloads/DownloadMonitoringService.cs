@@ -12,7 +12,7 @@ using NzbDrone.Core.Messaging.Events;
 namespace NzbDrone.Core.Download.TrackedDownloads
 {
     public class DownloadMonitoringService : IExecute<CheckForFinishedDownloadCommand>,
-                                             IHandle<EpisodeGrabbedEvent>,
+                                             IHandle<RemoteItemGrabbedEvent>,
                                              IHandle<EpisodeImportedEvent>
     {
         private readonly IProvideDownloadClient _downloadClientProvider;
@@ -163,7 +163,7 @@ namespace NzbDrone.Core.Download.TrackedDownloads
             Refresh();
         }
 
-        public void Handle(EpisodeGrabbedEvent message)
+        public void Handle(RemoteItemGrabbedEvent message)
         {
             _refreshDebounce.Execute();
         }

@@ -1,12 +1,14 @@
 using System.Linq;
 using NLog;
+using NLog.Filters;
 using NzbDrone.Core.IndexerSearch.Definitions;
+using NzbDrone.Core.Parser;
 using NzbDrone.Core.Parser.Model;
 using NzbDrone.Core.Queue;
 
 namespace NzbDrone.Core.DecisionEngine.Specifications
 {
-    public class QueueSpecification : IDecisionEngineSpecification
+    public class QueueSpecification : TypeDependentDecisionEngineSpecification
     {
         private readonly IQueueService _queueService;
         private readonly QualityUpgradableSpecification _qualityUpgradableSpecification;
@@ -21,14 +23,14 @@ namespace NzbDrone.Core.DecisionEngine.Specifications
             _logger = logger;
         }
 
-        public RejectionType Type => RejectionType.Permanent;
+        public override RejectionType Type => RejectionType.Permanent;
 
-        public Decision IsSatisfiedBy(RemoteEpisode subject, SearchCriteriaBase searchCriteria)
+        public override Decision IsSatisfiedBy(RemoteEpisode subject, SearchCriteriaBase searchCriteria)
         {
             var queue = _queueService.GetQueue()
-                            .Select(q => q.RemoteEpisode).ToList();
+                .Select(q => q.RemoteItem).OfType<RemoteEpisode>().ToList();
 
-            var matchingSeries = queue.Where(q => q.Series.Id == subject.Series.Id);
+            var matchingSeries = queue.Where(q => q.GetSeries().Id == subject.GetSeries().Id);
             var matchingEpisode = matchingSeries.Where(q => q.Episodes.Select(e => e.Id).Intersect(subject.Episodes.Select(e => e.Id)).Any());
 
             foreach (var remoteEpisode in matchingEpisode)
@@ -51,10 +53,10 @@ namespace NzbDrone.Core.DecisionEngine.Specifications
             return Decision.Accept();
         }
 
-        public Decision IsSatisfiedBy(RemoteMovie subject, SearchCriteriaBase searchCriteria)
+        public override Decision IsSatisfiedBy(RemoteMovie subject, SearchCriteriaBase searchCriteria)
         {
             var queue = _queueService.GetQueue()
-                            .Select(q => q.RemoteMovie).ToList();
+                            .Select(q => q.RemoteItem).OfType<RemoteMovie>().ToList();
 
             var matchingSeries = queue.Where(q => q.Movie.Id == subject.Movie.Id);
 

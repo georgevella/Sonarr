@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using NLog;
@@ -11,62 +12,43 @@ using NzbDrone.Core.Tv;
 
 namespace NzbDrone.Core.Parser
 {
-    public interface IParsingService
-    {
-        LocalEpisode GetLocalEpisode(string filename, Series series);
-        LocalEpisode GetLocalEpisode(string filename, Series series, ParsedEpisodeInfo folderInfo, bool sceneSource);
-        LocalMovie GetLocalMovie(string filename, Movie movie);
-        LocalMovie GetLocalMovie(string filename, Movie movie, ParsedMovieInfo folderInfo, bool sceneSource);
-        Series GetSeries(string title);
-        Movie GetMovie(string title);
-        RemoteEpisode Map(ParsedEpisodeInfo parsedEpisodeInfo, int tvdbId, int tvRageId, SearchCriteriaBase searchCriteria = null);
-        RemoteEpisode Map(ParsedEpisodeInfo parsedEpisodeInfo, int seriesId, IEnumerable<int> episodeIds);
-        RemoteMovie Map(ParsedMovieInfo parsedMovieInfo, string imdbId, SearchCriteriaBase searchCriteria = null);
-        List<Episode> GetEpisodes(ParsedEpisodeInfo parsedEpisodeInfo, Series series, bool sceneSource, SearchCriteriaBase searchCriteria = null);
-        ParsedEpisodeInfo ParseSpecialEpisodeTitle(string title, int tvdbId, int tvRageId, SearchCriteriaBase searchCriteria = null);
-    }
-
-    public class ParsingService : IParsingService
+    public class TvShowParsingService : IParsingService, ITvShowParsingService
     {
         private readonly IEpisodeService _episodeService;
         private readonly ISeriesService _seriesService;
         private readonly ISceneMappingService _sceneMappingService;
-        private readonly IMovieService _movieService;
         private readonly Logger _logger;
-        private readonly Dictionary<string, string> romanNumeralsMapper = new Dictionary<string, string>
-        {
-            { "1", "I"},
-            { "2", "II"},
-            { "3", "III"},
-            { "4", "IV"},
-            { "5", "V"},
-            { "6", "VI"},
-            { "7", "VII"},
-            { "8", "VII"},
-            { "9", "IX"},
-            { "10", "X"},
 
-        }; //If a movie has more than 10 parts fuck 'em.
 
-        public ParsingService(IEpisodeService episodeService,
+        public TvShowParsingService(IEpisodeService episodeService,
                               ISeriesService seriesService,
                               ISceneMappingService sceneMappingService,
-                              IMovieService movieService,
                               Logger logger)
         {
             _episodeService = episodeService;
             _seriesService = seriesService;
             _sceneMappingService = sceneMappingService;
-            _movieService = movieService;
             _logger = logger;
         }
 
-        public LocalEpisode GetLocalEpisode(string filename, Series series)
+        public LocalItem GetLocal(string filename, IMediaItem mediaItem, ParsedItemInfo folderInfo = null, bool sceneSource = false)
         {
-            return GetLocalEpisode(filename, series, null, false);
+            var series = mediaItem as Series;
+            if (series == null)
+                throw new ArgumentOutOfRangeException(nameof(mediaItem));
+
+            if (folderInfo == null)
+                return GetLocalEpisodeImpl(filename, series, null, sceneSource);
+
+            var episodeFolderInfo = folderInfo as ParsedEpisodeInfo;
+            if (episodeFolderInfo == null)
+            {
+                throw new ArgumentOutOfRangeException(nameof(folderInfo));
+            }
+            return GetLocalEpisodeImpl(filename, series, episodeFolderInfo, sceneSource);
         }
 
-        public LocalEpisode GetLocalEpisode(string filename, Series series, ParsedEpisodeInfo folderInfo, bool sceneSource)
+        public LocalEpisode GetLocalEpisodeImpl(string filename, Series series, ParsedEpisodeInfo folderInfo, bool sceneSource)
         {
             ParsedEpisodeInfo parsedEpisodeInfo;
 
@@ -110,52 +92,13 @@ namespace NzbDrone.Core.Parser
                 Quality = parsedEpisodeInfo.Quality,
                 Episodes = episodes,
                 Path = filename,
-                ParsedEpisodeInfo = parsedEpisodeInfo,
+                Info = parsedEpisodeInfo,
                 ExistingFile = series.Path.IsParentPath(filename)
             };
         }
 
-        public LocalMovie GetLocalMovie(string filename, Movie movie)
-        {
-            return GetLocalMovie(filename, movie, null, false);
-        }
 
-        public LocalMovie GetLocalMovie(string filename, Movie movie, ParsedMovieInfo folderInfo, bool sceneSource)
-        {
-            ParsedMovieInfo parsedMovieInfo;
-
-            if (folderInfo != null)
-            {
-                parsedMovieInfo = folderInfo.JsonClone();
-                parsedMovieInfo.Quality = QualityParser.ParseQuality(Path.GetFileName(filename));
-            }
-
-            else
-            {
-                parsedMovieInfo = Parser.ParseMoviePath(filename);
-            }
-
-            if (parsedMovieInfo == null)
-            {
-                if (MediaFileExtensions.Extensions.Contains(Path.GetExtension(filename)))
-                {
-                    _logger.Warn("Unable to parse movie info from path {0}", filename);
-                }
-
-                return null;
-            }
-
-            return new LocalMovie
-            {
-                Movie = movie,
-                Quality = parsedMovieInfo.Quality,
-                Path = filename,
-                ParsedMovieInfo = parsedMovieInfo,
-                ExistingFile = movie.Path.IsParentPath(filename)
-            };
-        }
-
-        public Series GetSeries(string title)
+        public IMediaItem GetMediaItem(string title)
         {
             var parsedEpisodeInfo = Parser.ParseEpisodeTitle(title);
 
@@ -175,79 +118,46 @@ namespace NzbDrone.Core.Parser
             return series;
         }
 
-        public Movie GetMovie(string title)
+        public RemoteItem Map(ParsedItemInfo parsedInfo, ReleaseInfo releaseInfo, SearchCriteriaBase searchCriteria = null)
         {
-            var parsedEpisodeInfo = Parser.ParseMovieTitle(title);
+            var parsedEpisodeInfo = parsedInfo as ParsedEpisodeInfo;
+            if (parsedEpisodeInfo == null) throw new ArgumentOutOfRangeException(nameof(parsedInfo));
 
-            if (parsedEpisodeInfo == null)
-            {
-                return _movieService.FindByTitle(title);
-            }
 
-            var series = _movieService.FindByTitle(parsedEpisodeInfo.MovieTitle);
+
+            var series = GetSeries(parsedEpisodeInfo, releaseInfo.TvdbId, releaseInfo.TvRageId, searchCriteria);
 
             if (series == null)
             {
-                series = _movieService.FindByTitle(parsedEpisodeInfo.MovieTitleInfo.TitleWithoutYear,
-                                                    parsedEpisodeInfo.MovieTitleInfo.Year);
-            }
-
-            if (series == null)
-            {
-                series = _movieService.FindByTitle(parsedEpisodeInfo.MovieTitle.Replace("DC", "").Trim());
-            }
-
-            return series;
-        }
-
-        public RemoteEpisode Map(ParsedEpisodeInfo parsedEpisodeInfo, int tvdbId, int tvRageId, SearchCriteriaBase searchCriteria = null)
-        {
-            var remoteEpisode = new RemoteEpisode
+                return new RemoteEpisode
                 {
-                    ParsedEpisodeInfo = parsedEpisodeInfo,
+                    Info = parsedEpisodeInfo,
+                    Release = releaseInfo
                 };
-
-            var series = GetSeries(parsedEpisodeInfo, tvdbId, tvRageId, searchCriteria);
-
-            if (series == null)
-            {
-                return remoteEpisode;
             }
 
-            remoteEpisode.Series = series;
-            remoteEpisode.Episodes = GetEpisodes(parsedEpisodeInfo, series, true, searchCriteria);
-
-            return remoteEpisode;
-        }
-
-        public RemoteMovie Map(ParsedMovieInfo parsedEpisodeInfo, string imdbId, SearchCriteriaBase searchCriteria = null)
-        {
-            var remoteEpisode = new RemoteMovie
+            var remoteEpisode = new RemoteEpisode(releaseInfo, parsedEpisodeInfo, series)
             {
-                ParsedMovieInfo = parsedEpisodeInfo,
+                Episodes = GetEpisodes(parsedEpisodeInfo, series, true, searchCriteria)
             };
 
-            var movie = GetMovie(parsedEpisodeInfo, imdbId, searchCriteria);
-
-            if (movie == null)
-            {
-                return remoteEpisode;
-            }
-
-            remoteEpisode.Movie = movie;
-
             return remoteEpisode;
         }
 
-        public RemoteEpisode Map(ParsedEpisodeInfo parsedEpisodeInfo, int seriesId, IEnumerable<int> episodeIds)
+        public RemoteItem Map(ParsedItemInfo parsedInfo, History.History history)
         {
-            return new RemoteEpisode
-                   {
-                       ParsedEpisodeInfo = parsedEpisodeInfo,
-                       Series = _seriesService.GetSeries(seriesId),
-                       Episodes = _episodeService.GetEpisodes(episodeIds)
-                   };
+            throw new System.NotImplementedException();
         }
+
+        //public RemoteEpisode Map(ParsedEpisodeInfo parsedEpisodeInfo, int seriesId, IEnumerable<int> episodeIds)
+        //{
+        //    return new RemoteEpisode
+        //    {
+        //        ParsedEpisodeInfo = parsedEpisodeInfo,
+        //        Series = _seriesService.GetSeries(seriesId),
+        //        Episodes = _episodeService.GetEpisodes(episodeIds)
+        //    };
+        //}
 
         public List<Episode> GetEpisodes(ParsedEpisodeInfo parsedEpisodeInfo, Series series, bool sceneSource, SearchCriteriaBase searchCriteria = null)
         {
@@ -300,7 +210,7 @@ namespace NzbDrone.Core.Parser
                 }
             }
 
-            var series = GetSeries(title);
+            var series = (Series)GetMediaItem(title);
 
             if (series == null)
             {
@@ -353,81 +263,7 @@ namespace NzbDrone.Core.Parser
             return null;
         }
 
-        private Movie GetMovie(ParsedMovieInfo parsedEpisodeInfo, string imdbId, SearchCriteriaBase searchCriteria)
-        {
-            if (searchCriteria != null)
-            {
-                var possibleTitles = new List<string>();
 
-                possibleTitles.Add(searchCriteria.Movie.CleanTitle);
-
-                foreach (string altTitle in searchCriteria.Movie.AlternativeTitles)
-                {
-                    possibleTitles.Add(altTitle.CleanSeriesTitle());
-                }
-
-                foreach (string title in possibleTitles)
-                {
-                    if (title == parsedEpisodeInfo.MovieTitle.CleanSeriesTitle())
-                    {
-                        return searchCriteria.Movie;
-                    }
-
-                    foreach (KeyValuePair<string, string> entry in romanNumeralsMapper)
-                    {
-                        string num = entry.Key;
-                        string roman = entry.Value.ToLower();
-
-                        if (title.Replace(num, roman) == parsedEpisodeInfo.MovieTitle.CleanSeriesTitle())
-                        {
-                            return searchCriteria.Movie;
-                        }
-
-                        if (title.Replace(roman, num) == parsedEpisodeInfo.MovieTitle.CleanSeriesTitle())
-                        {
-                            return searchCriteria.Movie;
-                        }
-                    }
-                }
-                    
-            }
-
-            Movie movie = null;
-
-            if (searchCriteria == null)
-            {
-                if (parsedEpisodeInfo.Year > 1900)
-                {
-                    movie = _movieService.FindByTitle(parsedEpisodeInfo.MovieTitle, parsedEpisodeInfo.Year);
-                    
-                }
-                else
-                {
-                    movie = _movieService.FindByTitle(parsedEpisodeInfo.MovieTitle);
-                }
-
-                if (movie == null)
-                {
-                    movie = _movieService.FindByTitle(parsedEpisodeInfo.MovieTitle);
-                }
-                return movie;
-            }
-
-
-
-            if (movie == null && imdbId.IsNotNullOrWhiteSpace())
-            {
-                movie = _movieService.FindByImdbId(imdbId);
-            }
-
-            if (movie == null)
-            {
-                _logger.Debug("No matching movie {0}", parsedEpisodeInfo.MovieTitle);
-                return null;
-            }
-
-            return movie;
-        }
 
         private Series GetSeries(ParsedEpisodeInfo parsedEpisodeInfo, int tvdbId, int tvRageId, SearchCriteriaBase searchCriteria)
         {

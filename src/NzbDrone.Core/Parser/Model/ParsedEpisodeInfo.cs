@@ -4,20 +4,16 @@ using NzbDrone.Core.Qualities;
 
 namespace NzbDrone.Core.Parser.Model
 {
-    public class ParsedEpisodeInfo
+    public class ParsedEpisodeInfo : ParsedItemInfo
     {
         public string SeriesTitle { get; set; }
         public SeriesTitleInfo SeriesTitleInfo { get; set; }
-        public QualityModel Quality { get; set; }
         public int SeasonNumber { get; set; }
         public int[] EpisodeNumbers { get; set; }
         public int[] AbsoluteEpisodeNumbers { get; set; }
         public string AirDate { get; set; }
-        public Language Language { get; set; }
         public bool FullSeason { get; set; }
         public bool Special { get; set; }
-        public string ReleaseGroup { get; set; }
-        public string ReleaseHash { get; set; }
 
         public ParsedEpisodeInfo()
         {
@@ -62,7 +58,7 @@ namespace NzbDrone.Core.Parser.Model
 
             //This prevents manually downloading a release from blowing up in mono
             //TODO: Is there a better way?
-            private set {}
+            private set { }
         }
 
         public override string ToString()
@@ -71,22 +67,24 @@ namespace NzbDrone.Core.Parser.Model
 
             if (IsDaily && EpisodeNumbers.Empty())
             {
-                episodeString = string.Format("{0}", AirDate);
+                episodeString = $"{AirDate}";
             }
             else if (FullSeason)
             {
-                episodeString = string.Format("Season {0:00}", SeasonNumber);
+                episodeString = $"Season {SeasonNumber:00}";
             }
             else if (EpisodeNumbers != null && EpisodeNumbers.Any())
             {
-                episodeString = string.Format("S{0:00}E{1}", SeasonNumber, string.Join("-", EpisodeNumbers.Select(c => c.ToString("00"))));
+                episodeString = $"S{SeasonNumber:00}E{string.Join("-", EpisodeNumbers.Select(c => c.ToString("00")))}";
             }
             else if (AbsoluteEpisodeNumbers != null && AbsoluteEpisodeNumbers.Any())
             {
-                episodeString = string.Format("{0}", string.Join("-", AbsoluteEpisodeNumbers.Select(c => c.ToString("000"))));
+                episodeString = $"{string.Join("-", AbsoluteEpisodeNumbers.Select(c => c.ToString("000")))}";
             }
 
-            return string.Format("{0} - {1} {2}", SeriesTitle, episodeString, Quality);
+            return $"{SeriesTitle} - {episodeString} {Quality}";
         }
+
+        public override bool IsSpecial => IsPossibleSpecialEpisode;
     }
 }

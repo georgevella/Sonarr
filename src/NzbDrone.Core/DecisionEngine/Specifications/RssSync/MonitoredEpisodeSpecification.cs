@@ -36,7 +36,7 @@ namespace NzbDrone.Core.DecisionEngine.Specifications.RssSync
             return Decision.Accept();
         }
 
-        public virtual Decision IsSatisfiedBy(RemoteEpisode subject, SearchCriteriaBase searchCriteria)
+        public virtual Decision IsSatisfiedBy(RemoteItem subject, SearchCriteriaBase searchCriteria)
         {
             if (searchCriteria != null)
             {
