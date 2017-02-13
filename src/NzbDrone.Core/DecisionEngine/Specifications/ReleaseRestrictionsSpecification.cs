@@ -9,20 +9,19 @@ using NzbDrone.Core.Restrictions;
 
 namespace NzbDrone.Core.DecisionEngine.Specifications
 {
-    public class ReleaseRestrictionsSpecification : IDecisionEngineSpecification
+    public class ReleaseRestrictionsSpecification : BaseDecisionEngineSpecification
     {
         private readonly IRestrictionService _restrictionService;
         private readonly Logger _logger;
 
         public ReleaseRestrictionsSpecification(IRestrictionService restrictionService, Logger logger)
+            : base(logger)
         {
             _restrictionService = restrictionService;
             _logger = logger;
         }
 
-        public RejectionType Type => RejectionType.Permanent;
-
-        public virtual Decision IsSatisfiedBy(RemoteItem subject, SearchCriteriaBase searchCriteria)
+        public override Decision IsSatisfiedBy(RemoteItem subject, SearchCriteriaBase searchCriteria)
         {
             _logger.Debug("Checking if release meets restrictions: {0}", subject);
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using NzbDrone.Common.Extensions;
 using NzbDrone.Common.Http;
 using NzbDrone.Core.IndexerSearch.Definitions;
+using NzbDrone.Core.Tv;
 
 namespace NzbDrone.Core.Indexers.Rarbg
 {
@@ -19,7 +20,7 @@ namespace NzbDrone.Core.Indexers.Rarbg
 
         public virtual IndexerPageableRequestChain GetRecentRequests()
         {
-            var pageableRequests = new IndexerPageableRequestChain();
+            var pageableRequests = new IndexerPageableRequestChain(MediaType.General);
 
             pageableRequests.Add(GetPagedRequests("list", null, null));
 
@@ -28,7 +29,7 @@ namespace NzbDrone.Core.Indexers.Rarbg
 
         public virtual IndexerPageableRequestChain GetSearchRequests(SingleEpisodeSearchCriteria searchCriteria)
         {
-            var pageableRequests = new IndexerPageableRequestChain();
+            var pageableRequests = new IndexerPageableRequestChain(MediaType.TVShows);
 
             pageableRequests.Add(GetPagedRequests("search", searchCriteria.Series.TvdbId, "S{0:00}E{1:00}", searchCriteria.SeasonNumber, searchCriteria.EpisodeNumber));
 
@@ -37,7 +38,7 @@ namespace NzbDrone.Core.Indexers.Rarbg
 
         public virtual IndexerPageableRequestChain GetSearchRequests(SeasonSearchCriteria searchCriteria)
         {
-            var pageableRequests = new IndexerPageableRequestChain();
+            var pageableRequests = new IndexerPageableRequestChain(MediaType.TVShows);
 
             pageableRequests.Add(GetPagedRequests("search", searchCriteria.Series.TvdbId, "S{0:00}", searchCriteria.SeasonNumber));
 
@@ -46,7 +47,7 @@ namespace NzbDrone.Core.Indexers.Rarbg
 
         public virtual IndexerPageableRequestChain GetSearchRequests(DailyEpisodeSearchCriteria searchCriteria)
         {
-            var pageableRequests = new IndexerPageableRequestChain();
+            var pageableRequests = new IndexerPageableRequestChain(MediaType.TVShows);
 
             pageableRequests.Add(GetPagedRequests("search", searchCriteria.Series.TvdbId, "\"{0:yyyy MM dd}\"", searchCriteria.AirDate));
 
@@ -55,12 +56,12 @@ namespace NzbDrone.Core.Indexers.Rarbg
 
         public virtual IndexerPageableRequestChain GetSearchRequests(AnimeEpisodeSearchCriteria searchCriteria)
         {
-            return new IndexerPageableRequestChain();
+            return new IndexerPageableRequestChain(MediaType.TVShows);
         }
 
         public virtual IndexerPageableRequestChain GetSearchRequests(SpecialEpisodeSearchCriteria searchCriteria)
         {
-            var pageableRequests = new IndexerPageableRequestChain();
+            var pageableRequests = new IndexerPageableRequestChain(MediaType.TVShows);
 
             foreach (var queryTitle in searchCriteria.EpisodeQueryTitles)
             {
@@ -143,15 +144,15 @@ namespace NzbDrone.Core.Indexers.Rarbg
 
         public IndexerPageableRequestChain GetSearchRequests(MovieSearchCriteria searchCriteria)
         {
-            
 
-            var pageableRequests = new IndexerPageableRequestChain();
+
+            var pageableRequests = new IndexerPageableRequestChain(MediaType.Movies);
 
             pageableRequests.Add(GetMovieRequest(searchCriteria));
 
             return pageableRequests;
 
-            
+
         }
     }
 }

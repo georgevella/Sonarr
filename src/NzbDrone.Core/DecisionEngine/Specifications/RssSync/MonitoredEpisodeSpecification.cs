@@ -6,18 +6,16 @@ using NzbDrone.Core.Parser.Model;
 
 namespace NzbDrone.Core.DecisionEngine.Specifications.RssSync
 {
-    public class MonitoredEpisodeSpecification : IDecisionEngineSpecification
+    public class MonitoredEpisodeSpecification : TypeDependentDecisionEngineSpecification
     {
         private readonly Logger _logger;
 
-        public MonitoredEpisodeSpecification(Logger logger)
+        public MonitoredEpisodeSpecification(Logger logger) : base(logger)
         {
             _logger = logger;
         }
 
-        public RejectionType Type => RejectionType.Permanent;
-
-        public Decision IsSatisfiedBy(RemoteMovie subject, SearchCriteriaBase searchCriteria)
+        public override Decision IsSatisfiedBy(RemoteMovie subject, SearchCriteriaBase searchCriteria)
         {
             if (searchCriteria != null)
             {
@@ -36,7 +34,7 @@ namespace NzbDrone.Core.DecisionEngine.Specifications.RssSync
             return Decision.Accept();
         }
 
-        public virtual Decision IsSatisfiedBy(RemoteItem subject, SearchCriteriaBase searchCriteria)
+        public override Decision IsSatisfiedBy(RemoteEpisode subject, SearchCriteriaBase searchCriteria)
         {
             if (searchCriteria != null)
             {

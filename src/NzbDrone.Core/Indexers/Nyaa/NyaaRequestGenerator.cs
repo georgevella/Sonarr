@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using NzbDrone.Common.Http;
 using NzbDrone.Core.IndexerSearch.Definitions;
+using NzbDrone.Core.Tv;
 
 namespace NzbDrone.Core.Indexers.Nyaa
 {
@@ -20,7 +21,7 @@ namespace NzbDrone.Core.Indexers.Nyaa
 
         public virtual IndexerPageableRequestChain GetRecentRequests()
         {
-            var pageableRequests = new IndexerPageableRequestChain();
+            var pageableRequests = new IndexerPageableRequestChain(MediaType.General);
 
             pageableRequests.Add(GetPagedRequests(MaxPages, null));
 
@@ -29,22 +30,22 @@ namespace NzbDrone.Core.Indexers.Nyaa
 
         public virtual IndexerPageableRequestChain GetSearchRequests(SingleEpisodeSearchCriteria searchCriteria)
         {
-            return new IndexerPageableRequestChain();
+            return new IndexerPageableRequestChain(MediaType.TVShows);
         }
 
         public virtual IndexerPageableRequestChain GetSearchRequests(SeasonSearchCriteria searchCriteria)
         {
-            return new IndexerPageableRequestChain();
+            return new IndexerPageableRequestChain(MediaType.TVShows);
         }
 
         public virtual IndexerPageableRequestChain GetSearchRequests(DailyEpisodeSearchCriteria searchCriteria)
         {
-            return new IndexerPageableRequestChain();
+            return new IndexerPageableRequestChain(MediaType.TVShows);
         }
 
         public virtual IndexerPageableRequestChain GetSearchRequests(AnimeEpisodeSearchCriteria searchCriteria)
         {
-            var pageableRequests = new IndexerPageableRequestChain();
+            var pageableRequests = new IndexerPageableRequestChain(MediaType.TVShows);
 
             foreach (var queryTitle in searchCriteria.QueryTitles)
             {
@@ -63,7 +64,7 @@ namespace NzbDrone.Core.Indexers.Nyaa
 
         public virtual IndexerPageableRequestChain GetSearchRequests(SpecialEpisodeSearchCriteria searchCriteria)
         {
-            var pageableRequests = new IndexerPageableRequestChain();
+            var pageableRequests = new IndexerPageableRequestChain(MediaType.TVShows);
 
             foreach (var queryTitle in searchCriteria.EpisodeQueryTitles)
             {
@@ -106,7 +107,7 @@ namespace NzbDrone.Core.Indexers.Nyaa
 
         public IndexerPageableRequestChain GetSearchRequests(MovieSearchCriteria searchCriteria)
         {
-            return new IndexerPageableRequestChain();
+            return new IndexerPageableRequestChain(MediaType.Movies);
         }
     }
 }

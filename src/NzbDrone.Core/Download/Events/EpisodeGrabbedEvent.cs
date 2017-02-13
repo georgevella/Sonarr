@@ -1,15 +1,15 @@
 ﻿using NzbDrone.Common.Messaging;
 using NzbDrone.Core.Parser.Model;
 
-namespace NzbDrone.Core.Download
+namespace NzbDrone.Core.Download.Events
 {
-    public class RemoteItemGrabbedEvent : IEvent
+    public class EpisodeGrabbedEvent : IEvent
     {
-        public RemoteItem Item { get; private set; }
+        public RemoteEpisode Item { get; private set; }
         public string DownloadClient { get; set; }
         public string DownloadId { get; set; }
 
-        public RemoteItemGrabbedEvent(RemoteItem item)
+        public EpisodeGrabbedEvent(RemoteEpisode item)
         {
             Item = item;
         }

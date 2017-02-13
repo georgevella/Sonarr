@@ -87,11 +87,11 @@ namespace NzbDrone.Core.MediaFiles
             {
                 _logger.Warn("Series' root folder ({0}) is empty.", rootFolder);
                 _eventAggregator.PublishEvent(new SeriesScanSkippedEvent(series, SeriesScanSkippedReason.RootFolderIsEmpty));
-                return; 
+                return;
             }
 
             _logger.ProgressInfo("Scanning disk for {0}", series.Title);
-            
+
             if (!_diskProvider.FolderExists(series.Path))
             {
                 if (_configService.CreateEmptySeriesFolders &&
@@ -118,7 +118,7 @@ namespace NzbDrone.Core.MediaFiles
 
             _logger.Debug("{0} Cleaning up media files in DB", series);
             _mediaFileTableCleanupService.Clean(series, mediaFileList);
-            
+
             var decisionsStopwatch = Stopwatch.StartNew();
             var decisions = _importDecisionMaker.GetImportDecisions(mediaFileList, series);
             decisionsStopwatch.Stop();
@@ -178,7 +178,7 @@ namespace NzbDrone.Core.MediaFiles
             _mediaFileTableCleanupService.Clean(movie, mediaFileList);
 
             var decisionsStopwatch = Stopwatch.StartNew();
-            var decisions = _importDecisionMaker.GetImportDecisions(mediaFileList, movie, true);
+            var decisions = _importDecisionMaker.GetImportDecisions(mediaFileList, movie);
             decisionsStopwatch.Stop();
             _logger.Trace("Import decisions complete for: {0} [{1}]", movie, decisionsStopwatch.Elapsed);
 
@@ -250,7 +250,7 @@ namespace NzbDrone.Core.MediaFiles
                 _logger.Warn(ex, "Unable to apply permissions to: " + path);
                 _logger.Debug(ex, ex.Message);
             }
-        }       
+        }
 
         public void Handle(SeriesUpdatedEvent message)
         {

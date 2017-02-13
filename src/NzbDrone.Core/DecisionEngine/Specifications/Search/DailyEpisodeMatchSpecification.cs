@@ -6,20 +6,18 @@ using NzbDrone.Core.Tv;
 
 namespace NzbDrone.Core.DecisionEngine.Specifications.Search
 {
-    public class DailyEpisodeMatchSpecification : IDecisionEngineSpecification
+    public class DailyEpisodeMatchSpecification : BaseTvShowDecisionEngineSpecification
     {
         private readonly Logger _logger;
         private readonly IEpisodeService _episodeService;
 
-        public DailyEpisodeMatchSpecification(Logger logger, IEpisodeService episodeService)
+        public DailyEpisodeMatchSpecification(Logger logger, IEpisodeService episodeService) : base(logger)
         {
             _logger = logger;
             _episodeService = episodeService;
         }
 
-        public RejectionType Type => RejectionType.Permanent;
-
-        public Decision IsSatisfiedBy(RemoteItem remoteEpisode, SearchCriteriaBase searchCriteria)
+        protected override Decision IsSatisfiedBy(RemoteEpisode remoteEpisode, SearchCriteriaBase searchCriteria)
         {
             if (searchCriteria == null)
             {
@@ -39,11 +37,6 @@ namespace NzbDrone.Core.DecisionEngine.Specifications.Search
             }
 
             return Decision.Accept();
-        }
-
-        public Decision IsSatisfiedBy(RemoteMovie subject, SearchCriteriaBase searchCriteria)
-        {
-            throw new NotImplementedException();
         }
     }
 }

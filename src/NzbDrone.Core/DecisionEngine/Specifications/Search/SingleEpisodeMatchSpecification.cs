@@ -5,11 +5,11 @@ using NzbDrone.Core.Parser.Model;
 
 namespace NzbDrone.Core.DecisionEngine.Specifications.Search
 {
-    public class SingleEpisodeMatchSpecification : IDecisionEngineSpecification
+    public class SingleEpisodeMatchSpecification : BaseTvShowDecisionEngineSpecification
     {
         private readonly Logger _logger;
 
-        public SingleEpisodeMatchSpecification(Logger logger)
+        public SingleEpisodeMatchSpecification(Logger logger) : base(logger)
         {
             _logger = logger;
         }
@@ -22,7 +22,7 @@ namespace NzbDrone.Core.DecisionEngine.Specifications.Search
             }
         }
 
-        public bool IsSatisfiedBy(RemoteEpisode remoteEpisode, SearchDefinitionBase searchDefinitionBase)
+        protected override Decision IsSatisfiedBy(RemoteEpisode remoteEpisode, SearchDefinitionBase searchDefinitionBase)
         {
             var singleEpisodeSpec = searchDefinitionBase as SingleEpisodeSearchDefinition;
             if (singleEpisodeSpec == null) return true;

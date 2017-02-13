@@ -5,6 +5,7 @@ using NzbDrone.Common.Cache;
 using NzbDrone.Common.Extensions;
 using NzbDrone.Core.History;
 using NzbDrone.Core.Parser;
+using NzbDrone.Core.Parser.Model;
 using NzbDrone.Core.ThingiProvider;
 using NzbDrone.Core.Tv;
 
@@ -18,17 +19,17 @@ namespace NzbDrone.Core.Download.TrackedDownloads
 
     public class TrackedDownloadService : ITrackedDownloadService
     {
-        private readonly IParsingService _parsingService;
+        private readonly IParsingServiceProvider _parsingServiceProvider;
         private readonly IHistoryService _historyService;
         private readonly Logger _logger;
         private readonly ICached<TrackedDownload> _cache;
 
-        public TrackedDownloadService(IParsingService parsingService,
+        public TrackedDownloadService(IParsingServiceProvider parsingServiceProvider,
             ICacheManager cacheManager,
             IHistoryService historyService,
             Logger logger)
         {
-            _parsingService = parsingService;
+            _parsingServiceProvider = parsingServiceProvider;
             _historyService = historyService;
             _cache = cacheManager.GetCache<TrackedDownload>(GetType());
             _logger = logger;
@@ -56,7 +57,6 @@ namespace NzbDrone.Core.Download.TrackedDownloads
                 Protocol = downloadClient.Protocol
             };
 
-            // TODO: GEORGE: fix for sabnzbd for now, improve after parser improvements
             var categoriesBasedDownloaderSettings = downloadClient.Settings as IDownloadClientSupportsCategories;
 
             MediaType mediaType;
@@ -93,7 +93,7 @@ namespace NzbDrone.Core.Download.TrackedDownloads
                 return null;
             }
 
-            if (trackedDownload.RemoteEpisode == null && trackedDownload.RemoteMovie == null)
+            if (trackedDownload.RemoteItem == null && trackedDownload.RemoteItem == null)
             {
                 return null;
             }
@@ -104,11 +104,12 @@ namespace NzbDrone.Core.Download.TrackedDownloads
 
         private void TrackEpisodeDownload(TrackedDownload trackedDownload)
         {
+            var _parsingService = _parsingServiceProvider.GetTvShowParsingService();
             var parsedEpisodeInfo = Parser.Parser.ParseEpisodeTitle(trackedDownload.DownloadItem.Title);
             var historyItems = _historyService.FindByDownloadId(trackedDownload.DownloadItem.DownloadId);
             if (parsedEpisodeInfo != null)
             {
-                trackedDownload.RemoteEpisode = _parsingService.Map(parsedEpisodeInfo, 0, 0);
+                trackedDownload.RemoteItem = _parsingService.Map(parsedEpisodeInfo, trackedDownload.RemoteItem.Release);
             }
 
             if (!historyItems.Any())
@@ -118,50 +119,54 @@ namespace NzbDrone.Core.Download.TrackedDownloads
             trackedDownload.State = GetStateFromHistory(firstHistoryItem.EventType);
 
             if ((parsedEpisodeInfo == null ||
-                 trackedDownload.RemoteEpisode == null ||
-                 trackedDownload.RemoteEpisode.Series == null ||
-                 trackedDownload.RemoteEpisode.Episodes.Empty()))
+                 trackedDownload.RemoteItem == null ||
+                 ((RemoteEpisode)trackedDownload.RemoteItem).Series == null ||
+                 ((RemoteEpisode)trackedDownload.RemoteItem).Episodes.Empty()))
             {
-                // Try parsing the original source title and if that fails, try parsing it as a special
-                // TODO: Pass the TVDB ID and TVRage IDs in as well so we have a better chance for finding the item
-                parsedEpisodeInfo = Parser.Parser.ParseEpisodeTitle(firstHistoryItem.SourceTitle) ??
-                                    _parsingService.ParseSpecialEpisodeTitle(firstHistoryItem.SourceTitle, 0, 0);
+                //// Try parsing the original source title and if that fails, try parsing it as a special
+                //// TODO: Pass the TVDB ID and TVRage IDs in as well so we have a better chance for finding the item
+                //parsedEpisodeInfo = Parser.Parser.ParseEpisodeTitle(firstHistoryItem.SourceTitle) ??
+                //                    _parsingService.ParseSpecialEpisodeTitle(firstHistoryItem.SourceTitle, 0, 0);
 
-                if (parsedEpisodeInfo != null)
-                {
-                    trackedDownload.RemoteEpisode = _parsingService.Map(parsedEpisodeInfo,
-                        firstHistoryItem.SeriesId,
-                        historyItems.Where(v => v.EventType == HistoryEventType.Grabbed).Select(h => h.EpisodeId).Distinct());
-                }
+                //if (parsedEpisodeInfo != null)
+                //{
+                //    trackedDownload.RemoteItem = _parsingService.Map(parsedEpisodeInfo,
+                //        firstHistoryItem.SeriesId,
+                //        historyItems.Where(v => v.EventType == HistoryEventType.Grabbed).Select(h => h.EpisodeId).Distinct());
+                //}
+                throw new NotImplementedException();
             }
         }
 
         private void TrackMovieDownload(TrackedDownload trackedDownload)
         {
+            var _parsingService = _parsingServiceProvider.GetMovieParsingService();
             var parsedMovieInfo = Parser.Parser.ParseMovieTitle(trackedDownload.DownloadItem.Title);
             var historyItems = _historyService.FindByDownloadId(trackedDownload.DownloadItem.DownloadId);
 
             if (parsedMovieInfo != null)
             {
-                trackedDownload.RemoteMovie = _parsingService.Map(parsedMovieInfo, "", null);
+                trackedDownload.RemoteItem = _parsingService.Map(parsedMovieInfo, trackedDownload.RemoteItem.Release);
             }
 
-            if (historyItems.Any())
+            if (!historyItems.Any())
+                return;
+
+            var firstHistoryItem = historyItems.OrderByDescending(h => h.Date).First();
+            trackedDownload.State = GetStateFromHistory(firstHistoryItem.EventType);
+
+            if (parsedMovieInfo == null ||
+                trackedDownload.RemoteItem == null ||
+                trackedDownload.RemoteItem.Media == null)
             {
-                var firstHistoryItem = historyItems.OrderByDescending(h => h.Date).First();
-                trackedDownload.State = GetStateFromHistory(firstHistoryItem.EventType);
+                //parsedMovieInfo = Parser.Parser.ParseMovieTitle(firstHistoryItem.SourceTitle);
 
-                if (parsedMovieInfo == null ||
-                    trackedDownload.RemoteMovie == null ||
-                    trackedDownload.RemoteMovie.Movie == null)
-                {
-                    parsedMovieInfo = Parser.Parser.ParseMovieTitle(firstHistoryItem.SourceTitle);
+                //if (parsedMovieInfo != null)
+                //{
+                //    trackedDownload.RemoteMovie = _parsingService.Map(parsedMovieInfo, "", null);
+                //}
 
-                    if (parsedMovieInfo != null)
-                    {
-                        trackedDownload.RemoteMovie = _parsingService.Map(parsedMovieInfo, "", null);
-                    }
-                }
+                throw new NotImplementedException();
             }
         }
 

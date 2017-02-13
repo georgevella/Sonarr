@@ -111,7 +111,7 @@ namespace NzbDrone.Api.Indexers
             try
             {
                 var decisions = _nzbSearchService.MovieSearch(movieId, true);
-                var prioritizedDecisions = _prioritizeDownloadDecision.PrioritizeDecisionsForMovies(decisions);
+                var prioritizedDecisions = _prioritizeDownloadDecision.PrioritizeDecisions(decisions);
 
                 return MapDecisions(prioritizedDecisions);
             }

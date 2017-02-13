@@ -4,9 +4,11 @@ using NzbDrone.Common.Extensions;
 using NzbDrone.Common.Http;
 using NzbDrone.Common.Instrumentation.Extensions;
 using NzbDrone.Common.TPL;
+using NzbDrone.Core.Download.Events;
 using NzbDrone.Core.Exceptions;
 using NzbDrone.Core.Indexers;
 using NzbDrone.Core.Messaging.Events;
+using NzbDrone.Core.Parser;
 using NzbDrone.Core.Parser.Model;
 
 namespace NzbDrone.Core.Download
@@ -79,16 +81,29 @@ namespace NzbDrone.Core.Download
                 throw;
             }
 
-            var episodeGrabbedEvent = new RemoteItemGrabbedEvent(remoteItem);
-            episodeGrabbedEvent.DownloadClient = downloadClient.GetType().Name;
-
-            if (!string.IsNullOrWhiteSpace(downloadClientId))
-            {
-                episodeGrabbedEvent.DownloadId = downloadClientId;
-            }
-
             _logger.ProgressInfo("Report sent to {0}. {1}", downloadClient.Definition.Name, downloadTitle);
-            _eventAggregator.PublishEvent(episodeGrabbedEvent);
+            _eventAggregator.PublishEvent(new RemoteItemGrabbedEvent(remoteItem)
+            {
+                DownloadClient = downloadClient.GetType().Name,
+                DownloadId = (!string.IsNullOrWhiteSpace(downloadClientId)) ? downloadClientId : string.Empty
+            });
+
+            if (remoteItem.IsEpisode())
+            {
+                _eventAggregator.PublishEvent(new EpisodeGrabbedEvent(remoteItem.AsRemoteEpisode())
+                {
+                    DownloadClient = downloadClient.GetType().Name,
+                    DownloadId = (!string.IsNullOrWhiteSpace(downloadClientId)) ? downloadClientId : string.Empty
+                });
+            }
+            else
+            {
+                _eventAggregator.PublishEvent(new MovieGrabbedEvent(remoteItem.AsRemoteMovie())
+                {
+                    DownloadClient = downloadClient.GetType().Name,
+                    DownloadId = (!string.IsNullOrWhiteSpace(downloadClientId)) ? downloadClientId : string.Empty
+                });
+            }
         }
     }
 }

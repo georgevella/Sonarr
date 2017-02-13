@@ -1,13 +1,19 @@
-﻿using NzbDrone.Core.IndexerSearch.Definitions;
+﻿using NLog;
+using NzbDrone.Core.IndexerSearch.Definitions;
 using NzbDrone.Core.Parser;
 using NzbDrone.Core.Parser.Model;
+using NzbDrone.Core.Tv;
 
 namespace NzbDrone.Core.DecisionEngine.Specifications
 {
-    public abstract class TypeDependentDecisionEngineSpecification : IDecisionEngineSpecification
+    public abstract class TypeDependentDecisionEngineSpecification : BaseDecisionEngineSpecification
     {
+        protected TypeDependentDecisionEngineSpecification(Logger log, RejectionType rejectionType = RejectionType.Permanent)
+            : base(log, rejectionType, MediaType.General)
+        {
+        }
 
-        public Decision IsSatisfiedBy(RemoteItem subject, SearchCriteriaBase searchCriteria)
+        public override Decision IsSatisfiedBy(RemoteItem subject, SearchCriteriaBase searchCriteria)
         {
             if (subject.IsEpisode())
             {
@@ -30,7 +36,5 @@ namespace NzbDrone.Core.DecisionEngine.Specifications
         {
             return Decision.Accept();
         }
-
-        public abstract RejectionType Type { get; }
     }
 }

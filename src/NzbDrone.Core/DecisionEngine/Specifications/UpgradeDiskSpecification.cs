@@ -11,12 +11,11 @@ namespace NzbDrone.Core.DecisionEngine.Specifications
         private readonly Logger _logger;
 
         public UpgradeDiskSpecification(QualityUpgradableSpecification qualityUpgradableSpecification, Logger logger)
+            : base(logger)
         {
             _qualityUpgradableSpecification = qualityUpgradableSpecification;
             _logger = logger;
         }
-
-        public override RejectionType Type => RejectionType.Permanent;
 
         public override Decision IsSatisfiedBy(RemoteEpisode subject, SearchCriteriaBase searchCriteria)
         {

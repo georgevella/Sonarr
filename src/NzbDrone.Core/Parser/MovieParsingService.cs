@@ -86,7 +86,7 @@ namespace NzbDrone.Core.Parser
 
             return new LocalMovie
             {
-                Movie = movie,
+                Media = movie,
                 Quality = parsedMovieInfo.Quality,
                 Path = filename,
                 Info = parsedMovieInfo,

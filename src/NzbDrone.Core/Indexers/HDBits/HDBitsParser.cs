@@ -50,7 +50,7 @@ namespace NzbDrone.Core.Indexers.HDBits
             foreach (var result in queryResults)
             {
                 var id = result.Id;
-                torrentInfos.Add(new TorrentInfo()
+                torrentInfos.Add(new TorrentInfo(indexerResponse.MediaType)
                 {
                     Guid = string.Format("HDBits-{0}", id),
                     Title = result.Name,

@@ -8,20 +8,19 @@ using NzbDrone.Core.Tv;
 
 namespace NzbDrone.Core.DecisionEngine.Specifications
 {
-    public class FullSeasonSpecification : TypeDependentDecisionEngineSpecification
+    public class FullSeasonSpecification : BaseTvShowDecisionEngineSpecification
     {
         private readonly Logger _logger;
         private readonly IEpisodeService _episodeService;
 
         public FullSeasonSpecification(Logger logger, IEpisodeService episodeService)
+            : base(logger)
         {
             _logger = logger;
             _episodeService = episodeService;
         }
 
-        public override RejectionType Type => RejectionType.Permanent;
-
-        public override Decision IsSatisfiedBy(RemoteEpisode subject, SearchCriteriaBase searchCriteria)
+        protected override Decision IsSatisfiedBy(RemoteEpisode subject, SearchCriteriaBase searchCriteria)
         {
             if (subject.ParsedEpisodeInfo.FullSeason)
             {
@@ -35,11 +34,6 @@ namespace NzbDrone.Core.DecisionEngine.Specifications
             }
 
             return Decision.Accept();
-        }
-
-        public override Decision IsSatisfiedBy(RemoteMovie subject, SearchCriteriaBase searchCriteria)
-        {
-            throw new NotImplementedException();
         }
     }
 }

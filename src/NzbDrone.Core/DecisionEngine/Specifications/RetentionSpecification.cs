@@ -2,23 +2,22 @@
 using NzbDrone.Core.Configuration;
 using NzbDrone.Core.IndexerSearch.Definitions;
 using NzbDrone.Core.Parser.Model;
+using NzbDrone.Core.Tv;
 
 namespace NzbDrone.Core.DecisionEngine.Specifications
 {
-    public class RetentionSpecification : IDecisionEngineSpecification
+    public class RetentionSpecification : BaseDecisionEngineSpecification
     {
         private readonly IConfigService _configService;
         private readonly Logger _logger;
 
-        public RetentionSpecification(IConfigService configService, Logger logger)
+        public RetentionSpecification(IConfigService configService, Logger logger) : base(logger)
         {
             _configService = configService;
             _logger = logger;
         }
 
-        public RejectionType Type => RejectionType.Permanent;
-
-        public virtual Decision IsSatisfiedBy(RemoteItem subject, SearchCriteriaBase searchCriteria)
+        public override Decision IsSatisfiedBy(RemoteItem subject, SearchCriteriaBase searchCriteria)
         {
             if (subject.Release.DownloadProtocol != Indexers.DownloadProtocol.Usenet)
             {

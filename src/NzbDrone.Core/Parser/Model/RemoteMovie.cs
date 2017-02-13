@@ -21,7 +21,41 @@ namespace NzbDrone.Core.Parser.Model
             return new[] { Media.Id };
         }
 
-        public Movie Movie => (Movie)Media;
-        public ParsedMovieInfo ParsedMovieInfo => (ParsedMovieInfo)Info;
+        public Movie Movie
+        {
+            get
+            {
+                return (Movie)Media;
+            }
+            set
+            {
+                if (value is Movie)
+                {
+                    Media = value;
+                }
+                else
+                {
+                    throw new InvalidOperationException();
+                }
+            }
+        }
+        public ParsedMovieInfo ParsedMovieInfo
+        {
+            get
+            {
+                return (ParsedMovieInfo)Info;
+            }
+            set
+            {
+                if (value is ParsedMovieInfo)
+                {
+                    Info = value;
+                }
+                else
+                {
+                    throw new InvalidOperationException();
+                }
+            }
+        }
     }
 }

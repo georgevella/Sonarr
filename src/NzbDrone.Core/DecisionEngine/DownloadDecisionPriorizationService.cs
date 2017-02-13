@@ -7,7 +7,6 @@ namespace NzbDrone.Core.DecisionEngine
     public interface IPrioritizeDownloadDecision
     {
         List<DownloadDecision> PrioritizeDecisions(List<DownloadDecision> decisions);
-        List<DownloadDecision> PrioritizeDecisionsForMovies(List<DownloadDecision> decisions);
     }
 
     public class DownloadDecisionPriorizationService : IPrioritizeDownloadDecision
@@ -21,25 +20,13 @@ namespace NzbDrone.Core.DecisionEngine
 
         public List<DownloadDecision> PrioritizeDecisions(List<DownloadDecision> decisions)
         {
-            return decisions.Where(c => c.RemoteEpisode.Series != null)
-                            .GroupBy(c => c.RemoteEpisode.Series.Id, (seriesId, downloadDecisions) =>
+            return decisions.Where(c => c.Item.Media != null)
+                            .GroupBy(c => c.Item.Media.Id, (id, downloadDecisions) =>
                                 {
                                     return downloadDecisions.OrderByDescending(decision => decision, new DownloadDecisionComparer(_delayProfileService));
                                 })
                             .SelectMany(c => c)
-                            .Union(decisions.Where(c => c.RemoteEpisode.Series == null))
-                            .ToList();
-        }
-
-        public List<DownloadDecision> PrioritizeDecisionsForMovies(List<DownloadDecision> decisions)
-        {
-            return decisions.Where(c => c.RemoteMovie.Movie != null)
-                            .GroupBy(c => c.RemoteMovie.Movie.Id, (movieId, downloadDecisions) =>
-                            {
-                                return downloadDecisions.OrderByDescending(decision => decision, new DownloadDecisionComparer(_delayProfileService));
-                            })
-                            .SelectMany(c => c)
-                            .Union(decisions.Where(c => c.RemoteMovie.Movie == null))
+                            .Union(decisions.Where(c => c.Item.Media == null))
                             .ToList();
         }
     }

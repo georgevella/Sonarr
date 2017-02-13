@@ -25,10 +25,9 @@ namespace NzbDrone.Api.Indexers
 
             release.ReleaseWeight = initialWeight;
 
-            if (decision.RemoteMovie.Movie != null)
+            if (decision.Item.Media != null)
             {
-                release.QualityWeight = decision.RemoteMovie.Movie
-                                                              .Profile.Value
+                release.QualityWeight = decision.Item.Media.Profile.Value
                                                               .Items.FindIndex(v => v.Quality == release.Quality.Quality) * 100;
             }
 

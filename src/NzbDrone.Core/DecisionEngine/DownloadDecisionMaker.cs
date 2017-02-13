@@ -160,7 +160,7 @@ namespace NzbDrone.Core.DecisionEngine
                     return new DownloadDecision(remoteMovie, new Rejection("Hardcoded subs found: " + parseMovieInfo.Quality.HardcodedSubs));
                 }
                 remoteMovie.DownloadAllowed = true;
-                return GetDecisionForReport(remoteMovie, searchCriteria);
+                return GetDecisionForReport(MediaType.Movies, remoteMovie, searchCriteria);
             }
 
             return null;
@@ -194,14 +194,14 @@ namespace NzbDrone.Core.DecisionEngine
                     return new DownloadDecision(remoteEpisode, new Rejection("Unable to parse episodes from release name"));
                 }
                 remoteEpisode.DownloadAllowed = remoteEpisode.Episodes.Any();
-                return GetDecisionForReport(remoteEpisode, searchCriteria);
+                return GetDecisionForReport(MediaType.TVShows, remoteEpisode, searchCriteria);
             }
 
             return null;
         }
-        private DownloadDecision GetDecisionForReport(RemoteItem remoteEpisode, SearchCriteriaBase searchCriteria = null)
+        private DownloadDecision GetDecisionForReport(MediaType mediaType, RemoteItem remoteEpisode, SearchCriteriaBase searchCriteria = null)
         {
-            var reasons = _specifications.Select(c => EvaluateSpec(c, remoteEpisode, searchCriteria))
+            var reasons = _specifications.Where(x => x.MediaType == MediaType.General || x.MediaType == mediaType).Select(c => EvaluateSpec(c, remoteEpisode, searchCriteria))
                                          .Where(c => c != null);
 
             return new DownloadDecision(remoteEpisode, reasons.ToArray());

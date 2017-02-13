@@ -3,6 +3,7 @@ using System.Linq;
 using NzbDrone.Common.Http;
 using NzbDrone.Common.Serializer;
 using NzbDrone.Core.IndexerSearch.Definitions;
+using NzbDrone.Core.Tv;
 
 namespace NzbDrone.Core.Indexers.HDBits
 {
@@ -12,7 +13,7 @@ namespace NzbDrone.Core.Indexers.HDBits
 
         public virtual IndexerPageableRequestChain GetRecentRequests()
         {
-            var pageableRequests = new IndexerPageableRequestChain();
+            var pageableRequests = new IndexerPageableRequestChain(MediaType.General);
 
             pageableRequests.Add(GetRequest(new TorrentQuery()));
 
@@ -21,32 +22,32 @@ namespace NzbDrone.Core.Indexers.HDBits
 
         public virtual IndexerPageableRequestChain GetSearchRequests(AnimeEpisodeSearchCriteria searchCriteria)
         {
-            return new IndexerPageableRequestChain();
+            return new IndexerPageableRequestChain(MediaType.TVShows);
         }
 
         public virtual IndexerPageableRequestChain GetSearchRequests(SpecialEpisodeSearchCriteria searchCriteria)
         {
-            return new IndexerPageableRequestChain();
+            return new IndexerPageableRequestChain(MediaType.TVShows);
         }
 
         public virtual IndexerPageableRequestChain GetSearchRequests(DailyEpisodeSearchCriteria searchCriteria)
         {
-            return new IndexerPageableRequestChain();
+            return new IndexerPageableRequestChain(MediaType.TVShows);
         }
 
         public virtual IndexerPageableRequestChain GetSearchRequests(SeasonSearchCriteria searchCriteria)
         {
-            return new IndexerPageableRequestChain();
+            return new IndexerPageableRequestChain(MediaType.TVShows);
         }
 
         public virtual IndexerPageableRequestChain GetSearchRequests(SingleEpisodeSearchCriteria searchCriteria)
         {
-            return new IndexerPageableRequestChain();
+            return new IndexerPageableRequestChain(MediaType.TVShows);
         }
 
         public virtual IndexerPageableRequestChain GetSearchRequests(MovieSearchCriteria searchCriteria)
         {
-            var pageableRequests = new IndexerPageableRequestChain();
+            var pageableRequests = new IndexerPageableRequestChain(MediaType.Movies);
             var queryBase = new TorrentQuery();
 
             if (TryAddSearchParameters(queryBase, searchCriteria))

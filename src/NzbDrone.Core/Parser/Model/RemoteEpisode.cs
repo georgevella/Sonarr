@@ -16,9 +16,43 @@ namespace NzbDrone.Core.Parser.Model
 
         }
 
-        public Series Series => (Series)Media;
+        public Series Series
+        {
+            get
+            {
+                return (Series)Media;
+            }
+            set
+            {
+                if (value is Series)
+                {
+                    Media = value;
+                }
+                else
+                {
+                    throw new InvalidOperationException();
+                }
+            }
+        }
 
-        public ParsedEpisodeInfo ParsedEpisodeInfo => (ParsedEpisodeInfo)Info;
+        public ParsedEpisodeInfo ParsedEpisodeInfo
+        {
+            get
+            {
+                return (ParsedEpisodeInfo)Info;
+            }
+            set
+            {
+                if (value is ParsedEpisodeInfo)
+                {
+                    Info = value;
+                }
+                else
+                {
+                    throw new InvalidOperationException();
+                }
+            }
+        }
 
         public List<Episode> Episodes { get; set; }
 

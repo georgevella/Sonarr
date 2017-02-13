@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using NLog;
@@ -29,52 +30,54 @@ namespace NzbDrone.Core.Extras.Others
 
         public override IEnumerable<ExtraFile> ProcessFiles(Series series, List<string> filesOnDisk, List<string> importedFiles)
         {
-            _logger.Debug("Looking for existing extra files in {0}", series.Path);
+            // TODO: GEORGE
+            throw new NotImplementedException();
+            //_logger.Debug("Looking for existing extra files in {0}", series.Path);
 
-            var extraFiles = new List<OtherExtraFile>();
-            var filterResult = FilterAndClean(series, filesOnDisk, importedFiles);
+            //var extraFiles = new List<OtherExtraFile>();
+            //var filterResult = FilterAndClean(series, filesOnDisk, importedFiles);
 
-            foreach (var possibleExtraFile in filterResult.FilesOnDisk)
-            {
-                var localEpisode = _parsingService.GetLocalEpisode(possibleExtraFile, series);
+            //foreach (var possibleExtraFile in filterResult.FilesOnDisk)
+            //{
+            //    var localEpisode = _parsingService.GetLocalEpisode(possibleExtraFile, series);
 
-                if (localEpisode == null)
-                {
-                    _logger.Debug("Unable to parse extra file: {0}", possibleExtraFile);
-                    continue;
-                }
+            //    if (localEpisode == null)
+            //    {
+            //        _logger.Debug("Unable to parse extra file: {0}", possibleExtraFile);
+            //        continue;
+            //    }
 
-                if (localEpisode.Episodes.Empty())
-                {
-                    _logger.Debug("Cannot find related episodes for: {0}", possibleExtraFile);
-                    continue;
-                }
+            //    if (localEpisode.Episodes.Empty())
+            //    {
+            //        _logger.Debug("Cannot find related episodes for: {0}", possibleExtraFile);
+            //        continue;
+            //    }
 
-                if (localEpisode.Episodes.DistinctBy(e => e.EpisodeFileId).Count() > 1)
-                {
-                    _logger.Debug("Extra file: {0} does not match existing files.", possibleExtraFile);
-                    continue;
-                }
+            //    if (localEpisode.Episodes.DistinctBy(e => e.EpisodeFileId).Count() > 1)
+            //    {
+            //        _logger.Debug("Extra file: {0} does not match existing files.", possibleExtraFile);
+            //        continue;
+            //    }
 
-                var extraFile = new OtherExtraFile
-                {
-                    SeriesId = series.Id,
-                    SeasonNumber = localEpisode.SeasonNumber,
-                    EpisodeFileId = localEpisode.Episodes.First().EpisodeFileId,
-                    RelativePath = series.Path.GetRelativePath(possibleExtraFile),
-                    Extension = Path.GetExtension(possibleExtraFile)
-                };
+            //    var extraFile = new OtherExtraFile
+            //    {
+            //        SeriesId = series.Id,
+            //        SeasonNumber = localEpisode.SeasonNumber,
+            //        EpisodeFileId = localEpisode.Episodes.First().EpisodeFileId,
+            //        RelativePath = series.Path.GetRelativePath(possibleExtraFile),
+            //        Extension = Path.GetExtension(possibleExtraFile)
+            //    };
 
-                extraFiles.Add(extraFile);
-            }
+            //    extraFiles.Add(extraFile);
+            //}
 
-            _logger.Info("Found {0} existing other extra files", extraFiles.Count);
-            _otherExtraFileService.Upsert(extraFiles);
+            //_logger.Info("Found {0} existing other extra files", extraFiles.Count);
+            //_otherExtraFileService.Upsert(extraFiles);
 
-            // Return files that were just imported along with files that were
-            // previously imported so previously imported files aren't imported twice
+            //// Return files that were just imported along with files that were
+            //// previously imported so previously imported files aren't imported twice
 
-            return extraFiles.Concat(filterResult.PreviouslyImported);
+            //return extraFiles.Concat(filterResult.PreviouslyImported);
         }
     }
 }

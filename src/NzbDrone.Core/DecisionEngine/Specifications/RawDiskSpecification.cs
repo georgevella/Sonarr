@@ -6,7 +6,7 @@ using NzbDrone.Core.Parser.Model;
 
 namespace NzbDrone.Core.DecisionEngine.Specifications
 {
-    public class RawDiskSpecification : IDecisionEngineSpecification
+    public class RawDiskSpecification : BaseDecisionEngineSpecification
     {
         private static readonly string[] _dvdContainerTypes = new[] { "vob", "iso" };
 
@@ -14,14 +14,12 @@ namespace NzbDrone.Core.DecisionEngine.Specifications
 
         private readonly Logger _logger;
 
-        public RawDiskSpecification(Logger logger)
+        public RawDiskSpecification(Logger logger) : base(logger)
         {
             _logger = logger;
         }
 
-        public RejectionType Type => RejectionType.Permanent;
-
-        public virtual Decision IsSatisfiedBy(RemoteItem subject, SearchCriteriaBase searchCriteria)
+        public override Decision IsSatisfiedBy(RemoteItem subject, SearchCriteriaBase searchCriteria)
         {
             if (subject.Release == null || subject.Release.Container.IsNullOrWhiteSpace())
             {

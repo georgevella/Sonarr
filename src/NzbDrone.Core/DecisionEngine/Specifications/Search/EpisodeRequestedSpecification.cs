@@ -7,23 +7,16 @@ using NzbDrone.Core.Parser.Model;
 
 namespace NzbDrone.Core.DecisionEngine.Specifications.Search
 {
-    public class EpisodeRequestedSpecification : IDecisionEngineSpecification
+    public class EpisodeRequestedSpecification : BaseTvShowDecisionEngineSpecification
     {
         private readonly Logger _logger;
 
-        public EpisodeRequestedSpecification(Logger logger)
+        public EpisodeRequestedSpecification(Logger logger) : base(logger)
         {
             _logger = logger;
         }
 
-        public RejectionType Type => RejectionType.Permanent;
-
-        public Decision IsSatisfiedBy(RemoteMovie subject, SearchCriteriaBase searchCriteria)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Decision IsSatisfiedBy(RemoteItem remoteEpisode, SearchCriteriaBase searchCriteria)
+        protected override Decision IsSatisfiedBy(RemoteEpisode remoteEpisode, SearchCriteriaBase searchCriteria)
         {
             if (searchCriteria == null)
             {

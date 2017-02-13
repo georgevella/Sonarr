@@ -34,7 +34,7 @@ namespace NzbDrone.Core.Indexers
 
         public string PreferredEnclosureMimeType { get; set; }
 
-        private IndexerResponse _indexerResponse;
+        protected IndexerResponse IndexerResponse;
 
         public RssParser()
         {
@@ -43,7 +43,7 @@ namespace NzbDrone.Core.Indexers
 
         public virtual IList<ReleaseInfo> ParseResponse(IndexerResponse indexerResponse)
         {
-            _indexerResponse = indexerResponse;
+            IndexerResponse = indexerResponse;
 
             var releases = new List<ReleaseInfo>();
 
@@ -112,7 +112,7 @@ namespace NzbDrone.Core.Indexers
 
         protected virtual ReleaseInfo CreateNewReleaseInfo()
         {
-            return new ReleaseInfo();
+            return new ReleaseInfo(IndexerResponse.MediaType);
         }
 
         protected virtual bool PreProcess(IndexerResponse indexerResponse)
@@ -296,7 +296,7 @@ namespace NzbDrone.Core.Indexers
 
             try
             {
-                var url = _indexerResponse.HttpRequest.Url + new HttpUri(value);
+                var url = IndexerResponse.HttpRequest.Url + new HttpUri(value);
 
                 return url.FullUri;
             }

@@ -1,14 +1,17 @@
 using System.Collections.Generic;
 using System.Linq;
+using NzbDrone.Core.Tv;
 
 namespace NzbDrone.Core.Indexers
 {
     public class IndexerPageableRequestChain
     {
-        private List<List<IndexerPageableRequest>> _chains;
+        public MediaType MediaType { get; }
+        private readonly List<List<IndexerPageableRequest>> _chains;
 
-        public IndexerPageableRequestChain()
+        public IndexerPageableRequestChain(MediaType mediaType)
         {
+            MediaType = mediaType;
             _chains = new List<List<IndexerPageableRequest>>();
             _chains.Add(new List<IndexerPageableRequest>());
         }
@@ -29,7 +32,7 @@ namespace NzbDrone.Core.Indexers
         {
             if (request == null) return;
 
-            _chains.Last().Add(new IndexerPageableRequest(request));
+            _chains.Last().Add(new IndexerPageableRequest(MediaType, request));
         }
 
         public void AddTier(IEnumerable<IndexerRequest> request)

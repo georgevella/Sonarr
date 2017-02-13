@@ -6,6 +6,7 @@ using NzbDrone.Core.Messaging.Commands;
 using NzbDrone.Core.Messaging.Events;
 using NzbDrone.Core.Tv;
 using System.Collections.Generic;
+using NzbDrone.Core.Download.Events;
 
 namespace NzbDrone.Core.Download
 {

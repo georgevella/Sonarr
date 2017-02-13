@@ -4,18 +4,16 @@ using NzbDrone.Core.Parser.Model;
 
 namespace NzbDrone.Core.DecisionEngine.Specifications
 {
-    public class LanguageSpecification : IDecisionEngineSpecification
+    public class LanguageSpecification : BaseDecisionEngineSpecification
     {
         private readonly Logger _logger;
 
-        public LanguageSpecification(Logger logger)
+        public LanguageSpecification(Logger logger) : base(logger)
         {
             _logger = logger;
         }
 
-        public RejectionType Type => RejectionType.Permanent;
-
-        public virtual Decision IsSatisfiedBy(RemoteItem subject, SearchCriteriaBase searchCriteria)
+        public override Decision IsSatisfiedBy(RemoteItem subject, SearchCriteriaBase searchCriteria)
         {
             var wantedLanguage = subject.Media.Profile.Value.Language;
 

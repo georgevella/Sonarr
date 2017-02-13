@@ -11,13 +11,11 @@ namespace NzbDrone.Core.DecisionEngine.Specifications
         private readonly QualityUpgradableSpecification _qualityUpgradableSpecification;
         private readonly Logger _logger;
 
-        public CutoffSpecification(QualityUpgradableSpecification qualityUpgradableSpecification, Logger logger)
+        public CutoffSpecification(QualityUpgradableSpecification qualityUpgradableSpecification, Logger logger) : base(logger)
         {
             _qualityUpgradableSpecification = qualityUpgradableSpecification;
             _logger = logger;
         }
-
-        public override RejectionType Type => RejectionType.Permanent;
 
         public override Decision IsSatisfiedBy(RemoteEpisode subject, SearchCriteriaBase searchCriteria)
         {

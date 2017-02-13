@@ -51,7 +51,7 @@ namespace NzbDrone.Core.Indexers.AwesomeHD
                 var id = torrent.Id;
                 var title = $"{torrent.Name}.{torrent.Year}.{torrent.Resolution}.{torrent.Media}.{torrent.Encoding}.{torrent.Audioformat}-{torrent.Releasegroup}";
 
-                torrentInfos.Add(new TorrentInfo()
+                torrentInfos.Add(new TorrentInfo(indexerResponse.MediaType)
                 {
                     Guid = string.Format("AwesomeHD-{0}", id),
                     Title = title,

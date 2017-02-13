@@ -8,6 +8,7 @@ using NzbDrone.Core.Indexers;
 using NzbDrone.Core.Parser.Model;
 using NzbDrone.Core.DecisionEngine;
 using System.Linq;
+using NzbDrone.Core.Tv;
 
 namespace NzbDrone.Api.Indexers
 {
@@ -77,76 +78,25 @@ namespace NzbDrone.Api.Indexers
         public bool IsAbsoluteNumbering { get; set; }
         public bool IsPossibleSpecialEpisode { get; set; }
         public bool Special { get; set; }
+        public MediaType MediaType { get; set; }
     }
 
     public static class ReleaseResourceMapper
     {
         public static ReleaseResource ToResource(this DownloadDecision model)
         {
-            var releaseInfo = model.RemoteEpisode.Release;
-            var parsedEpisodeInfo = model.RemoteEpisode.ParsedEpisodeInfo;
-            var remoteEpisode = model.RemoteEpisode;
-            var torrentInfo = (model.RemoteEpisode.Release as TorrentInfo) ?? new TorrentInfo();
-            var downloadAllowed = model.RemoteEpisode.DownloadAllowed;
-            if (model.IsForMovie)
-            {
-                downloadAllowed = model.RemoteMovie.DownloadAllowed;
-                var parsedMovieInfo = model.RemoteMovie.ParsedMovieInfo;
-
-                return new ReleaseResource
-                {
-                    Guid = releaseInfo.Guid,
-                    Quality = parsedMovieInfo.Quality,
-                    QualityWeight = parsedMovieInfo.Quality.Quality.Id, //Id kinda hacky for wheight, but what you gonna do? TODO: Fix this shit!
-                    Age = releaseInfo.Age,
-                    AgeHours = releaseInfo.AgeHours,
-                    AgeMinutes = releaseInfo.AgeMinutes,
-                    Size = releaseInfo.Size,
-                    IndexerId = releaseInfo.IndexerId,
-                    Indexer = releaseInfo.Indexer,
-                    ReleaseGroup = parsedMovieInfo.ReleaseGroup,
-                    ReleaseHash = parsedMovieInfo.ReleaseHash,
-                    Title = releaseInfo.Title,
-                    //FullSeason = parsedMovieInfo.FullSeason,
-                    //SeasonNumber = parsedMovieInfo.SeasonNumber,
-                    Language = parsedMovieInfo.Language,
-                    AirDate = "",
-                    SeriesTitle = parsedMovieInfo.MovieTitle,
-                    EpisodeNumbers = new int[0],
-                    AbsoluteEpisodeNumbers = new int[0],
-                    Approved = model.Approved,
-                    TemporarilyRejected = model.TemporarilyRejected,
-                    Rejected = model.Rejected,
-                    TvdbId = releaseInfo.TvdbId,
-                    TvRageId = releaseInfo.TvRageId,
-                    Rejections = model.Rejections.Select(r => r.Reason).ToList(),
-                    PublishDate = releaseInfo.PublishDate,
-                    CommentUrl = releaseInfo.CommentUrl,
-                    DownloadUrl = releaseInfo.DownloadUrl,
-                    InfoUrl = releaseInfo.InfoUrl,
-                    DownloadAllowed = downloadAllowed,
-                    //ReleaseWeight
-
-                    MagnetUrl = torrentInfo.MagnetUrl,
-                    InfoHash = torrentInfo.InfoHash,
-                    Seeders = torrentInfo.Seeders,
-                    Leechers = (torrentInfo.Peers.HasValue && torrentInfo.Seeders.HasValue) ? (torrentInfo.Peers.Value - torrentInfo.Seeders.Value) : (int?)null,
-                    Protocol = releaseInfo.DownloadProtocol,
-
-                    Edition = parsedMovieInfo.Edition,
-
-                    IsDaily = false,
-                    IsAbsoluteNumbering = false,
-                    IsPossibleSpecialEpisode = false,
-                    //Special = parsedMovieInfo.Special,
-                };
-            }
+            var releaseInfo = model.Item.Release;
+            var parsedItemInfo = model.Item.Info;
+            var remoteEpisode = model.Item;
+            var torrentInfo = model.Item.Release as TorrentInfo;
+            var downloadAllowed = model.Item.DownloadAllowed;
 
             // TODO: Clean this mess up. don't mix data from multiple classes, use sub-resources instead? (Got a huge Deja Vu, didn't we talk about this already once?)
-            return new ReleaseResource
+            var resource = new ReleaseResource
             {
+                MediaType = model.Item.MediaType,
                 Guid = releaseInfo.Guid,
-                Quality = parsedEpisodeInfo.Quality,
+                Quality = parsedItemInfo.Quality,
                 //QualityWeight
                 Age = releaseInfo.Age,
                 AgeHours = releaseInfo.AgeHours,
@@ -154,16 +104,12 @@ namespace NzbDrone.Api.Indexers
                 Size = releaseInfo.Size,
                 IndexerId = releaseInfo.IndexerId,
                 Indexer = releaseInfo.Indexer,
-                ReleaseGroup = parsedEpisodeInfo.ReleaseGroup,
-                ReleaseHash = parsedEpisodeInfo.ReleaseHash,
+                ReleaseGroup = parsedItemInfo.ReleaseGroup,
+                ReleaseHash = parsedItemInfo.ReleaseHash,
                 Title = releaseInfo.Title,
-                FullSeason = parsedEpisodeInfo.FullSeason,
-                SeasonNumber = parsedEpisodeInfo.SeasonNumber,
-                Language = parsedEpisodeInfo.Language,
-                AirDate = parsedEpisodeInfo.AirDate,
-                SeriesTitle = parsedEpisodeInfo.SeriesTitle,
-                EpisodeNumbers = parsedEpisodeInfo.EpisodeNumbers,
-                AbsoluteEpisodeNumbers = parsedEpisodeInfo.AbsoluteEpisodeNumbers,
+                Language = parsedItemInfo.Language,
+
+
                 Approved = model.Approved,
                 TemporarilyRejected = model.TemporarilyRejected,
                 Rejected = model.Rejected,
@@ -177,17 +123,45 @@ namespace NzbDrone.Api.Indexers
                 DownloadAllowed = downloadAllowed,
                 //ReleaseWeight
 
-                MagnetUrl = torrentInfo.MagnetUrl,
-                InfoHash = torrentInfo.InfoHash,
-                Seeders = torrentInfo.Seeders,
-                Leechers = (torrentInfo.Peers.HasValue && torrentInfo.Seeders.HasValue) ? (torrentInfo.Peers.Value - torrentInfo.Seeders.Value) : (int?)null,
                 Protocol = releaseInfo.DownloadProtocol,
-
-                IsDaily = parsedEpisodeInfo.IsDaily,
-                IsAbsoluteNumbering = parsedEpisodeInfo.IsAbsoluteNumbering,
-                IsPossibleSpecialEpisode = parsedEpisodeInfo.IsPossibleSpecialEpisode,
-                Special = parsedEpisodeInfo.Special,
             };
+
+            if (torrentInfo != null)
+            {
+                resource.MagnetUrl = torrentInfo?.MagnetUrl;
+                resource.InfoHash = torrentInfo?.InfoHash;
+                resource.Seeders = torrentInfo?.Seeders;
+                resource.Leechers = (torrentInfo.Peers.HasValue && torrentInfo.Seeders.HasValue)
+                    ? (torrentInfo.Peers.Value - torrentInfo.Seeders.Value)
+                    : (int?)null;
+            }
+
+            if (model.Item.IsEpisode())
+            {
+                var parsedEpisodeInfo = model.Item.AsRemoteEpisode().ParsedEpisodeInfo;
+
+                resource.FullSeason = parsedEpisodeInfo.FullSeason;
+                resource.SeasonNumber = parsedEpisodeInfo.SeasonNumber;
+                resource.SeriesTitle = parsedEpisodeInfo.SeriesTitle;
+                resource.AirDate = parsedEpisodeInfo.AirDate;
+                resource.EpisodeNumbers = parsedEpisodeInfo.EpisodeNumbers;
+                resource.AbsoluteEpisodeNumbers = parsedEpisodeInfo.AbsoluteEpisodeNumbers;
+                resource.IsDaily = parsedEpisodeInfo.IsDaily;
+                resource.IsAbsoluteNumbering = parsedEpisodeInfo.IsAbsoluteNumbering;
+                resource.IsPossibleSpecialEpisode = parsedEpisodeInfo.IsPossibleSpecialEpisode;
+                resource.Special = parsedEpisodeInfo.Special;
+            }
+
+            if (model.Item.IsMovie())
+            {
+                var parsedMovieInfo = model.Item.AsRemoteMovie().ParsedMovieInfo;
+                resource.Edition = parsedMovieInfo.Edition;
+                resource.SeriesTitle = parsedMovieInfo.MovieTitle;
+            }
+
+
+            return resource;
+
 
         }
 
@@ -197,7 +171,7 @@ namespace NzbDrone.Api.Indexers
 
             if (resource.Protocol == DownloadProtocol.Torrent)
             {
-                model = new TorrentInfo
+                model = new TorrentInfo(resource.MediaType)
                 {
                     MagnetUrl = resource.MagnetUrl,
                     InfoHash = resource.InfoHash,
@@ -207,7 +181,7 @@ namespace NzbDrone.Api.Indexers
             }
             else
             {
-                model = new ReleaseInfo();
+                model = new ReleaseInfo(resource.MediaType);
             }
 
             model.Guid = resource.Guid;

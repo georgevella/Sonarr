@@ -15,7 +15,7 @@ namespace NzbDrone.Core.MediaFiles
     public interface IDownloadedEpisodesImportService
     {
         List<ImportResult> ProcessRootFolder(DirectoryInfo directoryInfo);
-        List<ImportResult> ProcessPath(string path, ImportMode importMode = ImportMode.Auto, Series series = null, DownloadClientItem downloadClientItem = null);
+        List<ImportResult> ProcessPath(string path, ImportMode importMode = ImportMode.Auto, IMediaItem series = null, DownloadClientItem downloadClientItem = null);
         bool ShouldDeleteFolder(DirectoryInfo directoryInfo, IMediaItem series);
     }
 
@@ -68,7 +68,7 @@ namespace NzbDrone.Core.MediaFiles
             return results;
         }
 
-        public List<ImportResult> ProcessPath(string path, ImportMode importMode = ImportMode.Auto, Series series = null, DownloadClientItem downloadClientItem = null)
+        public List<ImportResult> ProcessPath(string path, ImportMode importMode = ImportMode.Auto, IMediaItem series = null, DownloadClientItem downloadClientItem = null)
         {
             if (_diskProvider.FolderExists(path))
             {
@@ -213,7 +213,7 @@ namespace NzbDrone.Core.MediaFiles
             return ProcessFile(fileInfo, importMode, series, downloadClientItem);
         }
 
-        private List<ImportResult> ProcessFile(FileInfo fileInfo, ImportMode importMode, Series series, DownloadClientItem downloadClientItem)
+        private List<ImportResult> ProcessFile(FileInfo fileInfo, ImportMode importMode, IMediaItem series, DownloadClientItem downloadClientItem)
         {
             if (Path.GetFileNameWithoutExtension(fileInfo.Name).StartsWith("._"))
             {

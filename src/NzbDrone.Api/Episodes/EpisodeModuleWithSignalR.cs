@@ -5,6 +5,7 @@ using NzbDrone.Api.Series;
 using NzbDrone.Core.Datastore.Events;
 using NzbDrone.Core.DecisionEngine;
 using NzbDrone.Core.Download;
+using NzbDrone.Core.Download.Events;
 using NzbDrone.Core.MediaFiles.Events;
 using NzbDrone.Core.Messaging.Events;
 using NzbDrone.Core.Tv;
@@ -13,7 +14,7 @@ using NzbDrone.SignalR;
 namespace NzbDrone.Api.Episodes
 {
     public abstract class EpisodeModuleWithSignalR : NzbDroneRestModuleWithSignalR<EpisodeResource, Episode>,
-        IHandle<RemoteItemGrabbedEvent>,
+        IHandle<EpisodeGrabbedEvent>,
         IHandle<EpisodeDownloadedEvent>
     {
         protected readonly IEpisodeService _episodeService;
@@ -89,7 +90,7 @@ namespace NzbDrone.Api.Episodes
 
                     var series = episode.Series ?? seriesDict.GetValueOrDefault(episodes[i].SeriesId) ?? _seriesService.GetSeries(episodes[i].SeriesId);
                     seriesDict[series.Id] = series;
-                    
+
                     if (includeSeries)
                     {
                         resource.Series = series.ToResource();
@@ -104,7 +105,7 @@ namespace NzbDrone.Api.Episodes
             return result;
         }
 
-        public void Handle(RemoteItemGrabbedEvent message)
+        public void Handle(EpisodeGrabbedEvent message)
         {
             foreach (var episode in message.Item.Episodes)
             {

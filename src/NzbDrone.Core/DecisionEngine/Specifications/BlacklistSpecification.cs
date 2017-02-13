@@ -6,20 +6,18 @@ using System;
 
 namespace NzbDrone.Core.DecisionEngine.Specifications
 {
-    public class BlacklistSpecification : IDecisionEngineSpecification
+    public class BlacklistSpecification : BaseDecisionEngineSpecification
     {
         private readonly IBlacklistService _blacklistService;
         private readonly Logger _logger;
 
-        public BlacklistSpecification(IBlacklistService blacklistService, Logger logger)
+        public BlacklistSpecification(IBlacklistService blacklistService, Logger logger) : base(logger, RejectionType.Permanent)
         {
             _blacklistService = blacklistService;
             _logger = logger;
         }
 
-        public RejectionType Type => RejectionType.Permanent;
-
-        public Decision IsSatisfiedBy(RemoteItem subject, SearchCriteriaBase searchCriteria)
+        public override Decision IsSatisfiedBy(RemoteItem subject, SearchCriteriaBase searchCriteria)
         {
             if (_blacklistService.Blacklisted(subject.Media.Id, subject.Release))
             {

@@ -29,7 +29,7 @@ namespace NzbDrone.Core.Indexers
 
         protected override ReleaseInfo CreateNewReleaseInfo()
         {
-            return new TorrentInfo();
+            return new TorrentInfo(IndexerResponse.MediaType);
         }
 
         protected override ReleaseInfo ProcessItem(XElement item, ReleaseInfo releaseInfo)

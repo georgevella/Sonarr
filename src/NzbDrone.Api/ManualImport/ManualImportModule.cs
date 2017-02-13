@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using NzbDrone.Core.MediaFiles.EpisodeImport.Manual;
 using NzbDrone.Core.Qualities;
+using NzbDrone.Core.Tv;
 
 namespace NzbDrone.Api.ManualImport
 {
@@ -25,7 +27,10 @@ namespace NzbDrone.Api.ManualImport
             var downloadIdQuery = Request.Query.downloadId;
             var downloadId = (string)downloadIdQuery.Value;
 
-            return _manualImportService.GetMediaFiles(folder, downloadId).ToResource().Select(AddQualityWeight).ToList();
+            var mediaTypeQuery = Request.Query.type;
+            var mediaType = (MediaType)Enum.Parse(typeof(MediaType), mediaTypeQuery, true);
+
+            return _manualImportService.GetMediaFiles(mediaType, folder, downloadId).ToResource().Select(AddQualityWeight).ToList();
         }
 
         private ManualImportResource AddQualityWeight(ManualImportResource item)
@@ -36,7 +41,7 @@ namespace NzbDrone.Api.ManualImport
                 item.QualityWeight += item.Quality.Revision.Real * 10;
                 item.QualityWeight += item.Quality.Revision.Version;
             }
-           
+
             return item;
         }
     }

@@ -8,20 +8,19 @@ using NzbDrone.Core.Tv;
 
 namespace NzbDrone.Core.DecisionEngine.Specifications
 {
-    public class AnimeVersionUpgradeSpecification : TypeDependentDecisionEngineSpecification
+    public class AnimeVersionUpgradeSpecification : BaseTvShowDecisionEngineSpecification
     {
         private readonly QualityUpgradableSpecification _qualityUpgradableSpecification;
         private readonly Logger _logger;
 
         public AnimeVersionUpgradeSpecification(QualityUpgradableSpecification qualityUpgradableSpecification, Logger logger)
+            : base(logger)
         {
             _qualityUpgradableSpecification = qualityUpgradableSpecification;
             _logger = logger;
         }
 
-        public override RejectionType Type => RejectionType.Permanent;
-
-        public override Decision IsSatisfiedBy(RemoteEpisode subject, SearchCriteriaBase searchCriteria)
+        protected override Decision IsSatisfiedBy(RemoteEpisode subject, SearchCriteriaBase searchCriteria)
         {
             var releaseGroup = subject.ParsedEpisodeInfo.ReleaseGroup;
 
@@ -55,11 +54,6 @@ namespace NzbDrone.Core.DecisionEngine.Specifications
             }
 
             return Decision.Accept();
-        }
-
-        public override Decision IsSatisfiedBy(RemoteMovie subject, SearchCriteriaBase searchCriteria)
-        {
-            throw new NotImplementedException();
         }
     }
 }

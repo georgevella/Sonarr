@@ -5,18 +5,16 @@ using NzbDrone.Core.Parser.Model;
 
 namespace NzbDrone.Core.DecisionEngine.Specifications
 {
-    public class NotSampleSpecification : IDecisionEngineSpecification
+    public class NotSampleSpecification : BaseDecisionEngineSpecification
     {
         private readonly Logger _logger;
 
-        public RejectionType Type => RejectionType.Permanent;
-
-        public NotSampleSpecification(Logger logger)
+        public NotSampleSpecification(Logger logger) : base(logger)
         {
             _logger = logger;
         }
 
-        public Decision IsSatisfiedBy(RemoteItem subject, SearchCriteriaBase searchCriteria)
+        public override Decision IsSatisfiedBy(RemoteItem subject, SearchCriteriaBase searchCriteria)
         {
             if (subject.Release.Title.ToLower().Contains("sample") && subject.Release.Size < 70.Megabytes())
             {

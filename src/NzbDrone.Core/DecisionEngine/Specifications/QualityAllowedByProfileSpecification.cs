@@ -4,18 +4,16 @@ using NzbDrone.Core.Parser.Model;
 
 namespace NzbDrone.Core.DecisionEngine.Specifications
 {
-    public class QualityAllowedByProfileSpecification : IDecisionEngineSpecification
+    public class QualityAllowedByProfileSpecification : BaseDecisionEngineSpecification
     {
         private readonly Logger _logger;
 
-        public QualityAllowedByProfileSpecification(Logger logger)
+        public QualityAllowedByProfileSpecification(Logger logger) : base(logger)
         {
             _logger = logger;
         }
 
-        public RejectionType Type => RejectionType.Permanent;
-
-        public virtual Decision IsSatisfiedBy(RemoteItem subject, SearchCriteriaBase searchCriteria)
+        public override Decision IsSatisfiedBy(RemoteItem subject, SearchCriteriaBase searchCriteria)
         {
             _logger.Debug("Checking if report meets quality requirements. {0}", subject.Info.Quality);
             if (!subject.Media.Profile.Value.Items.Exists(v => v.Allowed && v.Quality == subject.Info.Quality.Quality))

@@ -88,7 +88,7 @@ namespace NzbDrone.Api.Queue
         {
             var resource = Request.Body.FromJson<QueueResource>();
             var trackedDownload = GetTrackedDownload(resource.Id);
-                
+
             _completedDownloadService.Process(trackedDownload, true);
 
             return resource.AsResponse();
@@ -105,7 +105,7 @@ namespace NzbDrone.Api.Queue
                 throw new NotFoundException();
             }
 
-            _downloadService.DownloadReport(pendingRelease.RemoteEpisode);
+            _downloadService.DownloadReport(pendingRelease.RemoteItem);
 
             return resource.AsResponse();
         }

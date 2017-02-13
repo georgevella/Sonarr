@@ -45,7 +45,7 @@ namespace NzbDrone.Core.Indexers.Rarbg
 
             foreach (var torrent in jsonResponse.Resource.torrent_results)
             {
-                var torrentInfo = new TorrentInfo();
+                var torrentInfo = new TorrentInfo(indexerResponse.MediaType);
 
                 torrentInfo.Guid = GetGuid(torrent);
                 torrentInfo.Title = torrent.title;

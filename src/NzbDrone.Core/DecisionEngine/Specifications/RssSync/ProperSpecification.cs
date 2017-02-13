@@ -7,22 +7,21 @@ using NzbDrone.Core.Parser.Model;
 
 namespace NzbDrone.Core.DecisionEngine.Specifications.RssSync
 {
-    public class ProperSpecification : IDecisionEngineSpecification
+    public class ProperSpecification : TypeDependentDecisionEngineSpecification
     {
         private readonly QualityUpgradableSpecification _qualityUpgradableSpecification;
         private readonly IConfigService _configService;
         private readonly Logger _logger;
 
         public ProperSpecification(QualityUpgradableSpecification qualityUpgradableSpecification, IConfigService configService, Logger logger)
+            : base(logger)
         {
             _qualityUpgradableSpecification = qualityUpgradableSpecification;
             _configService = configService;
             _logger = logger;
         }
 
-        public RejectionType Type => RejectionType.Permanent;
-
-        public virtual Decision IsSatisfiedBy(RemoteItem subject, SearchCriteriaBase searchCriteria)
+        public override Decision IsSatisfiedBy(RemoteEpisode subject, SearchCriteriaBase searchCriteria)
         {
             if (searchCriteria != null)
             {
@@ -50,7 +49,7 @@ namespace NzbDrone.Core.DecisionEngine.Specifications.RssSync
             return Decision.Accept();
         }
 
-        public virtual Decision IsSatisfiedBy(RemoteMovie subject, SearchCriteriaBase searchCriteria)
+        public override Decision IsSatisfiedBy(RemoteMovie subject, SearchCriteriaBase searchCriteria)
         {
             if (searchCriteria != null)
             {
@@ -64,21 +63,21 @@ namespace NzbDrone.Core.DecisionEngine.Specifications.RssSync
 
             var file = subject.Movie.MovieFile.Value;
 
-                if (_qualityUpgradableSpecification.IsRevisionUpgrade(file.Quality, subject.ParsedMovieInfo.Quality))
+            if (_qualityUpgradableSpecification.IsRevisionUpgrade(file.Quality, subject.ParsedMovieInfo.Quality))
+            {
+                if (file.DateAdded < DateTime.Today.AddDays(-7))
                 {
-                    if (file.DateAdded < DateTime.Today.AddDays(-7))
-                    {
-                        _logger.Debug("Proper for old file, rejecting: {0}", subject);
-                        return Decision.Reject("Proper for old file");
-                    }
-
-                    if (!_configService.AutoDownloadPropers)
-                    {
-                        _logger.Debug("Auto downloading of propers is disabled");
-                        return Decision.Reject("Proper downloading is disabled");
-                    }
+                    _logger.Debug("Proper for old file, rejecting: {0}", subject);
+                    return Decision.Reject("Proper for old file");
                 }
-            
+
+                if (!_configService.AutoDownloadPropers)
+                {
+                    _logger.Debug("Auto downloading of propers is disabled");
+                    return Decision.Reject("Proper downloading is disabled");
+                }
+            }
+
 
             return Decision.Accept();
         }

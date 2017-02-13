@@ -1,7 +1,7 @@
 ﻿using NzbDrone.Common.Messaging;
 using NzbDrone.Core.Parser.Model;
 
-namespace NzbDrone.Core.Download
+namespace NzbDrone.Core.Download.Events
 {
     public class MovieGrabbedEvent : IEvent
     {

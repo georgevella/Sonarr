@@ -4,6 +4,7 @@ using System.Linq;
 using NzbDrone.Common.Extensions;
 using NzbDrone.Common.Http;
 using NzbDrone.Core.IndexerSearch.Definitions;
+using NzbDrone.Core.Tv;
 
 namespace NzbDrone.Core.Indexers.Newznab
 {
@@ -35,7 +36,7 @@ namespace NzbDrone.Core.Indexers.Newznab
 
         public virtual IndexerPageableRequestChain GetRecentRequests()
         {
-            var pageableRequests = new IndexerPageableRequestChain();
+            var pageableRequests = new IndexerPageableRequestChain(MediaType.General);
 
             var capabilities = _capabilitiesProvider.GetCapabilities(Settings);
 
@@ -49,7 +50,7 @@ namespace NzbDrone.Core.Indexers.Newznab
 
         public IndexerPageableRequestChain GetSearchRequests(MovieSearchCriteria searchCriteria)
         {
-            var pageableRequests = new IndexerPageableRequestChain();
+            var pageableRequests = new IndexerPageableRequestChain(MediaType.Movies);
 
             if (SupportsMovieSearch)
             {
@@ -65,27 +66,27 @@ namespace NzbDrone.Core.Indexers.Newznab
 
         public virtual IndexerPageableRequestChain GetSearchRequests(SingleEpisodeSearchCriteria searchCriteria)
         {
-            return new IndexerPageableRequestChain();
+            return new IndexerPageableRequestChain(MediaType.TVShows);
         }
 
         public virtual IndexerPageableRequestChain GetSearchRequests(SeasonSearchCriteria searchCriteria)
         {
-            return new IndexerPageableRequestChain();
+            return new IndexerPageableRequestChain(MediaType.TVShows);
         }
 
         public virtual IndexerPageableRequestChain GetSearchRequests(DailyEpisodeSearchCriteria searchCriteria)
         {
-            return new IndexerPageableRequestChain();
+            return new IndexerPageableRequestChain(MediaType.TVShows);
         }
 
         public virtual IndexerPageableRequestChain GetSearchRequests(AnimeEpisodeSearchCriteria searchCriteria)
         {
-            return new IndexerPageableRequestChain();
+            return new IndexerPageableRequestChain(MediaType.TVShows);
         }
 
         public virtual IndexerPageableRequestChain GetSearchRequests(SpecialEpisodeSearchCriteria searchCriteria)
         {
-            return new IndexerPageableRequestChain();
+            return new IndexerPageableRequestChain(MediaType.TVShows);
         }
 
         private IEnumerable<IndexerRequest> GetPagedRequests(int maxPages, IEnumerable<int> categories, string searchType, string parameters)

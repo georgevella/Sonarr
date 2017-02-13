@@ -88,7 +88,7 @@ namespace NzbDrone.Core.Parser
 
             return new LocalEpisode
             {
-                Series = series,
+                Media = series,
                 Quality = parsedEpisodeInfo.Quality,
                 Episodes = episodes,
                 Path = filename,

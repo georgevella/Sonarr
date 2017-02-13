@@ -127,7 +127,10 @@
     <Compile Include="Datastore\Migration\127_add_mediatype_rootfolder.cs" />
     <Compile Include="Datastore\Migration\128_remove_wombles.cs" />
     <Compile Include="Datastore\Migration\129_remove_kickass.cs" />
+    <Compile Include="DecisionEngine\Specifications\BaseDecisionEngineSpecification.cs" />
+    <Compile Include="DecisionEngine\Specifications\Search\MediaSpecification.cs" />
     <Compile Include="DecisionEngine\Specifications\TypeDependentDecisionEngineSpecification.cs" />
+    <Compile Include="Download\Events\EpisodeGrabbedEvent.cs" />
     <Compile Include="MediaFiles\IMediaFile.cs" />
     <Compile Include="NetImport\Trakt\TraktAPI.cs" />
     <Compile Include="NetImport\Trakt\TraktImport.cs" />
@@ -393,7 +396,6 @@
     <Compile Include="DecisionEngine\Specifications\Search\DailyEpisodeMatchSpecification.cs" />
     <Compile Include="DecisionEngine\Specifications\Search\EpisodeRequestedSpecification.cs" />
     <Compile Include="DecisionEngine\Specifications\Search\SeasonMatchSpecification.cs" />
-    <Compile Include="DecisionEngine\Specifications\Search\SeriesSpecification.cs" />
     <Compile Include="DecisionEngine\Specifications\Search\SingleEpisodeSearchMatchSpecification.cs" />
     <Compile Include="DecisionEngine\Specifications\Search\TorrentSeedingSpecification.cs" />
     <Compile Include="DecisionEngine\Specifications\SameEpisodesGrabSpecification.cs" />
@@ -503,7 +505,7 @@
     <Compile Include="Download\Clients\uTorrent\UTorrentTorrentStatus.cs" />
     <Compile Include="Download\CompletedDownloadService.cs" />
     <Compile Include="Download\DownloadEventHub.cs" />
-    <Compile Include="Download\MovieGrabbedEvent.cs" />
+    <Compile Include="Download\Events\MovieGrabbedEvent.cs" />
     <Compile Include="Download\TrackedDownloads\DownloadMonitoringService.cs" />
     <Compile Include="Download\TrackedDownloads\TrackedDownload.cs" />
     <Compile Include="Download\TrackedDownloads\TrackedDownloadService.cs" />
@@ -519,10 +521,10 @@
     <Compile Include="Download\DownloadClientRepository.cs" />
     <Compile Include="Download\DownloadClientStatus.cs" />
     <Compile Include="Download\DownloadClientType.cs" />
-    <Compile Include="Download\DownloadFailedEvent.cs" />
+    <Compile Include="Download\Events\DownloadFailedEvent.cs" />
     <Compile Include="Download\DownloadItemStatus.cs" />
     <Compile Include="Download\DownloadService.cs" />
-    <Compile Include="Download\RemoteItemGrabbedEvent.cs" />
+    <Compile Include="Download\Events\RemoteItemGrabbedEvent.cs" />
     <Compile Include="Download\FailedDownloadService.cs" />
     <Compile Include="Download\IDownloadClient.cs" />
     <Compile Include="Download\Pending\PendingRelease.cs" />
@@ -681,7 +683,6 @@
     <Compile Include="Indexers\Rarbg\RarbgSettings.cs" />
     <Compile Include="Indexers\Rarbg\RarbgParser.cs" />
     <Compile Include="Indexers\Rarbg\RarbgTokenProvider.cs" />
-    <Compile Include="Indexers\RssIndexerRequestGenerator.cs" />
     <Compile Include="Indexers\RssParser.cs" />
     <Compile Include="Indexers\RssSyncCommand.cs" />
     <Compile Include="Indexers\RssSyncCompleteEvent.cs" />

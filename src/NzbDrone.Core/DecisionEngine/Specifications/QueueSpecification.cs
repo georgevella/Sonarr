@@ -17,13 +17,12 @@ namespace NzbDrone.Core.DecisionEngine.Specifications
         public QueueSpecification(IQueueService queueService,
                                        QualityUpgradableSpecification qualityUpgradableSpecification,
                                        Logger logger)
+            : base(logger)
         {
             _queueService = queueService;
             _qualityUpgradableSpecification = qualityUpgradableSpecification;
             _logger = logger;
         }
-
-        public override RejectionType Type => RejectionType.Permanent;
 
         public override Decision IsSatisfiedBy(RemoteEpisode subject, SearchCriteriaBase searchCriteria)
         {

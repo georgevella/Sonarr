@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using NzbDrone.Common.Extensions;
+using NzbDrone.Core.Tv;
 
 namespace NzbDrone.Core.Parser
 {
@@ -34,10 +35,24 @@ namespace NzbDrone.Core.Parser
         {
             return _tvShowParsingService;
         }
+
+        public IParsingService GetParsingService(MediaType mediaType)
+        {
+            var parsingService = (mediaType == MediaType.Movies)
+                ? GetMovieParsingService()
+                : (mediaType == MediaType.TVShows) ? GetTvShowParsingService() : null;
+
+            if (parsingService == null)
+                throw new InvalidOperationException();
+
+            return parsingService;
+        }
     }
 
     public interface IParsingServiceProvider
     {
+        IParsingService GetParsingService(MediaType mediaType);
+
         IParsingService GetMovieParsingService();
 
         ITvShowParsingService GetTvShowParsingService();

@@ -5,20 +5,18 @@ using NzbDrone.Core.Parser.Model;
 
 namespace NzbDrone.Core.DecisionEngine.Specifications
 {
-    public class MinimumAgeSpecification : IDecisionEngineSpecification
+    public class MinimumAgeSpecification : BaseDecisionEngineSpecification
     {
         private readonly IConfigService _configService;
         private readonly Logger _logger;
 
-        public MinimumAgeSpecification(IConfigService configService, Logger logger)
+        public MinimumAgeSpecification(IConfigService configService, Logger logger) : base(logger)
         {
             _configService = configService;
             _logger = logger;
         }
 
-        public RejectionType Type => RejectionType.Temporary;
-
-        public virtual Decision IsSatisfiedBy(RemoteItem subject, SearchCriteriaBase searchCriteria)
+        public override Decision IsSatisfiedBy(RemoteItem subject, SearchCriteriaBase searchCriteria)
         {
             if (subject.Release.DownloadProtocol != Indexers.DownloadProtocol.Usenet)
             {

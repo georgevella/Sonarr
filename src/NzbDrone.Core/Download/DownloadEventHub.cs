@@ -2,6 +2,7 @@
 using NLog;
 using NzbDrone.Common.Messaging;
 using NzbDrone.Core.Configuration;
+using NzbDrone.Core.Download.Events;
 using NzbDrone.Core.Download.TrackedDownloads;
 using NzbDrone.Core.Messaging.Events;
 

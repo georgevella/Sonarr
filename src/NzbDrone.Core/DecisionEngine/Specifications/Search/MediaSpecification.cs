@@ -4,28 +4,28 @@ using NzbDrone.Core.Parser.Model;
 
 namespace NzbDrone.Core.DecisionEngine.Specifications.Search
 {
-    public class TorrentSeedingSpecification : BaseDecisionEngineSpecification
+    public class MediaSpecification : BaseDecisionEngineSpecification
     {
         private readonly Logger _logger;
 
-        public TorrentSeedingSpecification(Logger logger) : base(logger)
+        public MediaSpecification(Logger logger) : base(logger)
         {
             _logger = logger;
         }
 
         public override Decision IsSatisfiedBy(RemoteItem remoteEpisode, SearchCriteriaBase searchCriteria)
         {
-            var torrentInfo = remoteEpisode.Release as TorrentInfo;
-
-            if (torrentInfo == null)
+            if (searchCriteria == null)
             {
                 return Decision.Accept();
             }
 
-            if (torrentInfo.Seeders != null && torrentInfo.Seeders < 1)
+            _logger.Debug("Checking if movie matches searched movie");
+
+            if (remoteEpisode.Media.Id != searchCriteria.Movie.Id)
             {
-                _logger.Debug("Not enough seeders. ({0})", torrentInfo.Seeders);
-                return Decision.Reject("Not enough seeders. ({0})", torrentInfo.Seeders);
+                _logger.Debug("Series '{0}' does not match {1}", remoteEpisode.Media, searchCriteria.Series);
+                return Decision.Reject("Wrong movie");
             }
 
             return Decision.Accept();

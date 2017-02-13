@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using NLog;
@@ -18,7 +19,7 @@ namespace NzbDrone.Core.Extras.Subtitles
         public ExistingSubtitleImporter(IExtraFileService<SubtitleFile> subtitleFileService,
                                         IParsingService parsingService,
                                         Logger logger)
-            : base (subtitleFileService)
+            : base(subtitleFileService)
         {
             _subtitleFileService = subtitleFileService;
             _parsingService = parsingService;
@@ -29,58 +30,62 @@ namespace NzbDrone.Core.Extras.Subtitles
 
         public override IEnumerable<ExtraFile> ProcessFiles(Series series, List<string> filesOnDisk, List<string> importedFiles)
         {
-            _logger.Debug("Looking for existing subtitle files in {0}", series.Path);
+            // TODO: GEORGE
+            throw new NotImplementedException();
+            //_logger.Debug("Looking for existing subtitle files in {0}", series.Path);
 
-            var subtitleFiles = new List<SubtitleFile>();
-            var filterResult = FilterAndClean(series, filesOnDisk, importedFiles);
+            //var subtitleFiles = new List<SubtitleFile>();
+            //var filterResult = FilterAndClean(series, filesOnDisk, importedFiles);
 
-            foreach (var possibleSubtitleFile in filterResult.FilesOnDisk)
-            {
-                var extension = Path.GetExtension(possibleSubtitleFile);
+            //foreach (var possibleSubtitleFile in filterResult.FilesOnDisk)
+            //{
+            //    var extension = Path.GetExtension(possibleSubtitleFile);
 
-                if (SubtitleFileExtensions.Extensions.Contains(extension))
-                {
-                    var localEpisode = _parsingService.GetLocalEpisode(possibleSubtitleFile, series);
+            //    if (SubtitleFileExtensions.Extensions.Contains(extension))
+            //    {
+            //        var localEpisode = _parsingService.GetLocal(possibleSubtitleFile, series);
 
-                    if (localEpisode == null)
-                    {
-                        _logger.Debug("Unable to parse subtitle file: {0}", possibleSubtitleFile);
-                        continue;
-                    }
+            //        if (localEpisode == null)
+            //        {
+            //            _logger.Debug("Unable to parse subtitle file: {0}", possibleSubtitleFile);
+            //            continue;
+            //        }
 
-                    if (localEpisode.Episodes.Empty())
-                    {
-                        _logger.Debug("Cannot find related episodes for: {0}", possibleSubtitleFile);
-                        continue;
-                    }
 
-                    if (localEpisode.Episodes.DistinctBy(e => e.EpisodeFileId).Count() > 1)
-                    {
-                        _logger.Debug("Subtitle file: {0} does not match existing files.", possibleSubtitleFile);
-                        continue;
-                    }
+            //        // TODO: GEORGE
+            //        //if (localEpisode.Episodes.Empty())
+            //        //{
+            //        //    _logger.Debug("Cannot find related episodes for: {0}", possibleSubtitleFile);
+            //        //    continue;
+            //        //}
 
-                    var subtitleFile = new SubtitleFile
-                                       {
-                                           SeriesId = series.Id,
-                                           SeasonNumber = localEpisode.SeasonNumber,
-                                           EpisodeFileId = localEpisode.Episodes.First().EpisodeFileId,
-                                           RelativePath = series.Path.GetRelativePath(possibleSubtitleFile),
-                                           Language = LanguageParser.ParseSubtitleLanguage(possibleSubtitleFile),
-                                           Extension = extension
-                                       };
+            //        //if (localEpisode.Episodes.DistinctBy(e => e.EpisodeFileId).Count() > 1)
+            //        //{
+            //        //    _logger.Debug("Subtitle file: {0} does not match existing files.", possibleSubtitleFile);
+            //        //    continue;
+            //        //}
 
-                    subtitleFiles.Add(subtitleFile);
-                }
-            }
+            //        var subtitleFile = new SubtitleFile
+            //        {
+            //            SeriesId = series.Id,
+            //            SeasonNumber = localEpisode.SeasonNumber,
+            //            EpisodeFileId = localEpisode.Episodes.First().EpisodeFileId,
+            //            RelativePath = series.Path.GetRelativePath(possibleSubtitleFile),
+            //            Language = LanguageParser.ParseSubtitleLanguage(possibleSubtitleFile),
+            //            Extension = extension
+            //        };
 
-            _logger.Info("Found {0} existing subtitle files", subtitleFiles.Count);
-            _subtitleFileService.Upsert(subtitleFiles);
+            //        subtitleFiles.Add(subtitleFile);
+            //    }
+            //}
 
-            // Return files that were just imported along with files that were
-            // previously imported so previously imported files aren't imported twice
+            //_logger.Info("Found {0} existing subtitle files", subtitleFiles.Count);
+            //_subtitleFileService.Upsert(subtitleFiles);
 
-            return subtitleFiles.Concat(filterResult.PreviouslyImported);
+            //// Return files that were just imported along with files that were
+            //// previously imported so previously imported files aren't imported twice
+
+            //return subtitleFiles.Concat(filterResult.PreviouslyImported);
         }
     }
 }

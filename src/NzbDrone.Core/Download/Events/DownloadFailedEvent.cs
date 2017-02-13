@@ -3,7 +3,7 @@ using NzbDrone.Common.Messaging;
 using NzbDrone.Core.Download.TrackedDownloads;
 using NzbDrone.Core.Qualities;
 
-namespace NzbDrone.Core.Download
+namespace NzbDrone.Core.Download.Events
 {
     public class DownloadFailedEvent : IEvent
     {

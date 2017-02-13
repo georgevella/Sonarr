@@ -9,6 +9,7 @@ using NzbDrone.Core.MediaFiles.Events;
 using NzbDrone.Core.Messaging.Events;
 using System;
 using NzbDrone.Core.Datastore.Events;
+using NzbDrone.Core.Download.Events;
 
 namespace NzbDrone.Api.Wanted
 {

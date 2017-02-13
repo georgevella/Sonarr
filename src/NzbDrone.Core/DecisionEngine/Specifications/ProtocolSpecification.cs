@@ -6,21 +6,19 @@ using NzbDrone.Core.Profiles.Delay;
 
 namespace NzbDrone.Core.DecisionEngine.Specifications
 {
-    public class ProtocolSpecification : IDecisionEngineSpecification
+    public class ProtocolSpecification : BaseDecisionEngineSpecification
     {
         private readonly IDelayProfileService _delayProfileService;
         private readonly Logger _logger;
 
         public ProtocolSpecification(IDelayProfileService delayProfileService,
-                                     Logger logger)
+                                     Logger logger) : base(logger)
         {
             _delayProfileService = delayProfileService;
             _logger = logger;
         }
 
-        public RejectionType Type => RejectionType.Permanent;
-
-        public virtual Decision IsSatisfiedBy(RemoteItem subject, SearchCriteriaBase searchCriteria)
+        public override Decision IsSatisfiedBy(RemoteItem subject, SearchCriteriaBase searchCriteria)
         {
             var delayProfile = _delayProfileService.BestForTags(subject.Media.Tags);
 

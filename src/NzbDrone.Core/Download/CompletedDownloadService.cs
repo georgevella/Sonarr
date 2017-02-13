@@ -28,7 +28,7 @@ namespace NzbDrone.Core.Download
         private readonly IHistoryService _historyService;
         private readonly IDownloadedEpisodesImportService _downloadedEpisodesImportService;
         private readonly IDownloadedMovieImportService _downloadedMovieImportService;
-        private readonly IParsingService _parsingService;
+        private readonly IParsingServiceProvider _parsingServiceProvider;
         private readonly IMovieService _movieService;
         private readonly Logger _logger;
         private readonly ISeriesService _seriesService;
@@ -38,7 +38,7 @@ namespace NzbDrone.Core.Download
                                         IHistoryService historyService,
                                         IDownloadedEpisodesImportService downloadedEpisodesImportService,
                                         IDownloadedMovieImportService downloadedMovieImportService,
-                                        IParsingService parsingService,
+                                        IParsingServiceProvider parsingServiceProvider,
                                         ISeriesService seriesService,
                                         IMovieService movieService,
                                         Logger logger)
@@ -48,7 +48,7 @@ namespace NzbDrone.Core.Download
             _historyService = historyService;
             _downloadedEpisodesImportService = downloadedEpisodesImportService;
             _downloadedMovieImportService = downloadedMovieImportService;
-            _parsingService = parsingService;
+            _parsingServiceProvider = parsingServiceProvider;
             _movieService = movieService;
             _logger = logger;
             _seriesService = seriesService;
@@ -60,6 +60,10 @@ namespace NzbDrone.Core.Download
             {
                 return;
             }
+
+            var parsingService = trackedDownload.RemoteItem.MediaType == MediaType.Movies
+                ? _parsingServiceProvider.GetMovieParsingService()
+                : _parsingServiceProvider.GetTvShowParsingService();
 
             if (!ignoreWarnings)
             {
@@ -94,7 +98,7 @@ namespace NzbDrone.Core.Download
                     return;
                 }
 
-                var movie = _parsingService.GetMovie(trackedDownload.DownloadItem.Title);
+                var movie = parsingService.GetMediaItem(trackedDownload.DownloadItem.Title);
                 if (movie == null)
                 {
                     if (historyItem != null)
@@ -116,7 +120,10 @@ namespace NzbDrone.Core.Download
         private void Import(TrackedDownload trackedDownload)
         {
             var outputPath = trackedDownload.DownloadItem.OutputPath.FullPath;
-            var importResults = _downloadedMovieImportService.ProcessPath(outputPath, ImportMode.Auto, trackedDownload.RemoteMovie.Movie, trackedDownload.DownloadItem);
+            var importResults = trackedDownload.RemoteItem.MediaType == MediaType.Movies
+                ? _downloadedMovieImportService.ProcessPath(outputPath, ImportMode.Auto, trackedDownload.RemoteItem.Media, trackedDownload.DownloadItem)
+                : _downloadedEpisodesImportService.ProcessPath(outputPath, ImportMode.Auto, trackedDownload.RemoteItem.Media, trackedDownload.DownloadItem)
+                ;
 
             if (importResults.Empty())
             {

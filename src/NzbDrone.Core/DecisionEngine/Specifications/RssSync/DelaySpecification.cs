@@ -8,7 +8,7 @@ using NzbDrone.Core.Qualities;
 
 namespace NzbDrone.Core.DecisionEngine.Specifications.RssSync
 {
-    public class DelaySpecification : IDecisionEngineSpecification
+    public class DelaySpecification : TypeDependentDecisionEngineSpecification
     {
         private readonly IPendingReleaseService _pendingReleaseService;
         private readonly IQualityUpgradableSpecification _qualityUpgradableSpecification;
@@ -18,7 +18,7 @@ namespace NzbDrone.Core.DecisionEngine.Specifications.RssSync
         public DelaySpecification(IPendingReleaseService pendingReleaseService,
                                   IQualityUpgradableSpecification qualityUpgradableSpecification,
                                   IDelayProfileService delayProfileService,
-                                  Logger logger)
+                                  Logger logger) : base(logger, RejectionType.Temporary)
         {
             _pendingReleaseService = pendingReleaseService;
             _qualityUpgradableSpecification = qualityUpgradableSpecification;
@@ -26,9 +26,7 @@ namespace NzbDrone.Core.DecisionEngine.Specifications.RssSync
             _logger = logger;
         }
 
-        public RejectionType Type => RejectionType.Temporary;
-
-        public virtual Decision IsSatisfiedBy(RemoteMovie subject, SearchCriteriaBase searchCriteria)
+        public override Decision IsSatisfiedBy(RemoteMovie subject, SearchCriteriaBase searchCriteria)
         {
             if (searchCriteria != null && searchCriteria.UserInvokedSearch)
             {
@@ -66,26 +64,26 @@ namespace NzbDrone.Core.DecisionEngine.Specifications.RssSync
 
             if (isPreferredProtocol && (subject.Movie.MovieFileId != 0) && (preferredCount > 0 || preferredWords == null))
             {
-                    var upgradable = _qualityUpgradableSpecification.IsUpgradable(profile, subject.Movie.MovieFile.Value.Quality, subject.ParsedMovieInfo.Quality);
+                var upgradable = _qualityUpgradableSpecification.IsUpgradable(profile, subject.Movie.MovieFile.Value.Quality, subject.ParsedMovieInfo.Quality);
 
-                    if (upgradable)
+                if (upgradable)
+                {
+                    var revisionUpgrade = _qualityUpgradableSpecification.IsRevisionUpgrade(subject.Movie.MovieFile.Value.Quality, subject.ParsedMovieInfo.Quality);
+
+                    if (revisionUpgrade)
                     {
-                        var revisionUpgrade = _qualityUpgradableSpecification.IsRevisionUpgrade(subject.Movie.MovieFile.Value.Quality, subject.ParsedMovieInfo.Quality);
-
-                        if (revisionUpgrade)
-                        {
-                            _logger.Debug("New quality is a better revision for existing quality and preferred word count is {0}, skipping delay", preferredCount);
-                            return Decision.Accept();
-                        }
+                        _logger.Debug("New quality is a better revision for existing quality and preferred word count is {0}, skipping delay", preferredCount);
+                        return Decision.Accept();
                     }
-                
+                }
+
             }
 
             // If quality meets or exceeds the best allowed quality in the profile accept it immediately
             var bestQualityInProfile = new QualityModel(profile.LastAllowedQuality());
             var isBestInProfile = comparer.Compare(subject.ParsedMovieInfo.Quality, bestQualityInProfile) >= 0;
 
-            if (isBestInProfile && isPreferredProtocol && (preferredCount > 0  || preferredWords == null))
+            if (isBestInProfile && isPreferredProtocol && (preferredCount > 0 || preferredWords == null))
             {
                 _logger.Debug("Quality is highest in profile for preferred protocol and preferred word count is {0}, will not delay.", preferredCount);
                 return Decision.Accept();
@@ -108,7 +106,7 @@ namespace NzbDrone.Core.DecisionEngine.Specifications.RssSync
             return Decision.Accept();
         }
 
-        public virtual Decision IsSatisfiedBy(RemoteItem subject, SearchCriteriaBase searchCriteria)
+        public override Decision IsSatisfiedBy(RemoteEpisode subject, SearchCriteriaBase searchCriteria)
         {
             if (searchCriteria != null && searchCriteria.UserInvokedSearch)
             {
