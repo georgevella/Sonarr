@@ -1,4 +1,5 @@
 ﻿using System;
+using Moq;
 using NUnit.Framework;
 using NzbDrone.Common.Cache;
 using NzbDrone.Common.Cloud;
@@ -10,6 +11,8 @@ using NzbDrone.Test.Common;
 using NzbDrone.Common.Http.Proxy;
 using NzbDrone.Core.Http;
 using NzbDrone.Core.Configuration;
+using NzbDrone.Core.Parser;
+using NzbDrone.Core.Tv;
 
 namespace NzbDrone.Core.Test.Framework
 {
@@ -18,8 +21,8 @@ namespace NzbDrone.Core.Test.Framework
         protected void UseRealHttp()
         {
             Mocker.GetMock<IPlatformInfo>().SetupGet(c => c.Version).Returns(new Version("3.0.0"));
-            Mocker.GetMock<IOsInfo>().SetupGet(c=>c.Version).Returns("1.0.0");
-            Mocker.GetMock<IOsInfo>().SetupGet(c=>c.Name).Returns("TestOS");
+            Mocker.GetMock<IOsInfo>().SetupGet(c => c.Version).Returns("1.0.0");
+            Mocker.GetMock<IOsInfo>().SetupGet(c => c.Name).Returns("TestOS");
 
             Mocker.SetConstant<IHttpProxySettingsProvider>(new HttpProxySettingsProvider(Mocker.Resolve<ConfigService>()));
             Mocker.SetConstant<ICreateManagedWebProxy>(new ManagedWebProxyFactory(Mocker.Resolve<CacheManager>()));
@@ -28,6 +31,29 @@ namespace NzbDrone.Core.Test.Framework
             Mocker.SetConstant<IHttpProvider>(new HttpProvider(TestLogger));
             Mocker.SetConstant<IHttpClient>(new HttpClient(new IHttpRequestInterceptor[0], Mocker.Resolve<CacheManager>(), Mocker.Resolve<RateLimitService>(), Mocker.Resolve<FallbackHttpDispatcher>(), Mocker.Resolve<UserAgentBuilder>(), TestLogger));
             Mocker.SetConstant<ISonarrCloudRequestBuilder>(new SonarrCloudRequestBuilder());
+        }
+
+        protected void UseParsingServiceProviderMock()
+        {
+            Mocker.GetMock<IParsingServiceProvider>()
+                .Setup(provider => provider.GetTvShowParsingService()).Returns(Mocker.Resolve<ITvShowParsingService>());
+
+            Mocker.GetMock<IParsingServiceProvider>()
+                .Setup(provider => provider.GetMovieParsingService()).Returns(Mocker.Resolve<ITvShowParsingService>());
+
+            Mocker.GetMock<IParsingServiceProvider>()
+                .Setup(x => x.GetParsingService(It.IsAny<MediaType>())).Returns<MediaType>(mediaType =>
+                {
+                    switch (mediaType)
+                    {
+                        case MediaType.Movies:
+                            return Mocker.Resolve<ITvShowParsingService>();
+                        case MediaType.TVShows:
+                            return Mocker.Resolve<ITvShowParsingService>();
+                    }
+
+                    return null;
+                });
         }
     }
 

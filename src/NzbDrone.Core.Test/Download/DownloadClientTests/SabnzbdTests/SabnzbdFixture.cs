@@ -24,25 +24,28 @@ namespace NzbDrone.Core.Test.Download.DownloadClientTests.SabnzbdTests
         private SabnzbdHistory _completed;
         private SabnzbdConfig _config;
 
+        private const string CATEGORY = "category";
+
         [SetUp]
         public void Setup()
         {
             Subject.Definition = new DownloadClientDefinition();
             Subject.Definition.Settings = new SabnzbdSettings
-                                          {
-                                              Host = "127.0.0.1",
-                                              Port = 2222,
-                                              ApiKey = "5c770e3197e4fe763423ee7c392c25d1",
-                                              Username = "admin",
-                                              Password = "pass",
-                                              TvCategory = "tv",
-                                              RecentTvPriority = (int)SabnzbdPriority.High
-                                          };
+            {
+                Host = "127.0.0.1",
+                Port = 2222,
+                ApiKey = "5c770e3197e4fe763423ee7c392c25d1",
+                Username = "admin",
+                Password = "pass",
+                TvCategory = CATEGORY,
+                MovieCategory = CATEGORY,
+                RecentTvPriority = (int)SabnzbdPriority.High
+            };
             _queued = new SabnzbdQueue
-                {
-                    DefaultRootFolder = @"Y:\nzbget\root".AsOsAgnostic(),
-                    Paused = false,
-                    Items = new List<SabnzbdQueueItem>()
+            {
+                DefaultRootFolder = @"Y:\nzbget\root".AsOsAgnostic(),
+                Paused = false,
+                Items = new List<SabnzbdQueueItem>()
                     {
                         new SabnzbdQueueItem
                         {
@@ -50,55 +53,55 @@ namespace NzbDrone.Core.Test.Download.DownloadClientTests.SabnzbdTests
                             Size = 1000,
                             Sizeleft = 10,
                             Timeleft = TimeSpan.FromSeconds(10),
-                            Category = "tv",
+                            Category = CATEGORY,
                             Id = "sabnzbd_nzb12345",
                             Title = "Droned.S01E01.Pilot.1080p.WEB-DL-DRONE"
                         }
                     }
-                };
+            };
 
             _failed = new SabnzbdHistory
-                {
-                    Items = new List<SabnzbdHistoryItem>()
+            {
+                Items = new List<SabnzbdHistoryItem>()
                     {
                         new SabnzbdHistoryItem
                         {
                             Status = SabnzbdDownloadStatus.Failed,
                             Size = 1000,
-                            Category = "tv", 
+                            Category = CATEGORY,
                             Id = "sabnzbd_nzb12345",
                             Title = "Droned.S01E01.Pilot.1080p.WEB-DL-DRONE"
                         }
                     }
-                };
+            };
 
             _completed = new SabnzbdHistory
-                {
-                    Items = new List<SabnzbdHistoryItem>()
+            {
+                Items = new List<SabnzbdHistoryItem>()
                     {
                         new SabnzbdHistoryItem
                         {
                             Status = SabnzbdDownloadStatus.Completed,
                             Size = 1000,
-                            Category = "tv", 
+                            Category = CATEGORY,
                             Id = "sabnzbd_nzb12345",
                             Title = "Droned.S01E01.Pilot.1080p.WEB-DL-DRONE",
                             Storage = "/remote/mount/vv/Droned.S01E01.Pilot.1080p.WEB-DL-DRONE"
                         }
                     }
-                };
+            };
 
             _config = new SabnzbdConfig
+            {
+                Misc = new SabnzbdConfigMisc
                 {
-                    Misc = new SabnzbdConfigMisc
+                    complete_dir = @"/remote/mount"
+                },
+                Categories = new List<SabnzbdCategory>
                         {
-                            complete_dir = @"/remote/mount"
-                        },
-                    Categories = new List<SabnzbdCategory>
-                        {
-                            new SabnzbdCategory  { Name = "tv", Dir = "vv" }
+                            new SabnzbdCategory  { Name = CATEGORY, Dir = "vv" }
                         }
-                };
+            };
 
             Mocker.GetMock<ISabnzbdProxy>()
                 .Setup(s => s.GetConfig(It.IsAny<SabnzbdSettings>()))
@@ -166,7 +169,7 @@ namespace NzbDrone.Core.Test.Download.DownloadClientTests.SabnzbdTests
 
             GivenQueue(_queued);
             GivenHistory(null);
-            
+
             var result = Subject.GetItems().Single();
 
             VerifyQueued(result);
@@ -255,7 +258,7 @@ namespace NzbDrone.Core.Test.Download.DownloadClientTests.SabnzbdTests
             Subject.GetItems().Should().BeEmpty();
         }
 
-        [TestCase("[ TOWN ]-[ http://www.town.ag ]-[ ANIME ]-[Usenet Provider >> http://www.ssl- <<] - [Commie] Aldnoah Zero 18 [234C8FC7]", "[ TOWN ]-[ http-++www.town.ag ]-[ ANIME ]-[Usenet Provider  http-++www.ssl- ] - [Commie] Aldnoah Zero 18 [234C8FC7].nzb")]
+        [TestCase("[ TOWN ]-[ http://www.town.ag ]-[ ANIME ]-[Usenet Provider >> http://www.ssl- <<] - [Commie] Aldnoah Zero 18 [234C8FC7]", "[ TOWN ]-[ http++www.town.ag ]-[ ANIME ]-[Usenet Provider  http++www.ssl- ] - [Commie] Aldnoah Zero 18 [234C8FC7].nzb")]
         public void Download_should_use_clean_title(string title, string filename)
         {
             GivenSuccessfulDownload();
@@ -395,7 +398,7 @@ namespace NzbDrone.Core.Test.Download.DownloadClientTests.SabnzbdTests
             _queued.DefaultRootFolder = rootFolder;
             _config.Misc.complete_dir = completeDir;
             _config.Categories.First().Dir = categoryDir;
-            
+
             GivenQueue(null);
 
             var result = Subject.GetStatus();

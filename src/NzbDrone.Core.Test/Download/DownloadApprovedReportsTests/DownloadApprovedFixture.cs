@@ -44,7 +44,7 @@ namespace NzbDrone.Core.Test.Download.DownloadApprovedReportsTests
             remoteEpisode.Episodes = new List<Episode>();
             remoteEpisode.Episodes.AddRange(episodes);
 
-            remoteEpisode.Release = new ReleaseInfo();
+            remoteEpisode.Release = new ReleaseInfo(MediaType.TVShows);
             remoteEpisode.Release.PublishDate = DateTime.UtcNow;
 
             remoteEpisode.Series = Builder<Series>.CreateNew()

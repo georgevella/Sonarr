@@ -226,10 +226,10 @@ namespace NzbDrone.Core.Download.Pending
             foreach (var release in _repository.All())
             {
                 // is it a movie or tv show release
-                var remoteItem = release.MovieId != 0 ? GetRemoteMovie(release) : GetRemoteEpisode(release);
+                var remoteItem = release.Release.MediaType == MediaType.Movies ? GetRemoteMovie(release) : GetRemoteEpisode(release);
                 if (remoteItem == null) continue;
 
-                var pendingRelease = release.MovieId != 0
+                var pendingRelease = release.Release.MediaType == MediaType.Movies
                     ? (IPendingRelease)new MoviePendingRelease(release, remoteItem)
                     : (IPendingRelease)new EpisodePendingRelease(release, remoteItem);
                 result.Add(pendingRelease);

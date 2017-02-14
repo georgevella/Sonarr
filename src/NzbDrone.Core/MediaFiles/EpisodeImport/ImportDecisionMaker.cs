@@ -89,7 +89,7 @@ namespace NzbDrone.Core.MediaFiles.EpisodeImport
             try
             {
                 var parsingService = _parsingServiceProvider.GetTvShowParsingService();
-                var localMovie = parsingService.GetLocal(file, movie, shouldUseFolderName ? folderInfo : null, sceneSource);
+                var localMovie = parsingService.GetLocalItem(file, movie, shouldUseFolderName ? folderInfo : null, sceneSource);
 
                 if (localMovie != null)
                 {
@@ -288,7 +288,7 @@ namespace NzbDrone.Core.MediaFiles.EpisodeImport
             try
             {
                 var parsingService = _parsingServiceProvider.GetTvShowParsingService();
-                var localEpisode = (LocalEpisode)parsingService.GetLocal(file, mediaItem, shouldUseFolderName ? folderInfo : null, sceneSource);
+                var localEpisode = (LocalEpisode)parsingService.GetLocalItem(file, mediaItem, shouldUseFolderName ? folderInfo : null, sceneSource);
 
                 if (localEpisode != null)
                 {

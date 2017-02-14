@@ -10,12 +10,12 @@ using NzbDrone.Test.Common;
 namespace NzbDrone.Core.Test.DecisionEngineTests.Search
 {
     [TestFixture]
-    public class SeriesSpecificationFixture : TestBase<SeriesSpecification>
+    public class SeriesSpecificationFixture : TestBase<MediaSpecification>
     {
         private Series _series1;
         private Series _series2;
         private RemoteEpisode _remoteEpisode = new RemoteEpisode();
-        private SearchCriteriaBase _searchCriteria = new SingleEpisodeSearchCriteria();
+        private SingleEpisodeSearchCriteria _searchCriteria = new SingleEpisodeSearchCriteria();
 
         [SetUp]
         public void Setup()
@@ -23,7 +23,7 @@ namespace NzbDrone.Core.Test.DecisionEngineTests.Search
             _series1 = Builder<Series>.CreateNew().With(s => s.Id = 1).Build();
             _series2 = Builder<Series>.CreateNew().With(s => s.Id = 2).Build();
 
-            _remoteEpisode.Series = _series1;
+            _remoteEpisode.Media = _series1;
         }
 
         [Test]

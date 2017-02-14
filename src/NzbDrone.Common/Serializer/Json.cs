@@ -14,13 +14,13 @@ namespace NzbDrone.Common.Serializer
         static Json()
         {
             SerializerSetting = new JsonSerializerSettings
-                        {
-                            DateTimeZoneHandling = DateTimeZoneHandling.Utc,
-                            NullValueHandling = NullValueHandling.Ignore,
-                            Formatting = Formatting.Indented,
-                            DefaultValueHandling = DefaultValueHandling.Include,
-                            ContractResolver = new CamelCasePropertyNamesContractResolver()
-                        };
+            {
+                DateTimeZoneHandling = DateTimeZoneHandling.Utc,
+                NullValueHandling = NullValueHandling.Ignore,
+                Formatting = Formatting.Indented,
+                DefaultValueHandling = DefaultValueHandling.Include,
+                ContractResolver = new CamelCasePropertyNamesContractResolver()
+            };
 
 
             SerializerSetting.Converters.Add(new StringEnumConverter { CamelCaseText = true });
@@ -32,7 +32,7 @@ namespace NzbDrone.Common.Serializer
 
         }
 
-        public static T Deserialize<T>(string json) where T : new()
+        public static T Deserialize<T>(string json) /*where T : new()*/
         {
             return JsonConvert.DeserializeObject<T>(json, SerializerSetting);
         }

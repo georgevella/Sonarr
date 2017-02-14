@@ -20,7 +20,7 @@ namespace NzbDrone.Core.DecisionEngine.Specifications
             _episodeService = episodeService;
         }
 
-        protected override Decision IsSatisfiedBy(RemoteEpisode subject, SearchCriteriaBase searchCriteria)
+        protected override Decision IsSatisfiedBy(RemoteEpisode subject, TvShowSearchCriteriaBase searchCriteria)
         {
             if (subject.ParsedEpisodeInfo.FullSeason)
             {

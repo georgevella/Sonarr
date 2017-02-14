@@ -14,7 +14,7 @@ using NzbDrone.SignalR;
 namespace NzbDrone.Api.EpisodeFiles
 {
     public class MovieFileModule : NzbDroneRestModuleWithSignalR<MovieFileResource, MovieFile>
-                                 //IHandle<EpisodeFileAddedEvent>
+    //IHandle<EpisodeFileAddedEvent>
     {
         private readonly IMediaFileService _mediaFileService;
         private readonly IRecycleBinProvider _recycleBinProvider;

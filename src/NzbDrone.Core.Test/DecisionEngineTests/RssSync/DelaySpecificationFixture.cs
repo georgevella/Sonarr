@@ -54,7 +54,7 @@ namespace NzbDrone.Core.Test.DecisionEngineTests.RssSync
             _profile.Cutoff = Quality.WEBDL720p;
 
             _remoteEpisode.ParsedEpisodeInfo = new ParsedEpisodeInfo();
-            _remoteEpisode.Release = new ReleaseInfo();
+            _remoteEpisode.Release = new ReleaseInfo(MediaType.TVShows);
             _remoteEpisode.Release.DownloadProtocol = DownloadProtocol.Usenet;
 
             _remoteEpisode.Episodes = Builder<Episode>.CreateListOfSize(1).Build().ToList();

@@ -1,6 +1,6 @@
 ﻿namespace NzbDrone.Core.IndexerSearch.Definitions
 {
-    public class AnimeEpisodeSearchCriteria : SearchCriteriaBase
+    public class AnimeEpisodeSearchCriteria : TvShowSearchCriteriaBase
     {
         public int AbsoluteEpisodeNumber { get; set; }
 

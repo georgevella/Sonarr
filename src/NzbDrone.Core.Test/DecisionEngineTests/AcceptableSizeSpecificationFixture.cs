@@ -29,29 +29,29 @@ namespace NzbDrone.Core.Test.DecisionEngineTests
                 .Build();
 
             parseResultMultiSet = new RemoteEpisode
-                                    {
-                                        Series = series,
-                                        Release = new ReleaseInfo(),
-                                        ParsedEpisodeInfo = new ParsedEpisodeInfo { Quality = new QualityModel(Quality.SDTV, new Revision(version: 2)) },
-                                        Episodes = new List<Episode> { new Episode(), new Episode(), new Episode(), new Episode(), new Episode(), new Episode() }
-                                    };
+            {
+                Series = series,
+                Release = new ReleaseInfo(MediaType.TVShows),
+                ParsedEpisodeInfo = new ParsedEpisodeInfo { Quality = new QualityModel(Quality.SDTV, new Revision(version: 2)) },
+                Episodes = new List<Episode> { new Episode(), new Episode(), new Episode(), new Episode(), new Episode(), new Episode() }
+            };
 
             parseResultMulti = new RemoteEpisode
-                                    {
-                                        Series = series,
-                                        Release = new ReleaseInfo(),
-                                        ParsedEpisodeInfo = new ParsedEpisodeInfo { Quality = new QualityModel(Quality.SDTV, new Revision(version: 2)) },
-                                        Episodes = new List<Episode> { new Episode(), new Episode() }
-                                    };
+            {
+                Series = series,
+                Release = new ReleaseInfo(MediaType.TVShows),
+                ParsedEpisodeInfo = new ParsedEpisodeInfo { Quality = new QualityModel(Quality.SDTV, new Revision(version: 2)) },
+                Episodes = new List<Episode> { new Episode(), new Episode() }
+            };
 
             parseResultSingle = new RemoteEpisode
-                                    {
-                                        Series = series,
-                                        Release = new ReleaseInfo(),
-                                        ParsedEpisodeInfo = new ParsedEpisodeInfo { Quality = new QualityModel(Quality.SDTV, new Revision(version: 2)) },
-                                        Episodes = new List<Episode> { new Episode() { Id = 2 } }
+            {
+                Series = series,
+                Release = new ReleaseInfo(MediaType.TVShows),
+                ParsedEpisodeInfo = new ParsedEpisodeInfo { Quality = new QualityModel(Quality.SDTV, new Revision(version: 2)) },
+                Episodes = new List<Episode> { new Episode() { Id = 2 } }
 
-                                    };
+            };
 
             Mocker.GetMock<IQualityDefinitionService>()
                 .Setup(v => v.Get(It.IsAny<Quality>()))
@@ -88,7 +88,7 @@ namespace NzbDrone.Core.Test.DecisionEngineTests
         [TestCase(60, 500, true)]
         [TestCase(60, 1000, false)]
         public void single_episode(int runtime, int sizeInMegaBytes, bool expectedResult)
-        {           
+        {
             series.Runtime = runtime;
             parseResultSingle.Series = series;
             parseResultSingle.Release.Size = sizeInMegaBytes.Megabytes();
@@ -167,7 +167,7 @@ namespace NzbDrone.Core.Test.DecisionEngineTests
 
             Subject.IsSatisfiedBy(parseResultSingle, null).Accepted.Should().BeTrue();
         }
-        
+
         [Test]
         public void should_return_true_if_unlimited_60_minute()
         {
@@ -200,7 +200,7 @@ namespace NzbDrone.Core.Test.DecisionEngineTests
         //public void should_return_true_if_RAWHD()
         //{
         //    parseResultSingle.ParsedEpisodeInfo.Quality = new QualityModel(Quality.RAWHD);
-            
+
         //    series.Runtime = 45;
         //    parseResultSingle.Series = series;
         //    parseResultSingle.Series.SeriesType = SeriesTypes.Daily;

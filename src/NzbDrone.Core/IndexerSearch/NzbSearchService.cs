@@ -247,7 +247,7 @@ namespace NzbDrone.Core.IndexerSearch
             return downloadDecisions;
         }
 
-        private TSpec Get<TSpec>(Series series, List<Episode> episodes, bool userInvokedSearch) where TSpec : SearchCriteriaBase, new()
+        private TSpec Get<TSpec>(Series series, List<Episode> episodes, bool userInvokedSearch) where TSpec : TvShowSearchCriteriaBase, new()
         {
             var spec = new TSpec()
             {
@@ -264,7 +264,7 @@ namespace NzbDrone.Core.IndexerSearch
             return spec;
         }
 
-        private TSpec Get<TSpec>(Movie movie, bool userInvokedSearch) where TSpec : SearchCriteriaBase, new()
+        private TSpec Get<TSpec>(Movie movie, bool userInvokedSearch) where TSpec : MovieSearchCriteria, new()
         {
             var spec = new TSpec()
             {

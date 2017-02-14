@@ -17,6 +17,8 @@ namespace NzbDrone.Core.Test.Download.TrackedDownloads
     [TestFixture]
     public class TrackedDownloadServiceFixture : CoreTest<TrackedDownloadService>
     {
+        private const string CATEGORY = "Tv";
+
         private void GivenDownloadHistory()
         {
             Mocker.GetMock<IHistoryService>()
@@ -35,7 +37,6 @@ namespace NzbDrone.Core.Test.Download.TrackedDownloads
         public void should_track_downloads_using_the_source_title_if_it_cannot_be_found_using_the_download_title()
         {
             GivenDownloadHistory();
-
             var remoteEpisode = new RemoteEpisode
             {
                 Series = new Series() { Id = 5 },
@@ -47,20 +48,27 @@ namespace NzbDrone.Core.Test.Download.TrackedDownloads
                 }
             };
 
-            Mocker.GetMock<IParsingService>()
-                  .Setup(s => s.Map(It.Is<ParsedEpisodeInfo>(i => i.SeasonNumber == 1 && i.SeriesTitle == "TV Series"), It.IsAny<int>(), It.IsAny<IEnumerable<int>>()))
+            Mocker.GetMock<ITvShowParsingService>()
+                  .Setup(s => s.Map(It.Is<ParsedEpisodeInfo>(i => i.SeasonNumber == 1 && i.SeriesTitle == "TV Series"), It.IsAny<History.History>()))
                   .Returns(remoteEpisode);
+
+            Mocker.GetMock<IDownloadClientSupportsCategories>()
+                .SetupGet(categories => categories.TvCategory)
+                .Returns(CATEGORY);
+            UseParsingServiceProviderMock();
 
             var client = new DownloadClientDefinition()
             {
                 Id = 1,
-                Protocol = DownloadProtocol.Torrent
+                Protocol = DownloadProtocol.Torrent,
+                Settings = Mocker.Resolve<IDownloadClientSupportsCategories>()
             };
 
             var item = new DownloadClientItem()
             {
                 Title = "The torrent release folder",
                 DownloadId = "35238",
+                Category = CATEGORY
             };
 
             var trackedDownload = Subject.TrackDownload(client, item);
@@ -84,7 +92,7 @@ namespace NzbDrone.Core.Test.Download.TrackedDownloads
                 {
                     SeriesTitle = "TV Series",
                     SeasonNumber = 0,
-                    EpisodeNumbers = new []{ 1 }
+                    EpisodeNumbers = new[] { 1 }
                 }
             };
 
@@ -99,24 +107,33 @@ namespace NzbDrone.Core.Test.Download.TrackedDownloads
                  }
                 });
 
-            Mocker.GetMock<IParsingService>()
-                  .Setup(s => s.Map(It.Is<ParsedEpisodeInfo>(i => i.SeasonNumber == 0 && i.SeriesTitle == "TV Series"), It.IsAny<int>(), It.IsAny<IEnumerable<int>>()))
+            Mocker.GetMock<ITvShowParsingService>()
+                  .Setup(s => s.Map(It.Is<ParsedEpisodeInfo>(i => i.SeasonNumber == 0 && i.SeriesTitle == "TV Series"), It.IsAny<History.History>()))
                   .Returns(remoteEpisode);
 
-            Mocker.GetMock<IParsingService>()
+            Mocker.GetMock<ITvShowParsingService>()
                   .Setup(s => s.ParseSpecialEpisodeTitle(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), null))
                   .Returns(remoteEpisode.ParsedEpisodeInfo);
+
+            Mocker.GetMock<IDownloadClientSupportsCategories>()
+                .SetupGet(categories => categories.TvCategory)
+                .Returns(CATEGORY);
+
+            UseParsingServiceProviderMock();
+
 
             var client = new DownloadClientDefinition()
             {
                 Id = 1,
-                Protocol = DownloadProtocol.Torrent
+                Protocol = DownloadProtocol.Torrent,
+                Settings = Mocker.Resolve<IDownloadClientSupportsCategories>()
             };
 
             var item = new DownloadClientItem()
             {
                 Title = "The torrent release folder",
                 DownloadId = "35238",
+                Category = CATEGORY
             };
 
             var trackedDownload = Subject.TrackDownload(client, item);

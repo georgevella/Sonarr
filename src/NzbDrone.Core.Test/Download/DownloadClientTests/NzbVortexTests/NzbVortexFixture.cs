@@ -19,6 +19,8 @@ namespace NzbDrone.Core.Test.Download.DownloadClientTests.NzbVortexTests
     [TestFixture]
     public class NzbVortexFixture : DownloadClientFixtureBase<NzbVortex>
     {
+        private const string CATEGORY = "sonarr-tv";
+
         private NzbVortexQueueItem _queued;
         private NzbVortexQueueItem _failed;
         private NzbVortexQueueItem _completed;
@@ -28,55 +30,56 @@ namespace NzbDrone.Core.Test.Download.DownloadClientTests.NzbVortexTests
         {
             Subject.Definition = new DownloadClientDefinition();
             Subject.Definition.Settings = new NzbVortexSettings
-                                          {
-                                              Host = "127.0.0.1",
-                                              Port = 2222,
-                                              ApiKey = "1234-ABCD",
-                                              TvCategory = "tv",
-                                              RecentTvPriority = (int)NzbgetPriority.High
-                                          };
+            {
+                Host = "127.0.0.1",
+                Port = 2222,
+                ApiKey = "1234-ABCD",
+                TvCategory = CATEGORY,
+                MovieCategory = CATEGORY,
+                RecentTvPriority = (int)NzbgetPriority.High
+            };
 
             _queued = new NzbVortexQueueItem
-                {
-                    Id = RandomNumber,
-                    DownloadedSize = 1000,
-                    TotalDownloadSize = 10,
-                    GroupName = "tv",
-                    UiTitle = "Droned.S01E01.Pilot.1080p.WEB-DL-DRONE"
-                };
+            {
+                Id = RandomNumber,
+                DownloadedSize = 1000,
+                TotalDownloadSize = 10,
+                GroupName = CATEGORY,
+                UiTitle = "Droned.S01E01.Pilot.1080p.WEB-DL-DRONE"
+            };
 
             _failed = new NzbVortexQueueItem
-                {
-                    DownloadedSize = 1000,
-                    TotalDownloadSize = 1000,
-                    GroupName = "tv",
-                    UiTitle = "Droned.S01E01.Pilot.1080p.WEB-DL-DRONE",
-                    DestinationPath = "somedirectory",
-                    State =  NzbVortexStateType.UncompressFailed,
-                };
+            {
+                DownloadedSize = 1000,
+                TotalDownloadSize = 1000,
+                GroupName = CATEGORY,
+                UiTitle = "Droned.S01E01.Pilot.1080p.WEB-DL-DRONE",
+                DestinationPath = "somedirectory",
+                State = NzbVortexStateType.UncompressFailed,
+            };
 
             _completed = new NzbVortexQueueItem
-                {
-                    DownloadedSize = 1000,
-                    TotalDownloadSize = 1000,
-                    GroupName = "tv",
-                    UiTitle = "Droned.S01E01.Pilot.1080p.WEB-DL-DRONE",
-                    DestinationPath = "/remote/mount/tv/Droned.S01E01.Pilot.1080p.WEB-DL-DRONE",
-                    State = NzbVortexStateType.Done
-                };
+            {
+                DownloadedSize = 1000,
+                TotalDownloadSize = 1000,
+                GroupName = CATEGORY,
+                UiTitle = "Droned.S01E01.Pilot.1080p.WEB-DL-DRONE",
+                DestinationPath = "/remote/mount/tv/Droned.S01E01.Pilot.1080p.WEB-DL-DRONE",
+                State = NzbVortexStateType.Done
+            };
         }
 
         protected void GivenFailedDownload()
         {
             Mocker.GetMock<INzbVortexProxy>()
-                .Setup(s => s.DownloadNzb(It.IsAny<byte[]>(), It.IsAny<string>(), It.IsAny<int>(), TODO, It.IsAny<NzbVortexSettings>()))
+                .Setup(s => s.DownloadNzb(It.IsAny<byte[]>(), It.IsAny<string>(), It.IsAny<int>(), CATEGORY, It.IsAny<NzbVortexSettings>()))
                 .Returns((string)null);
         }
 
         protected void GivenSuccessfulDownload()
         {
             Mocker.GetMock<INzbVortexProxy>()
-                .Setup(s => s.DownloadNzb(It.IsAny<byte[]>(), It.IsAny<string>(), It.IsAny<int>(), TODO, It.IsAny<NzbVortexSettings>()))
+                .Setup(s => s.DownloadNzb(It.IsAny<byte[]>(), It.IsAny<string>(), It.IsAny<int>(), CATEGORY, It.IsAny<NzbVortexSettings>()))
                 .Returns(Guid.NewGuid().ToString().Replace("-", ""));
         }
 
@@ -103,7 +106,7 @@ namespace NzbDrone.Core.Test.Download.DownloadClientTests.NzbVortexTests
         public void queued_item_should_have_required_properties()
         {
             GivenQueue(_queued);
-            
+
             var result = Subject.GetItems().Single();
 
             VerifyQueued(result);

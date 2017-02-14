@@ -4,6 +4,7 @@ using Moq;
 using NUnit.Framework;
 using NzbDrone.Core.Blacklisting;
 using NzbDrone.Core.Download;
+using NzbDrone.Core.Download.Events;
 using NzbDrone.Core.Qualities;
 using NzbDrone.Core.Test.Framework;
 

@@ -1,4 +1,5 @@
 ﻿using NzbDrone.Core.Indexers;
+using NzbDrone.Core.Parser;
 using NzbDrone.Core.Parser.Model;
 
 namespace NzbDrone.Core.Download.TrackedDownloads
@@ -10,6 +11,31 @@ namespace NzbDrone.Core.Download.TrackedDownloads
         public TrackedDownloadStage State { get; set; }
         public TrackedDownloadStatus Status { get; private set; }
         public RemoteItem RemoteItem { get; set; }
+
+        public RemoteEpisode RemoteEpisode
+        {
+            get
+            {
+                return RemoteItem.AsRemoteEpisode();
+            }
+            set
+            {
+                RemoteItem = value;
+            }
+        }
+
+        public RemoteMovie RemoteMovie
+        {
+            get
+            {
+                return RemoteItem.AsRemoteMovie();
+            }
+            set
+            {
+                RemoteItem = value;
+            }
+        }
+
         public TrackedDownloadStatusMessage[] StatusMessages { get; private set; }
         public DownloadProtocol Protocol { get; set; }
 

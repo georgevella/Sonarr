@@ -5,6 +5,7 @@ using NzbDrone.Core.Parser.Model;
 
 using NzbDrone.Core.Test.Framework;
 using NzbDrone.Core.Indexers;
+using NzbDrone.Core.Tv;
 
 namespace NzbDrone.Core.Test.DecisionEngineTests
 {
@@ -19,7 +20,7 @@ namespace NzbDrone.Core.Test.DecisionEngineTests
         {
             _remoteEpisode = new RemoteEpisode
             {
-                Release = new ReleaseInfo() { DownloadProtocol = DownloadProtocol.Torrent }
+                Release = new ReleaseInfo(MediaType.TVShows) { DownloadProtocol = DownloadProtocol.Torrent }
             };
         }
 

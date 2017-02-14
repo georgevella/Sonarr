@@ -31,10 +31,10 @@ namespace NzbDrone.Core.DecisionEngine.Specifications
 
         public override Decision IsSatisfiedBy(RemoteItem subject, SearchCriteriaBase searchCriteria)
         {
-            return IsSatisfiedBy(subject.AsRemoteEpisode(), searchCriteria);
+            return IsSatisfiedBy(subject.AsRemoteEpisode(), (TvShowSearchCriteriaBase)searchCriteria);
         }
 
-        protected abstract Decision IsSatisfiedBy(RemoteEpisode subject, SearchCriteriaBase searchCriteria);
+        protected abstract Decision IsSatisfiedBy(RemoteEpisode subject, TvShowSearchCriteriaBase searchCriteria);
     }
 
     public abstract class BaseMovieDecisionEngineSpecification : BaseDecisionEngineSpecification
@@ -48,9 +48,9 @@ namespace NzbDrone.Core.DecisionEngine.Specifications
 
         public override Decision IsSatisfiedBy(RemoteItem subject, SearchCriteriaBase searchCriteria)
         {
-            return IsSatisfiedBy(subject.AsRemoteMovie(), searchCriteria);
+            return IsSatisfiedBy(subject.AsRemoteMovie(), (MovieSearchCriteria)searchCriteria);
         }
 
-        protected abstract Decision IsSatisfiedBy(RemoteMovie subject, SearchCriteriaBase searchCriteria);
+        protected abstract Decision IsSatisfiedBy(RemoteMovie subject, MovieSearchCriteria searchCriteria);
     }
 }

@@ -63,7 +63,7 @@ namespace NzbDrone.Core.Extras.Metadata
             //        if (metadata.Type == MetadataType.EpisodeImage ||
             //            metadata.Type == MetadataType.EpisodeMetadata)
             //        {
-            //            var localEpisode = _parsingService.GetLocalEpisode(possibleMetadataFile, series);
+            //            var localEpisode = _parsingService.GetLocalItem(possibleMetadataFile, series);
 
             //            if (localEpisode == null)
             //            {

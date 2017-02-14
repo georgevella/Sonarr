@@ -62,16 +62,27 @@ namespace NzbDrone.Core.DecisionEngine
 
             var mediaType = reports.First().MediaType;
 
+            if (mediaType == MediaType.General)
+            {
+                throw new InvalidOperationException($"Searching for an undefined media type.");
+            }
+
             if (reports.Any(x => x.MediaType != mediaType))
             {
                 _logger.Error($"Not all release reports are of the same type.");
                 return new List<DownloadDecision>();
             }
 
-            if (searchCriteriaBase.Movie != null)
+            switch (mediaType)
             {
-                if (mediaType != MediaType.Movies)
-                    throw new InvalidOperationException("Release reports are not compatible with this type of search criteria.");
+                case MediaType.Movies:
+                    if (!(searchCriteriaBase is MovieSearchCriteria))
+                        throw new InvalidOperationException($"Release reports are not compatible with this type of search criteria [{mediaType}][{searchCriteriaBase.GetType()}.");
+                    break;
+                case MediaType.TVShows:
+                    if (!(searchCriteriaBase is TvShowSearchCriteriaBase))
+                        throw new InvalidOperationException($"Release reports are not compatible with this type of search criteria [{mediaType}][{searchCriteriaBase.GetType()}.");
+                    break;
             }
 
             return GetDecisions(reports, searchCriteriaBase).ToList();
@@ -173,7 +184,7 @@ namespace NzbDrone.Core.DecisionEngine
             if (parsedInfo == null || parsedInfo.IsPossibleSpecialEpisode)
             {
                 var specialEpisodeInfo = parsingService.ParseSpecialEpisodeTitle(report.Title,
-                    report.TvdbId, report.TvRageId, searchCriteria);
+                    report.TvdbId, report.TvRageId, (TvShowSearchCriteriaBase)searchCriteria);
 
                 if (specialEpisodeInfo != null)
                 {

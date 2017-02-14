@@ -39,7 +39,7 @@ namespace NzbDrone.Core.Extras.Others
 
             //foreach (var possibleExtraFile in filterResult.FilesOnDisk)
             //{
-            //    var localEpisode = _parsingService.GetLocalEpisode(possibleExtraFile, series);
+            //    var localEpisode = _parsingService.GetLocalItem(possibleExtraFile, series);
 
             //    if (localEpisode == null)
             //    {

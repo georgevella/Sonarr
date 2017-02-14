@@ -39,7 +39,7 @@ namespace NzbDrone.Core.MediaFiles
             var episodes = _episodeService.GetEpisodeBySeries(series.Id);
 
             var filesOnDiskKeys = new HashSet<string>(filesOnDisk, PathEqualityComparer.Instance);
-            
+
             foreach (var seriesFile in seriesFiles)
             {
                 var episodeFile = seriesFile;
@@ -61,14 +61,14 @@ namespace NzbDrone.Core.MediaFiles
                         continue;
                     }
 
-//                    var localEpsiode = _parsingService.GetLocalEpisode(episodeFile.Path, series);
-//
-//                    if (localEpsiode == null || episodes.Count != localEpsiode.Episodes.Count)
-//                    {
-//                        _logger.Debug("File [{0}] parsed episodes has changed, removing from db", episodeFile.Path);
-//                        _mediaFileService.Delete(episodeFile);
-//                        continue;
-//                    }
+                    //                    var localEpsiode = _parsingService.GetLocalItem(episodeFile.Path, series);
+                    //
+                    //                    if (localEpsiode == null || episodes.Count != localEpsiode.Episodes.Count)
+                    //                    {
+                    //                        _logger.Debug("File [{0}] parsed episodes has changed, removing from db", episodeFile.Path);
+                    //                        _mediaFileService.Delete(episodeFile);
+                    //                        continue;
+                    //                    }
                 }
 
                 catch (Exception ex)
@@ -95,7 +95,7 @@ namespace NzbDrone.Core.MediaFiles
 
             var filesOnDiskKeys = new HashSet<string>(filesOnDisk, PathEqualityComparer.Instance);
 
-            foreach(var movieFile in movieFiles)
+            foreach (var movieFile in movieFiles)
             {
                 var movieFilePath = Path.Combine(movie.Path, movieFile.RelativePath);
 

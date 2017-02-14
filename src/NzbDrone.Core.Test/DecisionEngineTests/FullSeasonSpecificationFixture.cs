@@ -34,7 +34,7 @@ namespace NzbDrone.Core.Test.DecisionEngineTests
                                            .With(s => s.SeriesId = show.Id)
                                            .BuildList(),
                 Series = show,
-                Release = new ReleaseInfo
+                Release = new ReleaseInfo(MediaType.TVShows)
                 {
                     Title = "Series.Title.S01.720p.BluRay.X264-RlsGrp"
                 }

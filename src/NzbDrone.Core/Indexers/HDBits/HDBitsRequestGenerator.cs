@@ -62,7 +62,7 @@ namespace NzbDrone.Core.Indexers.HDBits
 
         private bool TryAddSearchParameters(TorrentQuery query, SearchCriteriaBase searchCriteria)
         {
-            var imdbId = int.Parse(searchCriteria.Movie.ImdbId.Substring(2));
+            var imdbId = int.Parse(searchCriteria.Media.ImdbId.Substring(2));
 
             if (imdbId != 0)
             {

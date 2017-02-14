@@ -14,6 +14,7 @@ using FluentAssertions;
 using System.Linq;
 using NzbDrone.Common.Composition;
 using NzbDrone.Core.Datastore;
+using NzbDrone.Core.Download.Events;
 using NzbDrone.Core.Download.TrackedDownloads;
 
 namespace NzbDrone.App.Test

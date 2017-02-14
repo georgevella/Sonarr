@@ -13,11 +13,9 @@ namespace NzbDrone.Core.IndexerSearch.Definitions
         private static readonly Regex NonWord = new Regex(@"[\W]", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex BeginningThe = new Regex(@"^the\s", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-        public Series Series { get; set; }
+        public IMediaItem Media { get; set; }
 
-        public Movie Movie { get; set; }
         public List<string> SceneTitles { get; set; }
-        public List<Episode> Episodes { get; set; }
         public virtual bool MonitoredEpisodesOnly { get; set; }
         public virtual bool UserInvokedSearch { get; set; }
 
@@ -25,7 +23,7 @@ namespace NzbDrone.Core.IndexerSearch.Definitions
 
         public static string GetQueryTitle(string title)
         {
-            Ensure.That(title,() => title).IsNotNullOrWhiteSpace();
+            Ensure.That(title, () => title).IsNotNullOrWhiteSpace();
 
             var cleanTitle = BeginningThe.Replace(title, string.Empty);
 
@@ -38,5 +36,22 @@ namespace NzbDrone.Core.IndexerSearch.Definitions
             cleanTitle = cleanTitle.RemoveAccent();
             return cleanTitle.Trim('+', ' ');
         }
+    }
+
+    public abstract class TvShowSearchCriteriaBase : SearchCriteriaBase
+    {
+        public Series Series
+        {
+            get
+            {
+                return (Series)Media;
+            }
+            set
+            {
+                Media = value;
+            }
+        }
+
+        public List<Episode> Episodes { get; set; }
     }
 }

@@ -24,7 +24,7 @@ namespace NzbDrone.Core.DecisionEngine.Specifications
             _logger = logger;
         }
 
-        public override Decision IsSatisfiedBy(RemoteEpisode subject, SearchCriteriaBase searchCriteria)
+        public override Decision IsSatisfiedBy(RemoteEpisode subject, TvShowSearchCriteriaBase searchCriteria)
         {
             var queue = _queueService.GetQueue()
                 .Select(q => q.RemoteItem).OfType<RemoteEpisode>().ToList();
@@ -52,7 +52,7 @@ namespace NzbDrone.Core.DecisionEngine.Specifications
             return Decision.Accept();
         }
 
-        public override Decision IsSatisfiedBy(RemoteMovie subject, SearchCriteriaBase searchCriteria)
+        public override Decision IsSatisfiedBy(RemoteMovie subject, MovieSearchCriteria searchCriteria)
         {
             var queue = _queueService.GetQueue()
                             .Select(q => q.RemoteItem).OfType<RemoteMovie>().ToList();

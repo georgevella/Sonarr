@@ -17,7 +17,7 @@ namespace NzbDrone.Core.Test.Housekeeping.Housekeepers
         {
             var pendingRelease = Builder<PendingRelease>.CreateNew()
                 .With(h => h.ParsedEpisodeInfo = new ParsedEpisodeInfo())
-                .With(h => h.Release = new ReleaseInfo())
+                .With(h => h.Release = new ReleaseInfo(MediaType.TVShows))
                 .BuildNew();
 
             Db.Insert(pendingRelease);
@@ -35,7 +35,7 @@ namespace NzbDrone.Core.Test.Housekeeping.Housekeepers
             var pendingRelease = Builder<PendingRelease>.CreateNew()
                 .With(h => h.SeriesId = series.Id)
                 .With(h => h.ParsedEpisodeInfo = new ParsedEpisodeInfo())
-                .With(h => h.Release = new ReleaseInfo())
+                .With(h => h.Release = new ReleaseInfo(MediaType.TVShows))
                 .BuildNew();
 
             Db.Insert(pendingRelease);

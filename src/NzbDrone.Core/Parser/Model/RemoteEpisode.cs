@@ -24,14 +24,7 @@ namespace NzbDrone.Core.Parser.Model
             }
             set
             {
-                if (value is Series)
-                {
-                    Media = value;
-                }
-                else
-                {
-                    throw new InvalidOperationException();
-                }
+                Media = value;
             }
         }
 
@@ -43,14 +36,7 @@ namespace NzbDrone.Core.Parser.Model
             }
             set
             {
-                if (value is ParsedEpisodeInfo)
-                {
-                    Info = value;
-                }
-                else
-                {
-                    throw new InvalidOperationException();
-                }
+                Info = value;
             }
         }
 

@@ -30,8 +30,8 @@ namespace NzbDrone.Core.Test.Download.DownloadClientTests
                 .Returns(30);
 
             Mocker.GetMock<IParsingService>()
-                .Setup(s => s.Map(It.IsAny<ParsedEpisodeInfo>(), It.IsAny<int>(), It.IsAny<int>(), (SearchCriteriaBase)null))
-                .Returns(() => CreateRemoteEpisode());
+                .Setup(s => s.Map(It.IsAny<ParsedEpisodeInfo>(), It.IsAny<ReleaseInfo>(), (SearchCriteriaBase)null))
+                .Returns(CreateRemoteEpisode);
 
             Mocker.GetMock<IHttpClient>()
                   .Setup(s => s.Get(It.IsAny<HttpRequest>()))
@@ -45,17 +45,17 @@ namespace NzbDrone.Core.Test.Download.DownloadClientTests
         protected virtual RemoteEpisode CreateRemoteEpisode()
         {
             var remoteEpisode = new RemoteEpisode();
-            remoteEpisode.Release = new ReleaseInfo();
+            remoteEpisode.Release = new ReleaseInfo(MediaType.TVShows);
             remoteEpisode.Release.Title = _title;
             remoteEpisode.Release.DownloadUrl = _downloadUrl;
             remoteEpisode.Release.DownloadProtocol = Subject.Protocol;
 
-            remoteEpisode.ParsedEpisodeInfo = new ParsedEpisodeInfo();
+            remoteEpisode.Info = new ParsedEpisodeInfo();
             remoteEpisode.ParsedEpisodeInfo.FullSeason = false;
 
             remoteEpisode.Episodes = new List<Episode>();
 
-            remoteEpisode.Series = new Series();
+            remoteEpisode.Media = new Series();
 
             return remoteEpisode;
         }

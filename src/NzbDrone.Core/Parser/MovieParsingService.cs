@@ -4,6 +4,7 @@ using System.IO;
 using NLog;
 using NzbDrone.Common.Extensions;
 using NzbDrone.Core.DataAugmentation.Scene;
+using NzbDrone.Core.Indexers;
 using NzbDrone.Core.IndexerSearch.Definitions;
 using NzbDrone.Core.MediaFiles;
 using NzbDrone.Core.Parser.Model;
@@ -42,7 +43,7 @@ namespace NzbDrone.Core.Parser
             _logger = logger;
         }
 
-        public LocalItem GetLocal(string filename, IMediaItem mediaItem, ParsedItemInfo folderInfo = null, bool sceneSource = false)
+        public LocalItem GetLocalItem(string filename, IMediaItem mediaItem, ParsedItemInfo folderInfo = null, bool sceneSource = false)
         {
             var movie = mediaItem as Movie;
             if (movie == null)
@@ -132,7 +133,7 @@ namespace NzbDrone.Core.Parser
 
             var imdb = releaseInfo?.ImdbId > 0 ? releaseInfo.ImdbId.ToString() : string.Empty;
 
-            var movie = GetMovie(parsedMovieInfo, imdb, searchCriteria);
+            var movie = GetMovie(parsedMovieInfo, imdb, (MovieSearchCriteria)searchCriteria);
 
             if (movie == null)
             {
@@ -145,7 +146,7 @@ namespace NzbDrone.Core.Parser
         }
 
 
-        private Movie GetMovie(ParsedMovieInfo parsedEpisodeInfo, string imdbId, SearchCriteriaBase searchCriteria)
+        private Movie GetMovie(ParsedMovieInfo parsedEpisodeInfo, string imdbId, MovieSearchCriteria searchCriteria)
         {
             if (searchCriteria != null)
             {
@@ -223,7 +224,30 @@ namespace NzbDrone.Core.Parser
 
         public RemoteItem Map(ParsedItemInfo parsedInfo, History.History history)
         {
-            throw new System.NotImplementedException();
+            if (!(parsedInfo is ParsedMovieInfo))
+            {
+                throw new InvalidOperationException($"[{parsedInfo.GetType()}] not supported by this provider");
+            }
+
+            var result = new RemoteMovie
+            {
+                ParsedMovieInfo = (ParsedMovieInfo)parsedInfo,
+                Movie = _movieService.GetMovie(history.MovieId),
+                Release = new ReleaseInfo(MediaType.TVShows)
+                {
+                    Indexer = history.Data["Indexer"],
+                    InfoUrl = history.Data["NzbInfoUrl"],
+                    PublishDate = DateTime.Parse(history.Data["PublishedDate"]), // .ToString("s") + "Z"
+                    Size = int.Parse(history.Data["Size"]),
+                    DownloadUrl = history.Data["DownloadUrl"],
+                    Guid = history.Data["Guid"],
+                    TvdbId = int.Parse(history.Data["TvdbId"]),
+                    TvRageId = int.Parse(history.Data["TvRageId"]),
+                    DownloadProtocol = (DownloadProtocol)Enum.Parse(typeof(DownloadProtocol), history.Data["Protocol"]),
+                }
+            };
+
+            return result;
         }
     }
 }

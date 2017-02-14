@@ -32,24 +32,27 @@ namespace NzbDrone.Core.Test.Download.Pending.PendingReleaseServiceTests
 
             Mocker.GetMock<IPendingReleaseRepository>()
                   .Setup(s => s.All())
-                  .Returns( _pending);
+                  .Returns(_pending);
 
             Mocker.GetMock<ISeriesService>()
                   .Setup(s => s.GetSeries(It.IsAny<int>()))
                   .Returns(new Series());
 
-            Mocker.GetMock<IParsingService>()
+            Mocker.GetMock<ITvShowParsingService>()
                   .Setup(s => s.GetEpisodes(It.IsAny<ParsedEpisodeInfo>(), It.IsAny<Series>(), It.IsAny<bool>(), null))
-                  .Returns(new List<Episode>{ _episode });
+                  .Returns(new List<Episode> { _episode });
+            UseParsingServiceProviderMock();
         }
 
         private void AddPending(int id, int seasonNumber, int[] episodes)
         {
             _pending.Add(new PendingRelease
-             {
-                 Id = id,
-                 ParsedEpisodeInfo = new ParsedEpisodeInfo { SeasonNumber = seasonNumber, EpisodeNumbers = episodes }
-             });
+            {
+                Id = id,
+                ParsedEpisodeInfo = new ParsedEpisodeInfo { SeasonNumber = seasonNumber, EpisodeNumbers = episodes },
+                Release = new ReleaseInfo(MediaType.TVShows)
+
+            });
         }
 
         [Test]
@@ -63,7 +66,7 @@ namespace NzbDrone.Core.Test.Download.Pending.PendingReleaseServiceTests
 
             AssertRemoved(1);
         }
-        
+
         [Test]
         public void should_remove_multiple_releases_release()
         {
@@ -134,7 +137,7 @@ namespace NzbDrone.Core.Test.Download.Pending.PendingReleaseServiceTests
 
             AssertRemoved(2);
         }
-        
+
         private void AssertRemoved(params int[] ids)
         {
             Mocker.GetMock<IPendingReleaseRepository>().Verify(c => c.DeleteMany(It.Is<IEnumerable<int>>(s => s.SequenceEqual(ids))));

@@ -95,7 +95,7 @@ namespace NzbDrone.Core.Download.Pending
 
         public EpisodePendingRelease(PendingRelease pendingRelease, RemoteItem remoteEpisode) : base(pendingRelease, remoteEpisode)
         {
-            if (!(remoteEpisode is RemoteMovie)) throw new ArgumentOutOfRangeException(nameof(remoteEpisode));
+            if (!(remoteEpisode is RemoteEpisode)) throw new ArgumentOutOfRangeException(nameof(remoteEpisode));
         }
 
         public override bool HasQueueId(int id)

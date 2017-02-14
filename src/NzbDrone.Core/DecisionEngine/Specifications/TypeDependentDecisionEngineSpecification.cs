@@ -17,22 +17,22 @@ namespace NzbDrone.Core.DecisionEngine.Specifications
         {
             if (subject.IsEpisode())
             {
-                return IsSatisfiedBy((RemoteEpisode)subject, searchCriteria);
+                return IsSatisfiedBy((RemoteEpisode)subject, (TvShowSearchCriteriaBase)searchCriteria);
             }
             if (subject.IsMovie())
             {
-                return IsSatisfiedBy((RemoteMovie)subject, searchCriteria);
+                return IsSatisfiedBy((RemoteMovie)subject, (MovieSearchCriteria)searchCriteria);
             }
 
             return Decision.Reject("Unknown type");
         }
 
-        public virtual Decision IsSatisfiedBy(RemoteEpisode subject, SearchCriteriaBase searchCriteria)
+        public virtual Decision IsSatisfiedBy(RemoteEpisode subject, TvShowSearchCriteriaBase searchCriteria)
         {
             return Decision.Accept();
         }
 
-        public virtual Decision IsSatisfiedBy(RemoteMovie subject, SearchCriteriaBase searchCriteria)
+        public virtual Decision IsSatisfiedBy(RemoteMovie subject, MovieSearchCriteria searchCriteria)
         {
             return Decision.Accept();
         }

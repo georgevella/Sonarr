@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using NzbDrone.Core.Datastore;
 using NzbDrone.Core.Download.TrackedDownloads;
 using NzbDrone.Core.Indexers;
+using NzbDrone.Core.Parser;
 using NzbDrone.Core.Parser.Model;
 using NzbDrone.Core.Qualities;
 using NzbDrone.Core.Tv;
@@ -27,5 +28,18 @@ namespace NzbDrone.Core.Queue
         public RemoteItem RemoteItem { get; set; }
         public DownloadProtocol Protocol { get; set; }
         public MediaType MediaType { get; set; }
+
+        // TODO: GEORGE, legacy stuff, remove this crap
+        public RemoteEpisode RemoteEpisode
+        {
+            get
+            {
+                return RemoteItem.AsRemoteEpisode();
+            }
+            set
+            {
+                RemoteItem = value;
+            }
+        }
     }
 }

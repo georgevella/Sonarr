@@ -36,14 +36,14 @@ namespace NzbDrone.Core.Test.IndexerTests
 
             var requestGenerator = Mocker.GetMock<IIndexerRequestGenerator>();
             Subject._requestGenerator = requestGenerator.Object;
-            
+
             var requests = Builder<IndexerRequest>.CreateListOfSize(paging ? 100 : 1)
                 .All()
                 .WithConstructor(() => new IndexerRequest("http://my.feed.local/", HttpAccept.Rss))
                 .With(v => v.HttpRequest.Method = HttpMethod.GET)
                 .Build();
 
-            var pageable = new IndexerPageableRequestChain();
+            var pageable = new IndexerPageableRequestChain(MediaType.TVShows);
             pageable.Add(requests);
 
             requestGenerator.Setup(s => s.GetSearchRequests(It.IsAny<SeasonSearchCriteria>()))
@@ -64,7 +64,7 @@ namespace NzbDrone.Core.Test.IndexerTests
         {
             WithIndexer(true, 25);
 
-            Subject.Fetch(new SeasonSearchCriteria { Series = _series, SceneTitles = new List<string>{_series.Title} });
+            Subject.Fetch(new SeasonSearchCriteria { Series = _series, SceneTitles = new List<string> { _series.Title } });
 
             Mocker.GetMock<IHttpClient>().Verify(v => v.Execute(It.IsAny<HttpRequest>()), Times.Once());
         }

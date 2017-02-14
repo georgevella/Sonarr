@@ -182,7 +182,7 @@ namespace NzbDrone.Core.MediaFiles
                 }
             }
 
-            var decisions = _importDecisionMaker.GetImportDecisions(videoFiles.ToList(), series, folderInfo, shouldCheckQuality: true);
+            var decisions = _importDecisionMaker.GetImportDecisions(videoFiles.ToList(), series, folderInfo, sceneSource: true);
             var importResults = _importApprovedEpisodes.Import(decisions, true, downloadClientItem, importMode);
 
             if ((downloadClientItem == null || !downloadClientItem.IsReadOnly) &&

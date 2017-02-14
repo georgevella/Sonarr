@@ -8,6 +8,7 @@ using NzbDrone.Core.Indexers;
 using NzbDrone.Core.Parser.Model;
 using NzbDrone.Core.Test.Framework;
 using FluentAssertions;
+using NzbDrone.Core.Tv;
 
 namespace NzbDrone.Core.Test.Download.Pending.PendingReleaseServiceTests
 {
@@ -19,7 +20,7 @@ namespace NzbDrone.Core.Test.Download.Pending.PendingReleaseServiceTests
             Mocker.GetMock<IPendingReleaseRepository>()
                               .Setup(v => v.All())
                               .Returns(new List<PendingRelease> {
-                                      new PendingRelease { Release = new ReleaseInfo { IndexerId = 1 } }
+                                      new PendingRelease { Release = new ReleaseInfo(MediaType.TVShows) { IndexerId = 1 } }
                                   });
         }
 

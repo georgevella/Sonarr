@@ -42,20 +42,23 @@ namespace NzbDrone.Core.Test.DecisionEngineTests
             _pass1.Setup(c => c.IsSatisfiedBy(It.IsAny<RemoteEpisode>(), null)).Returns(Decision.Accept);
             _pass2.Setup(c => c.IsSatisfiedBy(It.IsAny<RemoteEpisode>(), null)).Returns(Decision.Accept);
             _pass3.Setup(c => c.IsSatisfiedBy(It.IsAny<RemoteEpisode>(), null)).Returns(Decision.Accept);
-            
+
             _fail1.Setup(c => c.IsSatisfiedBy(It.IsAny<RemoteEpisode>(), null)).Returns(Decision.Reject("fail1"));
             _fail2.Setup(c => c.IsSatisfiedBy(It.IsAny<RemoteEpisode>(), null)).Returns(Decision.Reject("fail2"));
             _fail3.Setup(c => c.IsSatisfiedBy(It.IsAny<RemoteEpisode>(), null)).Returns(Decision.Reject("fail3"));
 
-            _reports = new List<ReleaseInfo> { new ReleaseInfo { Title = "The.Office.S03E115.DVDRip.XviD-OSiTV" } };
-            _remoteEpisode = new RemoteEpisode {
+            _reports = new List<ReleaseInfo> { new ReleaseInfo(MediaType.TVShows) { Title = "The.Office.S03E115.DVDRip.XviD-OSiTV" } };
+            _remoteEpisode = new RemoteEpisode
+            {
                 Series = new Series(),
                 Episodes = new List<Episode> { new Episode() }
             };
 
-            Mocker.GetMock<IParsingService>()
-                  .Setup(c => c.Map(It.IsAny<ParsedEpisodeInfo>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<SearchCriteriaBase>()))
+            Mocker.GetMock<ITvShowParsingService>()
+                  .Setup(c => c.Map(It.IsAny<ParsedEpisodeInfo>(), It.IsAny<ReleaseInfo>(), It.IsAny<SearchCriteriaBase>()))
                   .Returns(_remoteEpisode);
+
+            UseParsingServiceProviderMock();
         }
 
         private void GivenSpecifications(params Mock<IDecisionEngineSpecification>[] mocks)
@@ -125,7 +128,7 @@ namespace NzbDrone.Core.Test.DecisionEngineTests
 
             var results = Subject.GetRssDecision(_reports).ToList();
 
-            Mocker.GetMock<IParsingService>().Verify(c => c.Map(It.IsAny<ParsedEpisodeInfo>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<SearchCriteriaBase>()), Times.Never());
+            Mocker.GetMock<ITvShowParsingService>().Verify(c => c.Map(It.IsAny<ParsedEpisodeInfo>(), It.IsAny<ReleaseInfo>(), It.IsAny<SearchCriteriaBase>()), Times.Never());
 
             _pass1.Verify(c => c.IsSatisfiedBy(It.IsAny<RemoteEpisode>(), null), Times.Never());
             _pass2.Verify(c => c.IsSatisfiedBy(It.IsAny<RemoteEpisode>(), null), Times.Never());
@@ -142,7 +145,7 @@ namespace NzbDrone.Core.Test.DecisionEngineTests
 
             var results = Subject.GetRssDecision(_reports).ToList();
 
-            Mocker.GetMock<IParsingService>().Verify(c => c.Map(It.IsAny<ParsedEpisodeInfo>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<SearchCriteriaBase>()), Times.Never());
+            Mocker.GetMock<ITvShowParsingService>().Verify(c => c.Map(It.IsAny<ParsedEpisodeInfo>(), It.IsAny<ReleaseInfo>(), It.IsAny<SearchCriteriaBase>()), Times.Never());
 
             _pass1.Verify(c => c.IsSatisfiedBy(It.IsAny<RemoteEpisode>(), null), Times.Never());
             _pass2.Verify(c => c.IsSatisfiedBy(It.IsAny<RemoteEpisode>(), null), Times.Never());
@@ -170,19 +173,19 @@ namespace NzbDrone.Core.Test.DecisionEngineTests
         {
             GivenSpecifications(_pass1);
 
-            Mocker.GetMock<IParsingService>().Setup(c => c.Map(It.IsAny<ParsedEpisodeInfo>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<SearchCriteriaBase>()))
+            Mocker.GetMock<ITvShowParsingService>().Setup(c => c.Map(It.IsAny<ParsedEpisodeInfo>(), It.IsAny<ReleaseInfo>(), It.IsAny<SearchCriteriaBase>()))
                      .Throws<TestException>();
 
             _reports = new List<ReleaseInfo>
                 {
-                    new ReleaseInfo{Title = "The.Office.S03E115.DVDRip.XviD-OSiTV"},
-                    new ReleaseInfo{Title = "The.Office.S03E115.DVDRip.XviD-OSiTV"},
-                    new ReleaseInfo{Title = "The.Office.S03E115.DVDRip.XviD-OSiTV"}
+                    new ReleaseInfo(MediaType.TVShows){Title = "The.Office.S03E115.DVDRip.XviD-OSiTV"},
+                    new ReleaseInfo(MediaType.TVShows){Title = "The.Office.S03E115.DVDRip.XviD-OSiTV"},
+                    new ReleaseInfo(MediaType.TVShows){Title = "The.Office.S03E115.DVDRip.XviD-OSiTV"}
                 };
 
             Subject.GetRssDecision(_reports);
 
-            Mocker.GetMock<IParsingService>().Verify(c => c.Map(It.IsAny<ParsedEpisodeInfo>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<SearchCriteriaBase>()), Times.Exactly(_reports.Count));
+            Mocker.GetMock<ITvShowParsingService>().Verify(c => c.Map(It.IsAny<ParsedEpisodeInfo>(), It.IsAny<ReleaseInfo>(), It.IsAny<SearchCriteriaBase>()), Times.Exactly(_reports.Count));
 
             ExceptionVerification.ExpectedErrors(3);
         }
@@ -214,15 +217,15 @@ namespace NzbDrone.Core.Test.DecisionEngineTests
 
             var criteria = new SeasonSearchCriteria { Episodes = episodes.Take(1).ToList(), SeasonNumber = 1 };
 
-            var reports = episodes.Select(v => 
-                new ReleaseInfo() 
-                { 
-                    Title = string.Format("{0}.S{1:00}E{2:00}.720p.WEB-DL-DRONE", series.Title, v.SceneSeasonNumber, v.SceneEpisodeNumber) 
+            var reports = episodes.Select(v =>
+                new ReleaseInfo(MediaType.TVShows)
+                {
+                    Title = string.Format("{0}.S{1:00}E{2:00}.720p.WEB-DL-DRONE", series.Title, v.SceneSeasonNumber, v.SceneEpisodeNumber)
                 }).ToList();
 
-            Mocker.GetMock<IParsingService>()
-                .Setup(v => v.Map(It.IsAny<ParsedEpisodeInfo>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<SearchCriteriaBase>()))
-                .Returns<ParsedEpisodeInfo, int, int, SearchCriteriaBase>((p,tvdbid,tvrageid,c) =>
+            Mocker.GetMock<ITvShowParsingService>()
+                .Setup(v => v.Map(It.IsAny<ParsedEpisodeInfo>(), It.IsAny<ReleaseInfo>(), It.IsAny<SearchCriteriaBase>()))
+                .Returns<ParsedEpisodeInfo, ReleaseInfo, SearchCriteriaBase>((p, releaseInfo, c) =>
                     new RemoteEpisode
                     {
                         DownloadAllowed = true,
@@ -254,7 +257,7 @@ namespace NzbDrone.Core.Test.DecisionEngineTests
 
             result.Should().HaveCount(1);
 
-            result.First().RemoteEpisode.DownloadAllowed.Should().BeFalse();
+            result.First().Item.DownloadAllowed.Should().BeFalse();
         }
 
         [Test]
@@ -268,7 +271,7 @@ namespace NzbDrone.Core.Test.DecisionEngineTests
 
             result.Should().HaveCount(1);
 
-            result.First().RemoteEpisode.DownloadAllowed.Should().BeFalse();
+            result.First().Item.DownloadAllowed.Should().BeFalse();
         }
 
         [Test]
@@ -276,12 +279,12 @@ namespace NzbDrone.Core.Test.DecisionEngineTests
         {
             GivenSpecifications(_pass1);
 
-            Mocker.GetMock<IParsingService>().Setup(c => c.Map(It.IsAny<ParsedEpisodeInfo>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<SearchCriteriaBase>()))
+            Mocker.GetMock<ITvShowParsingService>().Setup(c => c.Map(It.IsAny<ParsedEpisodeInfo>(), It.IsAny<ReleaseInfo>(), It.IsAny<SearchCriteriaBase>()))
                      .Throws<TestException>();
 
             _reports = new List<ReleaseInfo>
                 {
-                    new ReleaseInfo{Title = "The.Office.S03E115.DVDRip.XviD-OSiTV"},
+                    new ReleaseInfo(MediaType.TVShows){Title = "The.Office.S03E115.DVDRip.XviD-OSiTV"},
                 };
 
             Subject.GetRssDecision(_reports).Should().HaveCount(1);

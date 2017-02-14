@@ -29,14 +29,7 @@ namespace NzbDrone.Core.Parser.Model
             }
             set
             {
-                if (value is Movie)
-                {
-                    Media = value;
-                }
-                else
-                {
-                    throw new InvalidOperationException();
-                }
+                Media = value;
             }
         }
         public ParsedMovieInfo ParsedMovieInfo
@@ -47,14 +40,7 @@ namespace NzbDrone.Core.Parser.Model
             }
             set
             {
-                if (value is ParsedMovieInfo)
-                {
-                    Info = value;
-                }
-                else
-                {
-                    throw new InvalidOperationException();
-                }
+                Info = value;
             }
         }
     }

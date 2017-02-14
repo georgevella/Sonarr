@@ -1,6 +1,6 @@
 namespace NzbDrone.Core.IndexerSearch.Definitions
 {
-    public class SingleEpisodeSearchCriteria : SearchCriteriaBase
+    public class SingleEpisodeSearchCriteria : TvShowSearchCriteriaBase
     {
         public int EpisodeNumber { get; set; }
         public int SeasonNumber { get; set; }

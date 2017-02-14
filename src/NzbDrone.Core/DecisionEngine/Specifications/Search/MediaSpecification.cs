@@ -22,9 +22,9 @@ namespace NzbDrone.Core.DecisionEngine.Specifications.Search
 
             _logger.Debug("Checking if movie matches searched movie");
 
-            if (remoteEpisode.Media.Id != searchCriteria.Movie.Id)
+            if (remoteEpisode.Media.Id != searchCriteria.Media.Id)
             {
-                _logger.Debug("Series '{0}' does not match {1}", remoteEpisode.Media, searchCriteria.Series);
+                _logger.Debug("Series '{0}' does not match {1}", remoteEpisode.Media, searchCriteria.Media);
                 return Decision.Reject("Wrong movie");
             }
 

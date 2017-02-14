@@ -6,6 +6,7 @@ using NUnit.Framework;
 using NzbDrone.Common.Extensions;
 using NzbDrone.Core.DecisionEngine;
 using NzbDrone.Core.Download;
+using NzbDrone.Core.Download.Events;
 using NzbDrone.Core.Download.Pending;
 using NzbDrone.Core.Parser;
 using NzbDrone.Core.Parser.Model;
@@ -37,30 +38,30 @@ namespace NzbDrone.Core.Test.Download.Pending.PendingReleaseServiceTests
                                        .Build();
 
             _profile = new Profile
-                       {
-                           Name = "Test",
-                           Cutoff = Quality.HDTV720p,
-                           Items = new List<ProfileQualityItem>
+            {
+                Name = "Test",
+                Cutoff = Quality.HDTV720p,
+                Items = new List<ProfileQualityItem>
                                    {
                                        new ProfileQualityItem { Allowed = true, Quality = Quality.HDTV720p },
                                        new ProfileQualityItem { Allowed = true, Quality = Quality.WEBDL720p },
                                        new ProfileQualityItem { Allowed = true, Quality = Quality.Bluray720p }
                                    },
-                       };
+            };
 
             _series.Profile = new LazyLoaded<Profile>(_profile);
 
-            _release = Builder<ReleaseInfo>.CreateNew().Build();
+            _release = new ReleaseInfo(MediaType.TVShows);
 
             _parsedEpisodeInfo = Builder<ParsedEpisodeInfo>.CreateNew().Build();
             _parsedEpisodeInfo.Quality = new QualityModel(Quality.HDTV720p);
 
             _remoteEpisode = new RemoteEpisode();
-            _remoteEpisode.Episodes = new List<Episode>{ _episode };
+            _remoteEpisode.Episodes = new List<Episode> { _episode };
             _remoteEpisode.Series = _series;
             _remoteEpisode.ParsedEpisodeInfo = _parsedEpisodeInfo;
             _remoteEpisode.Release = _release;
-            
+
             _temporarilyRejected = new DownloadDecision(_remoteEpisode, new Rejection("Temp Rejected", RejectionType.Temporary));
 
             Mocker.GetMock<IPendingReleaseRepository>()
@@ -71,13 +72,15 @@ namespace NzbDrone.Core.Test.Download.Pending.PendingReleaseServiceTests
                   .Setup(s => s.GetSeries(It.IsAny<int>()))
                   .Returns(_series);
 
-            Mocker.GetMock<IParsingService>()
+            Mocker.GetMock<ITvShowParsingService>()
                   .Setup(s => s.GetEpisodes(It.IsAny<ParsedEpisodeInfo>(), _series, true, null))
-                  .Returns(new List<Episode> {_episode});
+                  .Returns(new List<Episode> { _episode });
 
             Mocker.GetMock<IPrioritizeDownloadDecision>()
                   .Setup(s => s.PrioritizeDecisions(It.IsAny<List<DownloadDecision>>()))
                   .Returns((List<DownloadDecision> d) => d);
+
+            UseParsingServiceProviderMock();
         }
 
         private void GivenHeldRelease(QualityModel quality)

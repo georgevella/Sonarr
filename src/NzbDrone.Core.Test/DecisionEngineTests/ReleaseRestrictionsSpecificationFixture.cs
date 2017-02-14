@@ -24,7 +24,7 @@ namespace NzbDrone.Core.Test.DecisionEngineTests
                                         {
                                             Tags = new HashSet<int>()
                                         },
-                               Release = new ReleaseInfo
+                               Release = new ReleaseInfo(MediaType.TVShows)
                                          {
                                              Title = "Dexter.S08E01.EDITED.WEBRip.x264-KYR"
                                          }

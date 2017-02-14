@@ -2,7 +2,7 @@
 
 namespace NzbDrone.Core.IndexerSearch.Definitions
 {
-    public class SpecialEpisodeSearchCriteria : SearchCriteriaBase
+    public class SpecialEpisodeSearchCriteria : TvShowSearchCriteriaBase
     {
         public string[] EpisodeQueryTitles { get; set; }
 

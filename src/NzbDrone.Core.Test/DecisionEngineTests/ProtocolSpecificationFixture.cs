@@ -21,7 +21,7 @@ namespace NzbDrone.Core.Test.DecisionEngineTests
         public void Setup()
         {
             _remoteEpisode = new RemoteEpisode();
-            _remoteEpisode.Release = new ReleaseInfo();
+            _remoteEpisode.Release = new ReleaseInfo(MediaType.TVShows);
             _remoteEpisode.Series = new Series();
             
             _delayProfile = new DelayProfile();

@@ -39,7 +39,7 @@ namespace NzbDrone.Core.Test.Download
             _trackedDownload = Builder<TrackedDownload>.CreateNew()
                     .With(c => c.State = TrackedDownloadStage.Downloading)
                     .With(c => c.DownloadItem = completed)
-                    .With(c => c.RemoteEpisode = remoteEpisode)
+                    .With(c => c.RemoteItem = remoteEpisode)
                     .Build();
 
 
@@ -56,7 +56,7 @@ namespace NzbDrone.Core.Test.Download
                   .Returns(new History.History());
 
             Mocker.GetMock<IParsingService>()
-                  .Setup(s => s.GetSeries("Drone.S01E01.HDTV"))
+                  .Setup(s => s.GetMediaItem("Drone.S01E01.HDTV"))
                   .Returns(remoteEpisode.Series);
 
         }
@@ -98,19 +98,19 @@ namespace NzbDrone.Core.Test.Download
                .Returns(new History.History() { SourceTitle = "Droned S01E01" });
 
             Mocker.GetMock<IParsingService>()
-               .Setup(s => s.GetSeries(It.IsAny<string>()))
+               .Setup(s => s.GetMediaItem(It.IsAny<string>()))
                .Returns((Series)null);
 
             Mocker.GetMock<IParsingService>()
-                .Setup(s => s.GetSeries("Droned S01E01"))
+                .Setup(s => s.GetMediaItem("Droned S01E01"))
                 .Returns(BuildRemoteEpisode().Series);
         }
 
         private void GivenSeriesMatch()
         {
             Mocker.GetMock<IParsingService>()
-                  .Setup(s => s.GetSeries(It.IsAny<string>()))
-                  .Returns(_trackedDownload.RemoteEpisode.Series);
+                  .Setup(s => s.GetMediaItem(It.IsAny<string>()))
+                  .Returns(_trackedDownload.RemoteItem.Media);
         }
 
         [TestCase(DownloadItemStatus.Downloading)]
@@ -236,7 +236,7 @@ namespace NzbDrone.Core.Test.Download
                                        new LocalEpisode {Path = @"C:\TestPath\Droned.S01E02.mkv"},new Rejection("Rejected!")), "Test Failure")
                            });
 
-            _trackedDownload.RemoteEpisode.Episodes.Clear();
+            _trackedDownload.RemoteItem.AsRemoteEpisode().Episodes.Clear();
 
             Subject.Process(_trackedDownload);
 
@@ -265,7 +265,7 @@ namespace NzbDrone.Core.Test.Download
         {
             GivenSeriesMatch();
 
-            _trackedDownload.RemoteEpisode.Episodes = new List<Episode>
+            _trackedDownload.RemoteItem.AsRemoteEpisode().Episodes = new List<Episode>
             {
                 new Episode()
             };
@@ -286,7 +286,7 @@ namespace NzbDrone.Core.Test.Download
         [Test]
         public void should_mark_as_failed_if_some_of_episodes_were_not_imported()
         {
-            _trackedDownload.RemoteEpisode.Episodes = new List<Episode>
+            _trackedDownload.RemoteItem.AsRemoteEpisode().Episodes = new List<Episode>
             {
                 new Episode(),
                 new Episode(),
@@ -353,7 +353,7 @@ namespace NzbDrone.Core.Test.Download
         public void should_not_import_when_there_is_a_title_mismatch()
         {
             Mocker.GetMock<IParsingService>()
-                  .Setup(s => s.GetSeries("Drone.S01E01.HDTV"))
+                  .Setup(s => s.GetMediaItem("Drone.S01E01.HDTV"))
                   .Returns((Series)null);
 
             Subject.Process(_trackedDownload);
